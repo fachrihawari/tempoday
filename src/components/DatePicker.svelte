@@ -6,7 +6,7 @@
     formatDayOfWeek,
     isSameDate,
     formatDate,
-  } from "../lib/utils";
+  } from "../lib/date";
   import { onMount } from "svelte";
   import Button from "./ui/Button.svelte";
 

@@ -1,7 +1,7 @@
 <!-- Example: Refactored TodoSection using reusable UI components -->
 <script lang="ts">
   import { currentDayData, updateCurrentDayData, type TodoItem } from "../lib/stores";
-  import { generateId } from "../lib/utils";
+  import { generateId } from "../lib/unique";
   import Button from "./ui/Button.svelte";
   import Input from "./ui/Input.svelte";
   import Card from "./ui/Card.svelte";

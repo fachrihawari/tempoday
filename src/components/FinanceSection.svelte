@@ -6,7 +6,8 @@
     settingsStore,
     type Transaction,
   } from "../lib/stores";
-  import { formatCurrency, generateId } from "../lib/utils";
+  import { generateId } from "../lib/unique";
+  import { formatCurrency } from "../lib/currency";
   import Card from "./ui/Card.svelte";
   import Button from "./ui/Button.svelte";
   import Input from "./ui/Input.svelte";
