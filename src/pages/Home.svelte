@@ -6,24 +6,20 @@
   import Header from "../components/ui/Header.svelte";
 </script>
 
-<div class="w-full max-w-md mx-auto bg-white min-h-screen">
-  <div class="min-h-screen shadow-lg">
-    <!-- Header Component -->
-    <Header />
+<!-- Header Component -->
+<Header />
 
-    <!-- DatePicker Component (Header + Date Picker) -->
-    <DatePicker />
+<!-- DatePicker Component (Header + Date Picker) -->
+<DatePicker />
 
-    <!-- Day Content Sections -->
-    <div class="flex-1 overflow-y-auto space-y-4 p-4">
-      <!-- To-Do Section -->
-      <TodoSection />
+<!-- Day Content Sections -->
+<div class="flex-1 overflow-y-auto">
+  <!-- To-Do Section -->
+  <TodoSection />
 
-      <!-- Note Section -->
-      <NoteSection />
+  <!-- Note Section -->
+  <NoteSection />
 
-      <!-- Finance Section -->
-      <FinanceSection />
-    </div>
-  </div>
+  <!-- Finance Section -->
+  <FinanceSection />
 </div>

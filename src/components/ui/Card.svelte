@@ -29,7 +29,7 @@
   };
 </script>
 
-<section class="bg-white rounded-lg border border-gray-200 {paddings[padding]} {className}">
+<section class="bg-white border-b border-gray-200 {paddings[padding]} {className}">
   {#if title}
     <div class="flex items-center justify-between mb-4">
       <h2 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
