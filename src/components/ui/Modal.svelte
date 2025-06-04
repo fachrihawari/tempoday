@@ -1,5 +1,7 @@
 <!-- Reusable Modal Component -->
 <script lang="ts">
+  import Icon from './Icon.svelte';
+
   interface Props {
     open: boolean;
     title?: string;
@@ -43,7 +45,7 @@
 
 {#if open}
   <div 
-    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+    class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
     onclick={handleBackdropClick}
     onkeydown={handleKeydown}
     role="dialog"
@@ -59,9 +61,7 @@
             class="p-1 text-gray-400 hover:text-gray-600 rounded"
             aria-label="Close modal"
           >
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-            </svg>
+            <Icon name="close" />
           </button>
         </div>
       {/if}
