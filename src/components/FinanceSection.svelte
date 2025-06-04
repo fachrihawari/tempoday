@@ -117,7 +117,7 @@
     <div class="space-y-2 {transactions.length > 0 ? 'mb-4' : ''}">
       {#each transactions as transaction (transaction.id)}
         <div
-          class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 group"
+          class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 group relative"
         >
           <div
             class="flex-shrink-0 w-3 h-3 rounded-full {transaction.type ===
@@ -133,7 +133,7 @@
             <p class="text-xs text-gray-500 capitalize">{transaction.type}</p>
           </div>
 
-          <div class="text-right">
+          <div class="text-right group-hover:mr-8">
             <p
               class="text-sm font-medium {transaction.type === 'income'
                 ? 'text-green-600'
@@ -145,16 +145,18 @@
             </p>
           </div>
 
-          <Button
-            variant="ghost"
-            size="sm"
-            onclick={() => deleteTransaction(transaction.id)}
-            class="opacity-0 group-hover:opacity-100 !p-1 text-red-500 hover:bg-red-50"
-          >
-            {#snippet children()}
-              <Icon name="trash" size="sm" />
-            {/snippet}
-          </Button>
+          <div class="w-8 flex justify-center absolute right-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onclick={() => deleteTransaction(transaction.id)}
+              class="opacity-0 group-hover:opacity-100 !p-1 text-red-500 hover:bg-red-50 !w-6 !h-6"
+            >
+              {#snippet children()}
+                <Icon name="trash" size="sm" />
+              {/snippet}
+            </Button>
+          </div>
         </div>
       {/each}
 
