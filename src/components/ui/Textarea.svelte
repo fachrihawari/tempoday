@@ -4,14 +4,13 @@
   interface Props {
     value: string;
     placeholder?: string;
-    type?: "text" | "number" | "email" | "password";
     disabled?: boolean;
     required?: boolean;
-    step?: string;
-    min?: string;
+    rows?: number;
     error?: string;
     label?: string;
     theme?: SectionTheme;
+    autoResize?: boolean;
     onkeydown?: (event: KeyboardEvent) => void;
     oninput?: (event: Event) => void;
     class?: string;
@@ -20,20 +19,19 @@
   let {
     value = $bindable(),
     placeholder = "",
-    type = "text",
     disabled = false,
     required = false,
-    step,
-    min,
+    rows = 4,
     error = "",
     label = "",
     theme,
+    autoResize = false,
     onkeydown,
     oninput,
     class: className = "",
   }: Props = $props();
 
-  let inputElement: HTMLInputElement = $state()!;
+  let textareaElement: HTMLTextAreaElement = $state()!;
   let isFocused = $state(false);
 
   const focusColor = $derived(() => {
@@ -67,42 +65,56 @@
   function handleBlur() {
     isFocused = false;
   }
+
+  function handleInput(event: Event) {
+    if (autoResize && textareaElement) {
+      textareaElement.style.height = "auto";
+      textareaElement.style.height = textareaElement.scrollHeight + "px";
+    }
+    oninput?.(event);
+  }
+
+  // Auto-resize on mount if autoResize is true
+  $effect(() => {
+    if (autoResize && textareaElement && value) {
+      textareaElement.style.height = "auto";
+      textareaElement.style.height = textareaElement.scrollHeight + "px";
+    }
+  });
 </script>
 
 <div class="space-y-2">
   {#if label}
     <label
-      for="input-{label}"
+      for="textarea-{label}"
       class="block text-sm font-medium text-gray-700 dark:text-gray-300"
     >
       {label}
-      
+
       {#if required}
         <span class="text-red-600">*</span>
       {/if}
     </label>
   {/if}
 
-  <input
-    bind:this={inputElement}
-    id="input-{label}"
+  <textarea
+    bind:this={textareaElement}
+    id="textarea-{label}"
     bind:value
     {placeholder}
-    {type}
     {disabled}
     {required}
-    {step}
-    {min}
+    {rows}
     {onkeydown}
-    {oninput}
+    oninput={handleInput}
     onfocus={handleFocus}
     onblur={handleBlur}
-    class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 text-sm transition-all duration-200
+    class="w-full px-3 py-3 border rounded-lg focus:outline-none focus:ring-2 text-sm transition-all duration-200 resize-none
     {borderColor()}
     {focusColor()}
     {disabled ? 'bg-gray-50 cursor-not-allowed' : 'bg-white dark:bg-gray-800'}
     {className}"
-  />
+  ></textarea>
 
   {#if error}
     <p

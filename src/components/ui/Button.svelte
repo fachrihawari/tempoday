@@ -1,13 +1,13 @@
-<!-- Reusable Button Component -->
 <script lang="ts">
   import { sectionThemes, type SectionTheme } from '../../lib/theme';
 
   interface Props {
-    variant?: 'primary' | 'secondary' | 'danger' | 'ghost' | SectionTheme;
+    variant?: 'primary' | 'secondary' | 'danger' | 'ghost' | 'outline' | SectionTheme;
     size?: 'sm' | 'md' | 'lg';
     fullWidth?: boolean;
     dashed?: boolean;
     disabled?: boolean;
+    type?: 'button' | 'submit' | 'reset';
     onclick?: () => void;
     class?: string;
     children: any;
@@ -19,6 +19,7 @@
     dashed = false,
     disabled = false, 
     fullWidth = false,
+    type = 'button',
     onclick, 
     class: className = '',
     children 
@@ -27,6 +28,7 @@
   const baseVariants = {
     primary: { solid: 'bg-blue-500 text-white hover:bg-blue-600', dashed: 'text-blue-600 border-blue-300 hover:border-blue-500 hover:text-blue-700' },
     secondary: { solid: 'bg-gray-100 text-gray-700 hover:bg-gray-200', dashed: 'text-gray-600 border-gray-300 hover:border-gray-500 hover:text-gray-700' },
+    outline: { solid: 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50', dashed: 'text-gray-600 border-gray-300 hover:border-gray-500 hover:text-gray-700' },
     danger: { solid: 'bg-red-500 text-white hover:bg-red-600', dashed: 'text-red-600 border-red-300 hover:border-red-500 hover:text-red-700' },
     ghost: { solid: 'text-gray-600 hover:bg-gray-100', dashed: 'text-gray-600 border-gray-300 hover:border-gray-500 hover:text-gray-700' },
     notes: sectionThemes.notes.colors.button,
@@ -44,6 +46,7 @@
 </script>
 
 <button
+  {type}
   {onclick}
   {disabled}
   class="flex justify-center items-center font-medium rounded-lg transition-colors {variantClass} {sizes[size]} {className}

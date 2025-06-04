@@ -1,6 +1,6 @@
 <script lang="ts">
   import { settingsStore } from "../lib/stores";
-  import Modal from "./ui/Modal.svelte";
+  import BottomSheet from "./ui/BottomSheet.svelte";
   import Button from "./ui/Button.svelte";
   import Icon from "./ui/Icon.svelte";
 
@@ -60,13 +60,13 @@
 </Button>
 
 <!-- Settings Modal -->
-<Modal
+<BottomSheet
   bind:open={showSettings}
   title="Settings"
   onClose={() => (showSettings = false)}
 >
   {#snippet children()}
-    <div class="space-y-4">
+    <div class="space-y-6">
       <div class="space-y-3">
         <div class="flex items-center gap-2">
           <Icon name="dollar" class="text-gray-500" />
@@ -79,7 +79,7 @@
           id="currency-select"
           value={settings.currency}
           onchange={(e) => updateCurrency((e.target as HTMLSelectElement).value)}
-          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+          class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-base"
         >
           {#each currencies as currency (currency.code)}
             <option value={currency.code}>
@@ -92,14 +92,17 @@
     </div>
 
     <!-- Footer -->
-    <div class="mt-6 pt-4 border-t border-gray-200">
+    <div class="mt-8 pt-4">
       <Button
-        variant="secondary"
+        variant="primary"
         onclick={() => (showSettings = false)}
-        fullWidth={true}
+        class="w-full"
       >
-        {#snippet children()}Done{/snippet}
+        {#snippet children()}
+          <Icon name="check" size="sm" class="mr-2" />
+          Done
+        {/snippet}
       </Button>
     </div>
   {/snippet}
-</Modal>
+</BottomSheet>

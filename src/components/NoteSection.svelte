@@ -4,7 +4,8 @@
   import Button from './ui/Button.svelte';
   import Icon from './ui/Icon.svelte';
   import EmptyState from './ui/EmptyState.svelte';
-  import InlineForm from './ui/InlineForm.svelte';
+  import BottomSheet from './ui/BottomSheet.svelte';
+  import Textarea from './ui/Textarea.svelte';
 
   const note = $derived($currentDayData.note);
 
@@ -20,7 +21,10 @@
     isEditing = true;
   }
 
-  function saveNote() {
+  function saveNote(event?: Event) {
+    if (event) {
+      event.preventDefault();
+    }
     updateNote(editingText);
     cancelEditing();
   }
@@ -53,24 +57,43 @@
 <Card title="Daily Note" icon="edit" iconColor="text-purple-500">
   {#snippet children()}
     <!-- Note Edit Form -->
-    <InlineForm
-      bind:show={isEditing}
-      onSubmit={saveNote}
-      onCancel={cancelEditing}
-      submitText="Save Note"
-      submitVariant="notes"
-    >
+    <BottomSheet bind:open={isEditing} title={note.trim() ? "Edit Note" : "Add Note"}>
       {#snippet children()}
-        <textarea
-          bind:value={editingText}
-          oninput={handleInput}
-          onkeydown={handleKeydown}
-          placeholder="Write your thoughts, reflections, or anything you want to remember about this day..."
-          class="w-full h-32 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm resize-none"
-          aria-label="Daily note"
-        ></textarea>
+        <form onsubmit={saveNote} class="space-y-6">
+          <Textarea
+            bind:value={editingText}
+            placeholder="Write your thoughts, reflections, or anything you want to remember about this day..."
+            label="Daily Note"
+            theme="notes"
+            rows={8}
+            autoResize={true}
+            required
+          />
+          <div class="flex gap-3 pt-2">
+            <Button 
+              type="button"
+              variant="ghost"
+              onclick={cancelEditing}
+              class="flex-none w-1/4"
+            >
+              {#snippet children()}
+                Cancel
+              {/snippet}
+            </Button>
+            <Button 
+              type="submit"
+              variant="notes"
+              class="flex-1"
+            >
+              {#snippet children()}
+                <Icon name="save" size="sm" class="mr-2" />
+                Save Note
+              {/snippet}
+            </Button>
+          </div>
+        </form>
       {/snippet}
-    </InlineForm>
+    </BottomSheet>
 
     {#if !isEditing}
       <div class="{note.trim() ? 'mb-4' : ''}">

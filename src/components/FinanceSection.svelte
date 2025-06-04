@@ -12,7 +12,7 @@
   import Button from "./ui/Button.svelte";
   import Input from "./ui/Input.svelte";
   import Icon from "./ui/Icon.svelte";
-  import InlineForm from "./ui/InlineForm.svelte";
+  import BottomSheet from "./ui/BottomSheet.svelte";
   import EmptyState from "./ui/EmptyState.svelte";
 
   const transactions = $derived($currentDayData.transactions);
@@ -69,7 +69,10 @@
 
   const netBalance = $derived(totalIncome - totalExpenses);
 
-  function handleAddTransaction() {
+  function handleAddTransaction(event?: Event) {
+    if (event) {
+      event.preventDefault();
+    }
     const desc = description.trim();
     const amt = parseFloat(amount);
 
@@ -172,53 +175,88 @@
     </div>
 
     <!-- Add Transaction Form -->
-    <InlineForm
-      bind:show={showAddForm}
-      onSubmit={handleAddTransaction}
-      onCancel={resetForm}
-      submitText="Add {type === 'income' ? 'Income' : 'Expense'}"
-      submitVariant="financials"
-      className="mt-4"
-    >
+    <BottomSheet bind:open={showAddForm} title="Add Transaction">
       {#snippet children()}
-        <!-- Type Selection -->
-        <div class="flex gap-2">
-          <Button
-            variant={type === "income" ? "primary" : "secondary"}
-            onclick={() => (type = "income")}
-            class="flex-1 {type === 'income'
-              ? '!bg-green-100 !text-green-700 !border-2 !border-green-200'
-              : ''}"
-          >
-            {#snippet children()}Income{/snippet}
-          </Button>
-          <Button
-            variant={type === "expense" ? "primary" : "secondary"}
-            onclick={() => (type = "expense")}
-            class="flex-1 {type === 'expense'
-              ? '!bg-red-100 !text-red-700 !border-2 !border-red-200'
-              : ''}"
-          >
-            {#snippet children()}Expense{/snippet}
-          </Button>
-        </div>
+        <form onsubmit={handleAddTransaction} class="space-y-6">
+          <!-- Type Selection -->
+          <fieldset>
+            <legend class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Transaction Type</legend>
+            <div class="flex gap-2">
+              <Button
+                type="button"
+                variant={type === "income" ? "primary" : "outline"}
+                onclick={() => (type = "income")}
+                class="flex-1 transition-all duration-200 {type === 'income'
+                  ? '!bg-green-100 !text-green-700 !border-2 !border-green-200 shadow-sm'
+                  : ''}"
+              >
+                {#snippet children()}
+                  <Icon name="trending-up" size="sm" class="mr-2" />
+                  Income
+                {/snippet}
+              </Button>
+              <Button
+                type="button"
+                variant={type === "expense" ? "primary" : "outline"}
+                onclick={() => (type = "expense")}
+                class="flex-1 transition-all duration-200 {type === 'expense'
+                  ? '!bg-red-100 !text-red-700 !border-2 !border-red-200 shadow-sm'
+                  : ''}"
+              >
+                {#snippet children()}
+                  <Icon name="trending-down" size="sm" class="mr-2" />
+                  Expense
+                {/snippet}
+              </Button>
+            </div>
+          </fieldset>
 
-        <!-- Description Input -->
-        <Input
-          bind:value={description}
-          placeholder="Description (e.g., Lunch, Salary, Gas)"
-          label="Description"
-        />
+          <!-- Description Input -->
+          <Input
+            bind:value={description}
+            placeholder="What was this for?"
+            label="Description"
+            theme="financials"
+            required
+          />
 
-        <!-- Amount Input -->
-        <Input
-          bind:value={amount}
-          type="number"
-          placeholder="Amount"
-          label="Amount ({settings.currencySymbol})"
-        />
+          <!-- Amount Input -->
+          <Input
+            bind:value={amount}
+            type="number"
+            step="0.01"
+            min="0"
+            placeholder="0.00"
+            label="Amount ({settings.currencySymbol})"
+            theme="financials"
+            required
+          />
+
+          <div class="flex gap-3 pt-2">
+            <Button 
+              type="button"
+              variant="ghost"
+              onclick={resetForm}
+              class="flex-none w-1/4"
+            >
+              {#snippet children()}
+                Cancel
+              {/snippet}
+            </Button>
+            <Button 
+              type="submit"
+              variant="financials"
+              class="flex-1"
+            >
+              {#snippet children()}
+                <Icon name="plus" size="sm" class="mr-2" />
+                Add {type === 'income' ? 'Income' : 'Expense'}
+              {/snippet}
+            </Button>
+          </div>
+        </form>
       {/snippet}
-    </InlineForm>
+    </BottomSheet>
 
     {#if !showAddForm && transactions.length > 0}
       <Button

@@ -1,4 +1,3 @@
-<!-- Example: Refactored TodoSection using reusable UI components -->
 <script lang="ts">
   import { currentDayData, updateCurrentDayData, type TodoItem } from "../lib/stores";
   import { generateId } from "../lib/unique";
@@ -7,7 +6,7 @@
   import Card from "./ui/Card.svelte";
   import Icon from "./ui/Icon.svelte";
   import EmptyState from "./ui/EmptyState.svelte";
-  import InlineForm from "./ui/InlineForm.svelte";
+  import BottomSheet from "./ui/BottomSheet.svelte";
 
   const todos = $derived($currentDayData.todos);
 
@@ -43,7 +42,10 @@
     });
   }
 
-  function handleAddTodo() {
+  function handleAddTodo(event?: Event) {
+    if (event) {
+      event.preventDefault();
+    }
     const text = newTodoText.trim();
     if (text) {
       addTodo(text);
@@ -119,23 +121,41 @@
     </div>
 
     <!-- Add Todo Form -->
-    <InlineForm
-      bind:show={showAddForm}
-      className="mt-4"
-      onSubmit={handleAddTodo}
-      onCancel={resetForm}
-      submitText="Add Task"
-      submitVariant="todos"
-    >
+    <BottomSheet bind:open={showAddForm} title="Add New Task">
       {#snippet children()}
-        <Input 
-          bind:value={newTodoText}
-          placeholder="Enter task description..."
-          onkeydown={handleKeydown}
-          label="Task"
-        />
+        <form onsubmit={handleAddTodo} class="space-y-6">
+          <Input 
+            bind:value={newTodoText}
+            placeholder="What needs to be done?"
+            label="Task Description"
+            theme="todos"
+            required
+          />
+          <div class="flex gap-3 pt-2">
+            <Button 
+              type="button"
+              variant="ghost"
+              onclick={resetForm}
+              class="flex-none w-1/4"
+            >
+              {#snippet children()}
+                Cancel
+              {/snippet}
+            </Button>
+            <Button 
+              type="submit"
+              variant="todos"
+              class="flex-1"
+            >
+              {#snippet children()}
+                <Icon name="plus" size="sm" class="mr-2" />
+                Add Task
+              {/snippet}
+            </Button>
+          </div>
+        </form>
       {/snippet}
-    </InlineForm>
+    </BottomSheet>
 
     {#if !showAddForm && todos.length > 0}
       <Button 
