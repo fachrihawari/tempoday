@@ -5,7 +5,7 @@
   import FinanceSection from '../components/FinanceSection.svelte';
 </script>
 
-<div class="max-w-md mx-auto bg-white min-h-screen">
+<div class="w-full max-w-md mx-auto bg-white min-h-screen">
   <!-- DatePicker Component (Header + Date Picker) -->
   <DatePicker />
 

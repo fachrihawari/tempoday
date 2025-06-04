@@ -12,7 +12,12 @@
   import Button from "./ui/Button.svelte";
 
   let scrollContainer: HTMLElement;
-  let dateRange = $state(getDateRange(new Date(), 60)); // 60 days around today (120 days total)
+  let dateRange = $state<Date[]>([]);
+
+  // Initialize date range around the selected date
+  function initializeDateRange(centerDate: Date) {
+    dateRange = getDateRange(centerDate, 60); // 60 days around center date (120 days total)
+  }
 
   function selectDate(date: Date) {
     selectedDate.set(new Date(date));
@@ -20,39 +25,123 @@
 
   function goToToday() {
     const today = new Date();
+
+    // Set the selected date first
     selectedDate.set(today);
 
-    // Scroll to today's date
-    setTimeout(() => {
-      scrollToDate(today);
-    }, 100);
+    // Check if today is already in the current date range
+    const isInRange = dateRange.some(date => isSameDate(date, today));
+    
+    if (isInRange) {
+      // If today is already in range, just scroll to it smoothly
+      setTimeout(() => {
+        scrollToDate(today);
+      }, 10);
+    } else {
+      // Only regenerate date range if today is not in the current range
+      initializeDateRange(today);
+      
+      // Wait for the range to update, then scroll
+      setTimeout(() => {
+        scrollToDate(today);
+      }, 50);
+    }
   }
 
-  function scrollToDate(targetDate: Date) {
-    if (!scrollContainer) return;
+  function scrollToDate(targetDate: Date, immediate = false) {
+    if (!scrollContainer || dateRange.length === 0) {
+      return;
+    }
 
-    const todayIndex = dateRange.findIndex((date) =>
+    const targetIndex = dateRange.findIndex((date) =>
       isSameDate(date, targetDate),
     );
-    if (todayIndex >= 0) {
-      const itemWidth = 80; // Approximate width of each date item
-      const scrollPosition =
-        todayIndex * itemWidth -
-        scrollContainer.clientWidth / 2 +
-        itemWidth / 2;
-      scrollContainer.scrollTo({
-        left: Math.max(0, scrollPosition),
-        behavior: "smooth",
-      });
+
+    if (targetIndex >= 0) {
+      // Find the target button element
+      const buttons = scrollContainer.querySelectorAll("button");
+      const targetButton = buttons[targetIndex];
+      
+      if (targetButton) {
+        // Use scrollIntoView for more reliable centering
+        targetButton.scrollIntoView({
+          behavior: immediate ? "auto" : "smooth",
+          block: "nearest",
+          inline: "center"
+        });
+      }
     }
   }
 
   onMount(() => {
-    // Scroll to today on initial load
-    const today = new Date();
+    // Initialize with the current selected date or today
+    const currentDate = $selectedDate || new Date();
+    initializeDateRange(currentDate);
+
+    // Use multiple strategies to ensure proper initial positioning
+    const attemptScroll = (immediate = true) => {
+      if (scrollContainer && scrollContainer.querySelector("button")) {
+        scrollToDate(currentDate, immediate);
+        return true;
+      }
+      return false;
+    };
+
+    // First attempt - immediate after DOM is likely ready
     setTimeout(() => {
-      scrollToDate(today);
-    }, 100);
+      if (!attemptScroll()) {
+        // Second attempt - after more time for complex layouts
+        setTimeout(() => {
+          if (!attemptScroll()) {
+            // Final attempt - with even more time
+            setTimeout(() => attemptScroll(), 200);
+          }
+        }, 100);
+      }
+    }, 50);
+  });
+
+  // Reactive effect to handle external selectedDate changes
+  $effect(() => {
+    const currentSelectedDate = $selectedDate;
+
+    if (currentSelectedDate && dateRange.length > 0 && scrollContainer) {
+      // Check if selected date is in current range
+      const isInRange = dateRange.some((date) =>
+        isSameDate(date, currentSelectedDate),
+      );
+
+      if (!isInRange) {
+        // If selected date is not in range, regenerate range around it
+        initializeDateRange(currentSelectedDate);
+
+        // Wait for range to update, then scroll
+        setTimeout(() => {
+          scrollToDate(currentSelectedDate);
+        }, 50);
+      } else {
+        // If it's in range, just scroll to it
+        setTimeout(() => {
+          scrollToDate(currentSelectedDate);
+        }, 10);
+      }
+    }
+  });
+
+  // Watch for container size changes (useful for responsive design)
+  $effect(() => {
+    if (scrollContainer && $selectedDate) {
+      // Re-center the selected date when container size might have changed
+      const resizeObserver = new ResizeObserver(() => {
+        setTimeout(() => scrollToDate($selectedDate, true), 10);
+      });
+
+      resizeObserver.observe(scrollContainer);
+
+      return () => {
+        resizeObserver.disconnect();
+      };
+    }
   });
 
   function loadMoreDates(direction: "past" | "future") {
@@ -80,52 +169,62 @@
   }
 
   function handleScroll() {
-    if (!scrollContainer) return;
+    if (!scrollContainer || dateRange.length === 0) return;
 
     const { scrollLeft, scrollWidth, clientWidth } = scrollContainer;
 
+    // Dynamic threshold based on container size
+    const loadThreshold = Math.max(50, Math.min(100, clientWidth * 0.2)); // 20% of container width, between 50-100px
+
     // Load more dates when near the beginning
-    if (scrollLeft < 200) {
+    if (scrollLeft < loadThreshold) {
+      const oldScrollWidth = scrollWidth;
+      const oldScrollLeft = scrollLeft;
+
       loadMoreDates("past");
+
+      // Maintain scroll position after prepending dates
+      setTimeout(() => {
+        const newScrollWidth = scrollContainer.scrollWidth;
+        const addedWidth = newScrollWidth - oldScrollWidth;
+        scrollContainer.scrollLeft = oldScrollLeft + addedWidth;
+      }, 10);
     }
 
     // Load more dates when near the end
-    if (scrollLeft + clientWidth > scrollWidth - 200) {
+    if (scrollLeft + clientWidth > scrollWidth - loadThreshold) {
       loadMoreDates("future");
     }
   }
 </script>
 
 <!-- Header and Date Picker -->
-<div class="sticky top-0 bg-white z-10 mt-4">
-  <div class="flex items-center justify-between mb-4 px-4">
+<div class="sticky top-0 bg-white z-10">
+  <div class="flex items-center justify-between mb-4 p-4 border-b border-gray-200">
     <h1 class="text-2xl font-bold text-gray-900">TempoDay</h1>
-    <div class="flex items-center gap-2">
-      <Settings />
-      <Button
-        variant="primary"
-        onclick={goToToday}
-        class="px-3 py-1 text-sm"
-      >
-        {#snippet children()}Today{/snippet}
-      </Button>
-    </div>
+    <Settings />
   </div>
 
   <!-- Current Date Display -->
-  <div class="mb-2 px-4">
+  <div class="mb-4 px-4 flex justify-between items-center">
     <h2 class="text-lg font-semibold text-gray-800">
       {formatDate($selectedDate)}
     </h2>
+
+    <Button variant="primary" onclick={goToToday} class="px-3 py-1 text-sm">
+      {#snippet children()}Today{/snippet}
+    </Button>
   </div>
 
   <!-- Horizontal Date Picker -->
-  <div class="relative">
+  <div class="relative px-4">
     <div
       bind:this={scrollContainer}
       onscroll={handleScroll}
-      class="flex gap-2 overflow-x-auto pb-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
-      style="scroll-snap-type: x mandatory;"
+      class="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4
+             [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden
+             overscroll-behavior-x-contain scroll-smooth"
+      style="scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;"
     >
       {#each dateRange as date (date.toISOString())}
         <button
@@ -152,14 +251,12 @@
       {/each}
     </div>
 
-    <!-- Scroll indicators -->
+    <!-- Scroll indicators - perfectly symmetrical -->
     <div
-      class="absolute top-0 left-0 w-8 h-full bg-gradient-to-r from-white to-transparent pointer-events-none"
+      class="absolute top-0 left-0 w-6 h-full bg-gradient-to-r from-white via-white/60 to-transparent pointer-events-none"
     ></div>
     <div
-      class="absolute top-0 right-0 w-8 h-full bg-gradient-to-l from-white to-transparent pointer-events-none"
+      class="absolute top-0 right-0 w-6 h-full bg-gradient-to-l from-white via-white/60 to-transparent pointer-events-none"
     ></div>
   </div>
 </div>
-
-
