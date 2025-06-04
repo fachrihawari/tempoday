@@ -184,6 +184,15 @@
       ontouchmove={handleTouchMove}
       ontouchend={handleTouchEnd}
       onmousedown={handleMouseDown}
+      role="button"
+      tabindex="0"
+      aria-label="Drag to dismiss modal"
+      onkeydown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          close();
+        }
+      }}
     >
       <div class="w-10 h-1.5 bg-gray-300 dark:bg-gray-600 rounded-full"></div>
     </div>
