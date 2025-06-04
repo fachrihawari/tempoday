@@ -97,7 +97,7 @@
 </script>
 
 <!-- Header and Date Picker -->
-<div class="sticky top-0 bg-white border-b border-gray-200 p-4 z-10">
+<div class="sticky top-0 bg-white z-10">
   <div class="flex items-center justify-between mb-4">
     <h1 class="text-2xl font-bold text-gray-900">TempoDay</h1>
     <div class="flex items-center gap-2">

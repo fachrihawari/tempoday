@@ -12,17 +12,17 @@
   <!-- Day Content Sections -->
   <div class="flex-1 overflow-y-auto">
     <!-- To-Do Section -->
-    <div class="p-4 border-b border-gray-200">
+    <div class="pt-4">
       <TodoSection />
     </div>
 
     <!-- Note Section -->
-    <div class="p-4 border-b border-gray-200">
+    <div class="pt-4">
       <NoteSection />
     </div>
 
     <!-- Finance Section -->
-    <div class="p-4">
+    <div class="pt-4">
       <FinanceSection />
     </div>
   </div>
