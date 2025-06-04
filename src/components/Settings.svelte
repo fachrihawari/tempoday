@@ -5,7 +5,7 @@
   import Icon from './ui/Icon.svelte';
 
   let showSettings = $state(false);
-  let settings = $derived($settingsStore);
+  const settings = $derived($settingsStore);
   
   // Popular currencies
   const currencies = [

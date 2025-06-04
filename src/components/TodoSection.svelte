@@ -7,7 +7,7 @@
   import Card from "./ui/Card.svelte";
   import Icon from "./ui/Icon.svelte";
 
-  let todos = $derived($currentDayData.todos);
+  const todos = $derived($currentDayData.todos);
 
   let showAddForm = $state(false);
   let newTodoText = $state("");
@@ -131,7 +131,7 @@
       </div>
     {:else}
       <Button 
-        variant="primary"
+        variant="todos"
         dashed={true}
         onclick={() => (showAddForm = true)}
         class="w-full"

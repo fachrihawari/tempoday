@@ -22,15 +22,17 @@
     children 
   }: Props = $props();
 
-  const variants = {
-    primary: 'bg-blue-500 text-white hover:bg-blue-600',
-    secondary: 'bg-gray-100 text-gray-700 hover:bg-gray-200',
-    danger: 'bg-red-500 text-white hover:bg-red-600',
-    ghost: 'text-gray-600 hover:bg-gray-100',
-    notes: 'bg-purple-500 text-white hover:bg-purple-600',
-    todos: 'bg-blue-500 text-white hover:bg-blue-600',
-    financials: 'bg-green-500 text-white hover:bg-green-600'
+  const baseVariants = {
+    primary: { solid: 'bg-blue-500 text-white hover:bg-blue-600', dashed: 'text-blue-600 border-blue-300 hover:border-blue-500 hover:text-blue-700' },
+    secondary: { solid: 'bg-gray-100 text-gray-700 hover:bg-gray-200', dashed: 'text-gray-600 border-gray-300 hover:border-gray-500 hover:text-gray-700' },
+    danger: { solid: 'bg-red-500 text-white hover:bg-red-600', dashed: 'text-red-600 border-red-300 hover:border-red-500 hover:text-red-700' },
+    ghost: { solid: 'text-gray-600 hover:bg-gray-100', dashed: 'text-gray-600 border-gray-300 hover:border-gray-500 hover:text-gray-700' },
+    notes: { solid: 'bg-purple-500 text-white hover:bg-purple-600', dashed: 'text-purple-600 border-purple-300 hover:border-purple-500 hover:text-purple-700' },
+    todos: { solid: 'bg-blue-500 text-white hover:bg-blue-600', dashed: 'text-blue-600 border-blue-300 hover:border-blue-500 hover:text-blue-700' },
+    financials: { solid: 'bg-green-500 text-white hover:bg-green-600', dashed: 'text-green-600 border-green-300 hover:border-green-500 hover:text-green-700' }
   };
+
+  const variantClass = $derived(baseVariants[variant][dashed ? 'dashed' : 'solid']);
 
   const sizes = {
     sm: 'px-3 py-1 text-sm',
@@ -42,8 +44,8 @@
 <button
   {onclick}
   {disabled}
-  class="flex justify-center items-center font-medium rounded-lg transition-colors {variants[variant]} {sizes[size]} {className}
-    {dashed ? 'border-2 border-dashed' : ''}
+  class="flex justify-center items-center font-medium rounded-lg transition-colors {variantClass} {sizes[size]} {className}
+    {dashed ? 'border-2 border-dashed bg-transparent' : ''}
     {disabled ? 'opacity-50 cursor-not-allowed' : ''}"
   class:w-full={fullWidth}
 >

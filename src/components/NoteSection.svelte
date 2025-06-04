@@ -4,7 +4,7 @@
   import Button from './ui/Button.svelte';
   import Icon from './ui/Icon.svelte';
 
-  let note = $derived($currentDayData.note);
+  const note = $derived($currentDayData.note);
 
   let isEditing = $state(false);
   let editingText = $state("");

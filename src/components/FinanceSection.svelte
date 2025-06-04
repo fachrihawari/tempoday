@@ -13,8 +13,8 @@
   import Icon from "./ui/Icon.svelte";
   import InlineForm from "./ui/InlineForm.svelte";
 
-  let transactions = $derived($currentDayData.transactions);
-  let settings = $derived($settingsStore);
+  const transactions = $derived($currentDayData.transactions);
+  const settings = $derived($settingsStore);
 
   let showAddForm = $state(false);
   let description = $state("");
@@ -53,19 +53,19 @@
   }
 
   // Calculate totals
-  let totalIncome = $derived(
+  const totalIncome = $derived(
     transactions
       .filter((t) => t.type === "income")
       .reduce((sum, t) => sum + t.amount, 0),
   );
 
-  let totalExpenses = $derived(
+  const totalExpenses = $derived(
     transactions
       .filter((t) => t.type === "expense")
       .reduce((sum, t) => sum + t.amount, 0),
   );
 
-  let netBalance = $derived(totalIncome - totalExpenses);
+  const netBalance = $derived(totalIncome - totalExpenses);
 
   function handleAddTransaction() {
     const desc = description.trim();
