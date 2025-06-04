@@ -1,6 +1,5 @@
 <script lang="ts">
+  import Home from './pages/Home.svelte';
 </script>
 
-<div>
-  <h1 class="text-xl">TempoDay</h1>
-</div>
+<Home />
