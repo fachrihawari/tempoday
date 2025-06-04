@@ -4,6 +4,7 @@
   import Button from './ui/Button.svelte';
   import Icon from './ui/Icon.svelte';
   import EmptyState from './ui/EmptyState.svelte';
+  import InlineForm from './ui/InlineForm.svelte';
 
   const note = $derived($currentDayData.note);
 
@@ -21,7 +22,7 @@
 
   function saveNote() {
     updateNote(editingText);
-    isEditing = false;
+    cancelEditing();
   }
 
   function cancelEditing() {
@@ -51,52 +52,45 @@
 
 <Card title="Daily Note" icon="edit" iconColor="text-purple-500">
   {#snippet children()}
-    {#if isEditing}
-      <div class="space-y-3">
+    <!-- Note Edit Form -->
+    <InlineForm
+      bind:show={isEditing}
+      onSubmit={saveNote}
+      onCancel={cancelEditing}
+      submitText="Save Note"
+      submitVariant="notes"
+    >
+      {#snippet children()}
         <textarea
           bind:value={editingText}
           oninput={handleInput}
           onkeydown={handleKeydown}
           placeholder="Write your thoughts, reflections, or anything you want to remember about this day..."
           class="w-full h-32 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm resize-none"
+          aria-label="Daily note"
         ></textarea>
+      {/snippet}
+    </InlineForm>
 
-        <div class="flex gap-2">
-          <Button
-            variant="notes"
-            onclick={saveNote}
-          >
-            {#snippet children()}Save{/snippet}
-          </Button>
-          <Button
-            variant="secondary"
-            onclick={cancelEditing}
-          >
-            {#snippet children()}Cancel{/snippet}
-          </Button>
-        </div>
-        <p class="text-xs text-gray-500">
-          Tip: Press Ctrl+Enter (Cmd+Enter on Mac) to save, or Escape to cancel.
-          Auto-saves after 1 second.
-        </p>
+    {#if !isEditing}
+      <div class="{note.trim() ? 'mb-4' : ''}">
+        {#if note.trim()}
+          <button onclick={startEditing} class="cursor-text w-full text-left">
+            <div
+              class="bg-gray-50 rounded-lg p-3 min-h-[80px] whitespace-pre-wrap text-sm text-gray-900 leading-relaxed"
+            >
+              {note}
+            </div>
+          </button>
+        {:else}
+          <EmptyState
+            icon="edit"
+            title="Add Note"
+            subtitle="Tap to write your daily thoughts"
+            onclick={startEditing}
+          />
+        {/if}
       </div>
-    {:else}
-      {#if note.trim()}
-        <button onclick={startEditing} class="cursor-text w-full text-left">
-          <div
-            class="bg-gray-50 rounded-lg p-3 min-h-[80px] whitespace-pre-wrap text-sm text-gray-900 leading-relaxed"
-          >
-            {note}
-          </div>
-        </button>
-      {:else}
-        <EmptyState
-          icon="edit"
-          title="Add Note"
-          subtitle="Tap to write your daily thoughts"
-          onclick={startEditing}
-        />
-      {/if}
 
       {#if note.trim()}
         <Button

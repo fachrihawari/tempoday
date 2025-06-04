@@ -97,8 +97,8 @@
 </script>
 
 <!-- Header and Date Picker -->
-<div class="sticky top-0 bg-white z-10">
-  <div class="flex items-center justify-between mb-4">
+<div class="sticky top-0 bg-white z-10 mt-4">
+  <div class="flex items-center justify-between mb-4 px-4">
     <h1 class="text-2xl font-bold text-gray-900">TempoDay</h1>
     <div class="flex items-center gap-2">
       <Settings />
@@ -113,7 +113,7 @@
   </div>
 
   <!-- Current Date Display -->
-  <div class="mb-2">
+  <div class="mb-2 px-4">
     <h2 class="text-lg font-semibold text-gray-800">
       {formatDate($selectedDate)}
     </h2>

@@ -1,13 +1,16 @@
 <!-- Reusable Form Component for Add/Edit Actions -->
 <script lang="ts">
+  import { sectionThemes, type SectionTheme } from '../../lib/theme';
+
   interface Props {
     show: boolean;
     onSubmit: () => void;
     onCancel: () => void;
     submitText?: string;
     cancelText?: string;
-    submitVariant?: 'primary' | 'secondary' | 'danger' | 'notes' | 'todos' | 'financials';
+    submitVariant?: 'primary' | 'secondary' | 'danger' | SectionTheme;
     children: any;
+    className?: string;
   }
 
   let { 
@@ -17,7 +20,8 @@
     submitText = 'Save',
     cancelText = 'Cancel',
     submitVariant = 'primary',
-    children 
+    children,
+    className = ''
   }: Props = $props();
 
   function handleKeydown(event: KeyboardEvent) {
@@ -27,11 +31,25 @@
       onCancel();
     }
   }
+
+  // Get theme-aware button styles
+  const buttonStyles = $derived(() => {
+    const themeVariants = {
+      primary: 'bg-blue-500 text-white hover:bg-blue-600',
+      secondary: 'bg-gray-100 text-gray-700 hover:bg-gray-200',  
+      danger: 'bg-red-500 text-white hover:bg-red-600',
+      notes: sectionThemes.notes.colors.button.solid,
+      todos: sectionThemes.todos.colors.button.solid,
+      financials: sectionThemes.financials.colors.button.solid
+    };
+    
+    return themeVariants[submitVariant as keyof typeof themeVariants] || themeVariants.primary;
+  });
 </script>
 
 {#if show}
-  <!-- svelte-ignore a11y-no-static-element-interactions -->
-  <div class="space-y-3" onkeydown={handleKeydown}>
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
+  <div class="space-y-3 {className}" onkeydown={handleKeydown}>
     <!-- Form Fields -->
     <div class="space-y-3">
       {@render children()}
@@ -41,14 +59,7 @@
     <div class="flex gap-2">
       <button
         onclick={onSubmit}
-        class="flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors
-          {submitVariant === 'primary' ? 'bg-blue-500 text-white hover:bg-blue-600' :
-           submitVariant === 'secondary' ? 'bg-gray-100 text-gray-700 hover:bg-gray-200' :
-           submitVariant === 'danger' ? 'bg-red-500 text-white hover:bg-red-600' :
-           submitVariant === 'notes' ? 'bg-purple-500 text-white hover:bg-purple-600' :
-           submitVariant === 'todos' ? 'bg-blue-500 text-white hover:bg-blue-600' :
-           submitVariant === 'financials' ? 'bg-green-500 text-white hover:bg-green-600' :
-           'bg-blue-500 text-white hover:bg-blue-600'}"
+        class="flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors {buttonStyles()}"
       >
         {submitText}
       </button>

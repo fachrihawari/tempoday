@@ -7,6 +7,7 @@
   import Card from "./ui/Card.svelte";
   import Icon from "./ui/Icon.svelte";
   import EmptyState from "./ui/EmptyState.svelte";
+  import InlineForm from "./ui/InlineForm.svelte";
 
   const todos = $derived($currentDayData.todos);
 
@@ -46,17 +47,20 @@
     const text = newTodoText.trim();
     if (text) {
       addTodo(text);
-      newTodoText = "";
-      showAddForm = false;
+      resetForm();
     }
+  }
+
+  function resetForm() {
+    newTodoText = "";
+    showAddForm = false;
   }
 
   function handleKeydown(event: KeyboardEvent) {
     if (event.key === "Enter") {
       handleAddTodo();
     } else if (event.key === "Escape") {
-      showAddForm = false;
-      newTodoText = "";
+      resetForm();
     }
   }
 </script>
@@ -72,7 +76,7 @@
   
   {#snippet children()}
     <!-- Todo List -->
-    <div class="space-y-2 mb-4">
+    <div class="space-y-2 {todos.length > 0 ? 'mb-4' : ''}">
       {#each todos as todo (todo.id)}
         <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 group">
           <button
@@ -115,28 +119,25 @@
     </div>
 
     <!-- Add Todo Form -->
-    {#if showAddForm}
-      <div class="flex gap-2">
+    <InlineForm
+      bind:show={showAddForm}
+      className="mt-4"
+      onSubmit={handleAddTodo}
+      onCancel={resetForm}
+      submitText="Add Task"
+      submitVariant="todos"
+    >
+      {#snippet children()}
         <Input 
           bind:value={newTodoText}
           placeholder="Enter task description..."
           onkeydown={handleKeydown}
-          class="flex-1"
+          label="Task"
         />
-        <Button onclick={handleAddTodo}>
-          {#snippet children()}Add{/snippet}
-        </Button>
-        <Button 
-          variant="secondary"
-          onclick={() => {
-            showAddForm = false;
-            newTodoText = "";
-          }}
-        >
-          {#snippet children()}Cancel{/snippet}
-        </Button>
-      </div>
-    {:else if todos.length > 0}
+      {/snippet}
+    </InlineForm>
+
+    {#if !showAddForm && todos.length > 0}
       <Button 
         variant="todos"
         dashed={true}

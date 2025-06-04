@@ -114,7 +114,7 @@
     {/if}
 
     <!-- Transaction List -->
-    <div class="space-y-2 mb-4">
+    <div class="space-y-2 {transactions.length > 0 ? 'mb-4' : ''}">
       {#each transactions as transaction (transaction.id)}
         <div
           class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 group"
@@ -175,6 +175,7 @@
       onCancel={resetForm}
       submitText="Add {type === 'income' ? 'Income' : 'Expense'}"
       submitVariant="financials"
+      className="mt-4"
     >
       {#snippet children()}
         <!-- Type Selection -->

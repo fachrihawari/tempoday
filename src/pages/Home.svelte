@@ -10,20 +10,14 @@
   <DatePicker />
 
   <!-- Day Content Sections -->
-  <div class="flex-1 overflow-y-auto">
+  <div class="flex-1 overflow-y-auto space-y-4 p-4">
     <!-- To-Do Section -->
-    <div class="pt-4">
-      <TodoSection />
-    </div>
+    <TodoSection />
 
     <!-- Note Section -->
-    <div class="pt-4">
-      <NoteSection />
-    </div>
+    <NoteSection />
 
     <!-- Finance Section -->
-    <div class="pt-4">
-      <FinanceSection />
-    </div>
+    <FinanceSection />
   </div>
 </div>
