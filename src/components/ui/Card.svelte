@@ -9,6 +9,7 @@
     padding?: 'sm' | 'md' | 'lg';
     class?: string;
     children: any;
+    headerAction?: any;
   }
 
   let { 
@@ -17,7 +18,8 @@
     iconColor = 'text-gray-500',
     padding = 'md',
     class: className = '',
-    children 
+    children,
+    headerAction
   }: Props = $props();
 
   const paddings = {
@@ -36,6 +38,9 @@
         {/if}
         {title}
       </h2>
+      {#if headerAction}
+        {@render headerAction()}
+      {/if}
     </div>
   {/if}
   

@@ -12,6 +12,7 @@
   import Input from "./ui/Input.svelte";
   import Icon from "./ui/Icon.svelte";
   import InlineForm from "./ui/InlineForm.svelte";
+  import EmptyState from "./ui/EmptyState.svelte";
 
   const transactions = $derived($currentDayData.transactions);
   const settings = $derived($settingsStore);
@@ -158,9 +159,12 @@
       {/each}
 
       {#if transactions.length === 0}
-        <p class="text-gray-500 text-sm text-center py-4">
-          No transactions for this day
-        </p>
+        <EmptyState
+          icon="dollar"
+          title="No transactions for this day"
+          subtitle="Tap to track your first transaction"
+          onclick={() => (showAddForm = true)}
+        />
       {/if}
     </div>
 
@@ -212,7 +216,7 @@
       {/snippet}
     </InlineForm>
 
-    {#if !showAddForm}
+    {#if !showAddForm && transactions.length > 0}
       <Button
         variant="financials"
         dashed={true}

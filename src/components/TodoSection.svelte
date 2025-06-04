@@ -6,6 +6,7 @@
   import Input from "./ui/Input.svelte";
   import Card from "./ui/Card.svelte";
   import Icon from "./ui/Icon.svelte";
+  import EmptyState from "./ui/EmptyState.svelte";
 
   const todos = $derived($currentDayData.todos);
 
@@ -61,14 +62,15 @@
 </script>
 
 <Card title="To-Do List" icon="clipboard" iconColor="text-blue-500">
-  {#snippet children()}
-    <!-- Progress indicator -->
-    <div class="flex items-center justify-between mb-4">
+  {#snippet headerAction()}
+    {#if todos.length > 0}
       <span class="text-sm text-gray-500">
         {todos.filter((t) => t.completed).length}/{todos.length}
       </span>
-    </div>
-
+    {/if}
+  {/snippet}
+  
+  {#snippet children()}
     <!-- Todo List -->
     <div class="space-y-2 mb-4">
       {#each todos as todo (todo.id)}
@@ -103,7 +105,12 @@
       {/each}
 
       {#if todos.length === 0}
-        <p class="text-gray-500 text-sm text-center py-4">No tasks for this day</p>
+        <EmptyState
+          icon="clipboard"
+          title="No tasks for this day"
+          subtitle="Tap to add your first task"
+          onclick={() => (showAddForm = true)}
+        />
       {/if}
     </div>
 
@@ -129,7 +136,7 @@
           {#snippet children()}Cancel{/snippet}
         </Button>
       </div>
-    {:else}
+    {:else if todos.length > 0}
       <Button 
         variant="todos"
         dashed={true}

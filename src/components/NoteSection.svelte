@@ -3,6 +3,7 @@
   import Card from './ui/Card.svelte';
   import Button from './ui/Button.svelte';
   import Icon from './ui/Icon.svelte';
+  import EmptyState from './ui/EmptyState.svelte';
 
   const note = $derived($currentDayData.note);
 
@@ -80,25 +81,22 @@
         </p>
       </div>
     {:else}
-      <button onclick={startEditing} class="cursor-text w-full text-left">
-        {#if note.trim()}
+      {#if note.trim()}
+        <button onclick={startEditing} class="cursor-text w-full text-left">
           <div
             class="bg-gray-50 rounded-lg p-3 min-h-[80px] whitespace-pre-wrap text-sm text-gray-900 leading-relaxed"
           >
             {note}
           </div>
-        {:else}
-          <div
-            class="bg-gray-50 rounded-lg p-3 min-h-[80px] flex items-center justify-center border-2 border-dashed border-gray-300 hover:border-purple-400 transition-colors"
-          >
-            <div class="text-center text-gray-500">
-              <Icon name="plus" size="sm" class="mx-auto mb-2" />
-              <p class="text-sm">Add Note</p>
-              <p class="text-xs mt-1">Tap to write your daily thoughts</p>
-            </div>
-          </div>
-        {/if}
-      </button>
+        </button>
+      {:else}
+        <EmptyState
+          icon="edit"
+          title="Add Note"
+          subtitle="Tap to write your daily thoughts"
+          onclick={startEditing}
+        />
+      {/if}
 
       {#if note.trim()}
         <Button

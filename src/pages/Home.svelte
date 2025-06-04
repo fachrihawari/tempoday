@@ -9,15 +9,6 @@
   <!-- DatePicker Component (Header + Date Picker) -->
   <DatePicker />
 
-  <!-- Instructions -->
-  <div class="p-4">
-    <div class="p-4 bg-gray-50 rounded-lg">
-      <p class="text-sm text-gray-600 text-center">
-        Scroll horizontally to browse dates, then tap any date to view and manage your tasks, notes, and finances for that day.
-      </p>
-    </div>
-  </div>
-
   <!-- Day Content Sections -->
   <div class="flex-1 overflow-y-auto">
     <!-- To-Do Section -->
