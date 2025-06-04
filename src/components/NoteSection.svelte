@@ -1,5 +1,8 @@
 <script lang="ts">
   import { currentDayData, updateCurrentDayData } from "../lib/stores";
+  import Card from './ui/Card.svelte';
+  import Button from './ui/Button.svelte';
+  import Icon from './ui/Icon.svelte';
 
   let note = $derived($currentDayData.note);
 
@@ -45,80 +48,71 @@
   }
 </script>
 
-<section class="bg-white rounded-lg border border-gray-200 p-4">
-  <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-    <svg
-      class="w-5 h-5 text-purple-500"
-      fill="none"
-      stroke="currentColor"
-      viewBox="0 0 24 24"
-    >
-      <path
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        stroke-width="2"
-        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-      ></path>
-    </svg>
-    Daily Note
-  </h2>
+<Card title="Daily Note" icon="edit" iconColor="text-purple-500">
+  {#snippet children()}
+    {#if isEditing}
+      <div class="space-y-3">
+        <textarea
+          bind:value={editingText}
+          oninput={handleInput}
+          onkeydown={handleKeydown}
+          placeholder="Write your thoughts, reflections, or anything you want to remember about this day..."
+          class="w-full h-32 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm resize-none"
+        ></textarea>
 
-  {#if isEditing}
-    <div class="space-y-3">
-      <textarea
-        bind:value={editingText}
-        oninput={handleInput}
-        onkeydown={handleKeydown}
-        placeholder="Write your thoughts, reflections, or anything you want to remember about this day..."
-        class="w-full h-32 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm resize-none"
-      ></textarea>
-
-      <div class="flex gap-2">
-        <button
-          onclick={saveNote}
-          class="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors text-sm font-medium"
-        >
-          Save
-        </button>
-        <button
-          onclick={cancelEditing}
-          class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors text-sm"
-        >
-          Cancel
-        </button>
+        <div class="flex gap-2">
+          <Button
+            variant="notes"
+            onclick={saveNote}
+          >
+            {#snippet children()}Save{/snippet}
+          </Button>
+          <Button
+            variant="secondary"
+            onclick={cancelEditing}
+          >
+            {#snippet children()}Cancel{/snippet}
+          </Button>
+        </div>
+        <p class="text-xs text-gray-500">
+          Tip: Press Ctrl+Enter (Cmd+Enter on Mac) to save, or Escape to cancel.
+          Auto-saves after 1 second.
+        </p>
       </div>
-      <p class="text-xs text-gray-500">
-        Tip: Press Ctrl+Enter (Cmd+Enter on Mac) to save, or Escape to cancel.
-        Auto-saves after 1 second.
-      </p>
-    </div>
-  {:else}
-    <button onclick={startEditing} class="cursor-text w-full text-left">
-      {#if note.trim()}
-        <div
-          class="bg-gray-50 rounded-lg p-3 min-h-[80px] whitespace-pre-wrap text-sm text-gray-900 leading-relaxed"
-        >
-          {note}
-        </div>
-      {:else}
-        <div
-          class="bg-gray-50 rounded-lg p-3 min-h-[80px] flex items-center justify-center border-2 border-dashed border-gray-300 hover:border-purple-400 transition-colors"
-        >
-          <div class="text-center text-gray-500">
-            <p class="text-sm">+ Add Note</p>
-            <p class="text-xs mt-1">Tap to write your daily thoughts</p>
+    {:else}
+      <button onclick={startEditing} class="cursor-text w-full text-left">
+        {#if note.trim()}
+          <div
+            class="bg-gray-50 rounded-lg p-3 min-h-[80px] whitespace-pre-wrap text-sm text-gray-900 leading-relaxed"
+          >
+            {note}
           </div>
-        </div>
-      {/if}
-    </button>
-
-    {#if note.trim()}
-      <button
-        onclick={startEditing}
-        class="mt-2 text-sm text-purple-600 hover:text-purple-700 transition-colors"
-      >
-        Edit note
+        {:else}
+          <div
+            class="bg-gray-50 rounded-lg p-3 min-h-[80px] flex items-center justify-center border-2 border-dashed border-gray-300 hover:border-purple-400 transition-colors"
+          >
+            <div class="text-center text-gray-500">
+              <Icon name="plus" size="sm" class="mx-auto mb-2" />
+              <p class="text-sm">Add Note</p>
+              <p class="text-xs mt-1">Tap to write your daily thoughts</p>
+            </div>
+          </div>
+        {/if}
       </button>
+
+      {#if note.trim()}
+        <Button
+          variant="notes"
+          dashed={true}
+          onclick={startEditing}
+          class="mt-2"
+        >
+          {#snippet children()}
+            <Icon name="edit" size="sm" class="mr-1" />
+            Edit note
+          {/snippet}
+        </Button>
+      {/if}
     {/if}
-  {/if}
-</section>
+  {/snippet}
+</Card>

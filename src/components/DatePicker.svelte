@@ -9,6 +9,7 @@
   } from "../lib/utils";
   import { onMount } from "svelte";
   import Settings from "./Settings.svelte";
+  import Button from "./ui/Button.svelte";
 
   let scrollContainer: HTMLElement;
   let dateRange = $state(getDateRange(new Date(), 60)); // 60 days around today (120 days total)
@@ -101,13 +102,13 @@
     <h1 class="text-2xl font-bold text-gray-900">TempoDay</h1>
     <div class="flex items-center gap-2">
       <Settings />
-      <button
+      <Button
+        variant="primary"
         onclick={goToToday}
-        class="px-3 py-1 text-sm bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-        aria-label="Go to today"
+        class="px-3 py-1 text-sm"
       >
-        Today
-      </button>
+        {#snippet children()}Today{/snippet}
+      </Button>
     </div>
   </div>
 
