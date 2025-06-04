@@ -8,7 +8,6 @@
     formatDate,
   } from "../lib/utils";
   import { onMount } from "svelte";
-  import Settings from "./Settings.svelte";
   import Button from "./ui/Button.svelte";
 
   let scrollContainer: HTMLElement;
@@ -199,14 +198,9 @@
 </script>
 
 <!-- Header and Date Picker -->
-<div class="sticky top-0 bg-white z-10">
-  <div class="flex items-center justify-between mb-4 p-4 border-b border-gray-200">
-    <h1 class="text-2xl font-bold text-gray-900">TempoDay</h1>
-    <Settings />
-  </div>
-
+<div class="sticky top-0 py-4 bg-white z-10 shadow-sm">
   <!-- Current Date Display -->
-  <div class="mb-4 px-4 flex justify-between items-center">
+  <div class="px-4 flex justify-between items-center">
     <h2 class="text-lg font-semibold text-gray-800">
       {formatDate($selectedDate)}
     </h2>
@@ -217,7 +211,7 @@
   </div>
 
   <!-- Horizontal Date Picker -->
-  <div class="relative px-4">
+  <div class="relative px-4 pt-4">
     <div
       bind:this={scrollContainer}
       onscroll={handleScroll}
@@ -250,13 +244,5 @@
         </button>
       {/each}
     </div>
-
-    <!-- Scroll indicators - perfectly symmetrical -->
-    <div
-      class="absolute top-0 left-0 w-6 h-full bg-gradient-to-r from-white via-white/60 to-transparent pointer-events-none"
-    ></div>
-    <div
-      class="absolute top-0 right-0 w-6 h-full bg-gradient-to-l from-white via-white/60 to-transparent pointer-events-none"
-    ></div>
   </div>
 </div>

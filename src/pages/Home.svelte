@@ -1,23 +1,29 @@
 <script lang="ts">
-  import DatePicker from '../components/DatePicker.svelte';
-  import TodoSection from '../components/TodoSection.svelte';
-  import NoteSection from '../components/NoteSection.svelte';
-  import FinanceSection from '../components/FinanceSection.svelte';
+  import DatePicker from "../components/DatePicker.svelte";
+  import TodoSection from "../components/TodoSection.svelte";
+  import NoteSection from "../components/NoteSection.svelte";
+  import FinanceSection from "../components/FinanceSection.svelte";
+  import Header from "../components/ui/Header.svelte";
 </script>
 
 <div class="w-full max-w-md mx-auto bg-white min-h-screen">
-  <!-- DatePicker Component (Header + Date Picker) -->
-  <DatePicker />
+  <div class="min-h-screen shadow-lg">
+    <!-- Header Component -->
+    <Header />
 
-  <!-- Day Content Sections -->
-  <div class="flex-1 overflow-y-auto space-y-4 p-4">
-    <!-- To-Do Section -->
-    <TodoSection />
+    <!-- DatePicker Component (Header + Date Picker) -->
+    <DatePicker />
 
-    <!-- Note Section -->
-    <NoteSection />
+    <!-- Day Content Sections -->
+    <div class="flex-1 overflow-y-auto space-y-4 p-4">
+      <!-- To-Do Section -->
+      <TodoSection />
 
-    <!-- Finance Section -->
-    <FinanceSection />
+      <!-- Note Section -->
+      <NoteSection />
+
+      <!-- Finance Section -->
+      <FinanceSection />
+    </div>
   </div>
 </div>
