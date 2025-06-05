@@ -1,93 +1,93 @@
 <!-- Enhanced FinanceSection using reusable UI components -->
 <script lang="ts">
-  import {
-    currentDayData,
-    updateCurrentDayData,
-    settingsStore,
-    type Transaction,
-  } from "../lib/stores";
-  import { generateId } from "../lib/unique";
-  import { formatCurrency } from "../lib/currency";
-  import Card from "./ui/Card.svelte";
-  import Button from "./ui/Button.svelte";
-  import Input from "./ui/Input.svelte";
-  import Icon from "./ui/Icon.svelte";
-  import BottomSheet from "./ui/BottomSheet.svelte";
-  import EmptyState from "./ui/EmptyState.svelte";
+import { formatCurrency } from '../lib/currency';
+import {
+  type Transaction,
+  currentDayData,
+  settingsStore,
+  updateCurrentDayData,
+} from '../lib/stores';
+import { generateId } from '../lib/unique';
+import BottomSheet from './ui/BottomSheet.svelte';
+import Button from './ui/Button.svelte';
+import Card from './ui/Card.svelte';
+import EmptyState from './ui/EmptyState.svelte';
+import Icon from './ui/Icon.svelte';
+import Input from './ui/Input.svelte';
 
-  const transactions = $derived($currentDayData.transactions);
-  const settings = $derived($settingsStore);
+const transactions = $derived($currentDayData.transactions);
+const settings = $derived($settingsStore);
 
-  let showAddForm = $state(false);
-  let description = $state("");
-  let amount = $state("");
-  let type = $state<"income" | "expense">("expense");
+let showAddForm = $state(false);
+let description = $state('');
+let amount = $state('');
+let type = $state<'income' | 'expense'>('expense');
 
-  // Helper function to format currency with current settings
-  function formatAmount(amount: number): string {
-    return formatCurrency(amount, settings.currency, settings.locale);
+// Helper function to format currency with current settings
+function formatAmount(amount: number): string {
+  return formatCurrency(amount, settings.currency, settings.locale);
+}
+
+function addTransaction(
+  desc: string,
+  amt: number,
+  transactionType: 'income' | 'expense',
+) {
+  const newTransaction: Transaction = {
+    id: generateId(),
+    description: desc,
+    amount: amt,
+    type: transactionType,
+    date: new Date().toISOString().split('T')[0],
+  };
+
+  updateCurrentDayData({
+    transactions: [...$currentDayData.transactions, newTransaction],
+  });
+}
+
+function deleteTransaction(transactionId: string) {
+  updateCurrentDayData({
+    transactions: $currentDayData.transactions.filter(
+      (t) => t.id !== transactionId,
+    ),
+  });
+}
+
+// Calculate totals
+const totalIncome = $derived(
+  transactions
+    .filter((t) => t.type === 'income')
+    .reduce((sum, t) => sum + t.amount, 0),
+);
+
+const totalExpenses = $derived(
+  transactions
+    .filter((t) => t.type === 'expense')
+    .reduce((sum, t) => sum + t.amount, 0),
+);
+
+const netBalance = $derived(totalIncome - totalExpenses);
+
+function handleAddTransaction(event?: Event) {
+  if (event) {
+    event.preventDefault();
   }
+  const desc = description.trim();
+  const amt = parseFloat(amount);
 
-  function addTransaction(
-    desc: string,
-    amt: number,
-    transactionType: "income" | "expense",
-  ) {
-    const newTransaction: Transaction = {
-      id: generateId(),
-      description: desc,
-      amount: amt,
-      type: transactionType,
-      date: new Date().toISOString().split("T")[0],
-    };
-
-    updateCurrentDayData({
-      transactions: [...$currentDayData.transactions, newTransaction],
-    });
+  if (desc && !isNaN(amt) && amt > 0) {
+    addTransaction(desc, amt, type);
+    resetForm();
   }
+}
 
-  function deleteTransaction(transactionId: string) {
-    updateCurrentDayData({
-      transactions: $currentDayData.transactions.filter(
-        (t) => t.id !== transactionId,
-      ),
-    });
-  }
-
-  // Calculate totals
-  const totalIncome = $derived(
-    transactions
-      .filter((t) => t.type === "income")
-      .reduce((sum, t) => sum + t.amount, 0),
-  );
-
-  const totalExpenses = $derived(
-    transactions
-      .filter((t) => t.type === "expense")
-      .reduce((sum, t) => sum + t.amount, 0),
-  );
-
-  const netBalance = $derived(totalIncome - totalExpenses);
-
-  function handleAddTransaction(event?: Event) {
-    if (event) {
-      event.preventDefault();
-    }
-    const desc = description.trim();
-    const amt = parseFloat(amount);
-
-    if (desc && !isNaN(amt) && amt > 0) {
-      addTransaction(desc, amt, type);
-      resetForm();
-    }
-  }
-
-  function resetForm() {
-    description = "";
-    amount = "";
-    type = "expense";
-    showAddForm = false;
-  }
+function resetForm() {
+  description = '';
+  amount = '';
+  type = 'expense';
+  showAddForm = false;
+}
 </script>
 
 <Card title="Financial Records" icon="dollar" iconColor="text-green-500">

@@ -1,72 +1,72 @@
 <script lang="ts">
-  import { sectionThemes, type SectionTheme } from "../../lib/theme";
+import { type SectionTheme, sectionThemes } from '../../lib/theme';
 
-  interface Props {
-    value: string;
-    placeholder?: string;
-    type?: "text" | "number" | "email" | "password";
-    disabled?: boolean;
-    required?: boolean;
-    step?: string;
-    min?: string;
-    error?: string;
-    label?: string;
-    theme?: SectionTheme;
-    onkeydown?: (event: KeyboardEvent) => void;
-    oninput?: (event: Event) => void;
-    class?: string;
-  }
+interface Props {
+  value: string;
+  placeholder?: string;
+  type?: 'text' | 'number' | 'email' | 'password';
+  disabled?: boolean;
+  required?: boolean;
+  step?: string;
+  min?: string;
+  error?: string;
+  label?: string;
+  theme?: SectionTheme;
+  onkeydown?: (event: KeyboardEvent) => void;
+  oninput?: (event: Event) => void;
+  class?: string;
+}
 
-  let {
-    value = $bindable(),
-    placeholder = "",
-    type = "text",
-    disabled = false,
-    required = false,
-    step,
-    min,
-    error = "",
-    label = "",
-    theme,
-    onkeydown,
-    oninput,
-    class: className = "",
-  }: Props = $props();
+let {
+  value = $bindable(),
+  placeholder = '',
+  type = 'text',
+  disabled = false,
+  required = false,
+  step,
+  min,
+  error = '',
+  label = '',
+  theme,
+  onkeydown,
+  oninput,
+  class: className = '',
+}: Props = $props();
 
-  let inputElement: HTMLInputElement = $state()!;
-  let isFocused = $state(false);
+let inputElement: HTMLInputElement = $state()!;
+let isFocused = $state(false);
 
-  const focusColor = $derived(() => {
-    if (error) return "focus:ring-red-500 focus:border-red-500";
-    if (theme)
-      return sectionThemes[theme].colors.focus + " focus:border-transparent";
-    return "focus:ring-blue-500 focus:border-blue-500";
-  });
+const focusColor = $derived(() => {
+  if (error) return 'focus:ring-red-500 focus:border-red-500';
+  if (theme)
+    return sectionThemes[theme].colors.focus + ' focus:border-transparent';
+  return 'focus:ring-blue-500 focus:border-blue-500';
+});
 
-  const borderColor = $derived(() => {
-    if (error) return "border-red-300";
-    if (isFocused) {
-      if (theme) {
-        const color =
-          theme === "todos"
-            ? "border-blue-500"
-            : theme === "notes"
-              ? "border-purple-500"
-              : "border-green-500";
-        return color;
-      }
-      return "border-blue-500";
+const borderColor = $derived(() => {
+  if (error) return 'border-red-300';
+  if (isFocused) {
+    if (theme) {
+      const color =
+        theme === 'todos'
+          ? 'border-blue-500'
+          : theme === 'notes'
+            ? 'border-purple-500'
+            : 'border-green-500';
+      return color;
     }
-    return "border-gray-300";
-  });
-
-  function handleFocus() {
-    isFocused = true;
+    return 'border-blue-500';
   }
+  return 'border-gray-300';
+});
 
-  function handleBlur() {
-    isFocused = false;
-  }
+function handleFocus() {
+  isFocused = true;
+}
+
+function handleBlur() {
+  isFocused = false;
+}
 </script>
 
 <div class="space-y-2">

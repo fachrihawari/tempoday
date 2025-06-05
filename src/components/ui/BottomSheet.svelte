@@ -1,157 +1,155 @@
 <script lang="ts">
-  import Icon from './Icon.svelte';
-  import { onMount } from 'svelte';
-  import { fly, fade } from 'svelte/transition';
+import { onMount } from 'svelte';
+import { fade, fly } from 'svelte/transition';
+import Icon from './Icon.svelte';
 
-  interface Props {
-    open: boolean;
-    title?: string;
-    onClose?: () => void;
-    children: any;
+interface Props {
+  open: boolean;
+  title?: string;
+  onClose?: () => void;
+  children: any;
+}
+
+let { open = $bindable(), title = '', onClose, children }: Props = $props();
+
+let sheetElement: HTMLDivElement = $state()!;
+let dragHandle: HTMLDivElement = $state()!;
+let startY = 0;
+let currentY = 0;
+let isDragging = false;
+
+function close() {
+  open = false;
+  onClose?.();
+}
+
+// Drag to dismiss functionality
+function handleTouchStart(event: TouchEvent) {
+  startY = event.touches[0].clientY;
+  isDragging = true;
+  if (sheetElement) {
+    sheetElement.style.transition = 'none';
   }
+}
 
-  let { 
-    open = $bindable(),
-    title = '',
-    onClose,
-    children
-  }: Props = $props();
-
-  let sheetElement: HTMLDivElement = $state()!;
-  let dragHandle: HTMLDivElement = $state()!;
-  let startY = 0;
-  let currentY = 0;
-  let isDragging = false;
-
-  function close() {
-    open = false;
-    onClose?.();
+function handleTouchMove(event: TouchEvent) {
+  if (!isDragging) return;
+  currentY = event.touches[0].clientY;
+  const deltaY = Math.max(0, currentY - startY);
+  if (sheetElement && deltaY > 0) {
+    sheetElement.style.transform = `translateY(${deltaY}px)`;
   }
+}
 
-  // Drag to dismiss functionality
-  function handleTouchStart(event: TouchEvent) {
-    startY = event.touches[0].clientY;
-    isDragging = true;
-    if (sheetElement) {
-      sheetElement.style.transition = 'none';
-    }
-  }
+function handleTouchEnd() {
+  if (!isDragging) return;
+  isDragging = false;
 
-  function handleTouchMove(event: TouchEvent) {
-    if (!isDragging) return;
-    currentY = event.touches[0].clientY;
-    const deltaY = Math.max(0, currentY - startY);
-    if (sheetElement && deltaY > 0) {
-      sheetElement.style.transform = `translateY(${deltaY}px)`;
-    }
-  }
-
-  function handleTouchEnd() {
-    if (!isDragging) return;
-    isDragging = false;
-    
-    if (sheetElement) {
-      const deltaY = currentY - startY;
-      if (deltaY > 100) { // If dragged down more than 100px, close
-        close();
-      } else {
-        // Reset position with smooth animation
-        sheetElement.style.transition = 'transform 0.3s cubic-bezier(0.4,0,0.2,1)';
-        sheetElement.style.transform = 'translateY(0)';
-        setTimeout(() => {
-          if (sheetElement) {
-            sheetElement.style.transition = '';
-            sheetElement.style.transform = '';
-          }
-        }, 300);
-      }
-    }
-  }
-
-  // Mouse events for desktop drag
-  function handleMouseDown(event: MouseEvent) {
-    startY = event.clientY;
-    isDragging = true;
-    if (sheetElement) {
-      sheetElement.style.transition = 'none';
-    }
-    // Prevent text selection while dragging
-    event.preventDefault();
-  }
-
-  function handleMouseMove(event: MouseEvent) {
-    if (!isDragging) return;
-    currentY = event.clientY;
-    const deltaY = Math.max(0, currentY - startY);
-    if (sheetElement && deltaY > 0) {
-      sheetElement.style.transform = `translateY(${deltaY}px)`;
-    }
-  }
-
-  function handleMouseUp() {
-    if (!isDragging) return;
-    isDragging = false;
-    
-    if (sheetElement) {
-      const deltaY = currentY - startY;
-      if (deltaY > 100) {
-        close();
-      } else {
-        sheetElement.style.transition = 'transform 0.3s cubic-bezier(0.4,0,0.2,1)';
-        sheetElement.style.transform = 'translateY(0)';
-        setTimeout(() => {
-          if (sheetElement) {
-            sheetElement.style.transition = '';
-            sheetElement.style.transform = '';
-          }
-        }, 300);
-      }
-    }
-  }
-
-  onMount(() => {
-    if (typeof window !== 'undefined') {
-      window.addEventListener('mousemove', handleMouseMove);
-      window.addEventListener('mouseup', handleMouseUp);
-      
-      return () => {
-        window.removeEventListener('mousemove', handleMouseMove);
-        window.removeEventListener('mouseup', handleMouseUp);
-      };
-    }
-  });
-
-  // Manage body scroll when bottom sheet is open
-  $effect(() => {
-    if (open) {
-      // Prevent body scroll when bottom sheet is open
-      document.body.style.overflow = 'hidden';
-      
-      // Auto-focus first input when opened
+  if (sheetElement) {
+    const deltaY = currentY - startY;
+    if (deltaY > 100) {
+      // If dragged down more than 100px, close
+      close();
+    } else {
+      // Reset position with smooth animation
+      sheetElement.style.transition =
+        'transform 0.3s cubic-bezier(0.4,0,0.2,1)';
+      sheetElement.style.transform = 'translateY(0)';
       setTimeout(() => {
         if (sheetElement) {
-          const firstInput = sheetElement.querySelector('input, textarea');
-          if (firstInput instanceof HTMLElement) {
-            firstInput.focus();
-          }
+          sheetElement.style.transition = '';
+          sheetElement.style.transform = '';
         }
-      }, 100);
-      
-      return () => {
-        document.body.style.overflow = '';
-      };
-    } else {
-      document.body.style.overflow = '';
+      }, 300);
     }
-  });
+  }
+}
 
-  // Clean up inline styles when opening
-  $effect(() => {
-    if (open && sheetElement && !isDragging) {
-      sheetElement.style.transform = '';
-      sheetElement.style.transition = '';
+// Mouse events for desktop drag
+function handleMouseDown(event: MouseEvent) {
+  startY = event.clientY;
+  isDragging = true;
+  if (sheetElement) {
+    sheetElement.style.transition = 'none';
+  }
+  // Prevent text selection while dragging
+  event.preventDefault();
+}
+
+function handleMouseMove(event: MouseEvent) {
+  if (!isDragging) return;
+  currentY = event.clientY;
+  const deltaY = Math.max(0, currentY - startY);
+  if (sheetElement && deltaY > 0) {
+    sheetElement.style.transform = `translateY(${deltaY}px)`;
+  }
+}
+
+function handleMouseUp() {
+  if (!isDragging) return;
+  isDragging = false;
+
+  if (sheetElement) {
+    const deltaY = currentY - startY;
+    if (deltaY > 100) {
+      close();
+    } else {
+      sheetElement.style.transition =
+        'transform 0.3s cubic-bezier(0.4,0,0.2,1)';
+      sheetElement.style.transform = 'translateY(0)';
+      setTimeout(() => {
+        if (sheetElement) {
+          sheetElement.style.transition = '';
+          sheetElement.style.transform = '';
+        }
+      }, 300);
     }
-  });
+  }
+}
+
+onMount(() => {
+  if (typeof window !== 'undefined') {
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }
+});
+
+// Manage body scroll when bottom sheet is open
+$effect(() => {
+  if (open) {
+    // Prevent body scroll when bottom sheet is open
+    document.body.style.overflow = 'hidden';
+
+    // Auto-focus first input when opened
+    setTimeout(() => {
+      if (sheetElement) {
+        const firstInput = sheetElement.querySelector('input, textarea');
+        if (firstInput instanceof HTMLElement) {
+          firstInput.focus();
+        }
+      }
+    }, 100);
+
+    return () => {
+      document.body.style.overflow = '';
+    };
+  } else {
+    document.body.style.overflow = '';
+  }
+});
+
+// Clean up inline styles when opening
+$effect(() => {
+  if (open && sheetElement && !isDragging) {
+    sheetElement.style.transform = '';
+    sheetElement.style.transition = '';
+  }
+});
 </script>
 
 {#if open}

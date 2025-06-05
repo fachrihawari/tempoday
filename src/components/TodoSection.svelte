@@ -1,70 +1,72 @@
 <script lang="ts">
-  import { currentDayData, updateCurrentDayData, type TodoItem } from "../lib/stores";
-  import { generateId } from "../lib/unique";
-  import Button from "./ui/Button.svelte";
-  import Input from "./ui/Input.svelte";
-  import Card from "./ui/Card.svelte";
-  import Icon from "./ui/Icon.svelte";
-  import EmptyState from "./ui/EmptyState.svelte";
-  import BottomSheet from "./ui/BottomSheet.svelte";
+import {
+  type TodoItem,
+  currentDayData,
+  updateCurrentDayData,
+} from '../lib/stores';
+import { generateId } from '../lib/unique';
+import BottomSheet from './ui/BottomSheet.svelte';
+import Button from './ui/Button.svelte';
+import Card from './ui/Card.svelte';
+import EmptyState from './ui/EmptyState.svelte';
+import Icon from './ui/Icon.svelte';
+import Input from './ui/Input.svelte';
 
-  const todos = $derived($currentDayData.todos);
+const todos = $derived($currentDayData.todos);
 
-  let showAddForm = $state(false);
-  let newTodoText = $state("");
+let showAddForm = $state(false);
+let newTodoText = $state('');
 
-  function addTodo(text: string) {
-    const newTodo: TodoItem = {
-      id: generateId(),
-      text,
-      completed: false,
-      date: new Date().toISOString().split('T')[0]
-    };
-    
-    updateCurrentDayData({
-      todos: [...$currentDayData.todos, newTodo]
-    });
+function addTodo(text: string) {
+  const newTodo: TodoItem = {
+    id: generateId(),
+    text,
+    completed: false,
+    date: new Date().toISOString().split('T')[0],
+  };
+
+  updateCurrentDayData({
+    todos: [...$currentDayData.todos, newTodo],
+  });
+}
+
+function toggleTodo(todoId: string) {
+  updateCurrentDayData({
+    todos: $currentDayData.todos.map((todo) =>
+      todo.id === todoId ? { ...todo, completed: !todo.completed } : todo,
+    ),
+  });
+}
+
+function deleteTodo(todoId: string) {
+  updateCurrentDayData({
+    todos: $currentDayData.todos.filter((todo) => todo.id !== todoId),
+  });
+}
+
+function handleAddTodo(event?: Event) {
+  if (event) {
+    event.preventDefault();
   }
-
-  function toggleTodo(todoId: string) {
-    updateCurrentDayData({
-      todos: $currentDayData.todos.map(todo => 
-        todo.id === todoId 
-          ? { ...todo, completed: !todo.completed }
-          : todo
-      )
-    });
+  const text = newTodoText.trim();
+  if (text) {
+    addTodo(text);
+    resetForm();
   }
+}
 
-  function deleteTodo(todoId: string) {
-    updateCurrentDayData({
-      todos: $currentDayData.todos.filter(todo => todo.id !== todoId)
-    });
-  }
+function resetForm() {
+  newTodoText = '';
+  showAddForm = false;
+}
 
-  function handleAddTodo(event?: Event) {
-    if (event) {
-      event.preventDefault();
-    }
-    const text = newTodoText.trim();
-    if (text) {
-      addTodo(text);
-      resetForm();
-    }
+function handleKeydown(event: KeyboardEvent) {
+  if (event.key === 'Enter') {
+    handleAddTodo();
+  } else if (event.key === 'Escape') {
+    resetForm();
   }
-
-  function resetForm() {
-    newTodoText = "";
-    showAddForm = false;
-  }
-
-  function handleKeydown(event: KeyboardEvent) {
-    if (event.key === "Enter") {
-      handleAddTodo();
-    } else if (event.key === "Escape") {
-      resetForm();
-    }
-  }
+}
 </script>
 
 <Card title="To-Do List" icon="clipboard" iconColor="text-blue-500">

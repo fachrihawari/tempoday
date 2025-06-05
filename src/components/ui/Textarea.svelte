@@ -1,86 +1,86 @@
 <script lang="ts">
-  import { sectionThemes, type SectionTheme } from "../../lib/theme";
+import { type SectionTheme, sectionThemes } from '../../lib/theme';
 
-  interface Props {
-    value: string;
-    placeholder?: string;
-    disabled?: boolean;
-    required?: boolean;
-    rows?: number;
-    error?: string;
-    label?: string;
-    theme?: SectionTheme;
-    autoResize?: boolean;
-    onkeydown?: (event: KeyboardEvent) => void;
-    oninput?: (event: Event) => void;
-    class?: string;
-  }
+interface Props {
+  value: string;
+  placeholder?: string;
+  disabled?: boolean;
+  required?: boolean;
+  rows?: number;
+  error?: string;
+  label?: string;
+  theme?: SectionTheme;
+  autoResize?: boolean;
+  onkeydown?: (event: KeyboardEvent) => void;
+  oninput?: (event: Event) => void;
+  class?: string;
+}
 
-  let {
-    value = $bindable(),
-    placeholder = "",
-    disabled = false,
-    required = false,
-    rows = 4,
-    error = "",
-    label = "",
-    theme,
-    autoResize = false,
-    onkeydown,
-    oninput,
-    class: className = "",
-  }: Props = $props();
+let {
+  value = $bindable(),
+  placeholder = '',
+  disabled = false,
+  required = false,
+  rows = 4,
+  error = '',
+  label = '',
+  theme,
+  autoResize = false,
+  onkeydown,
+  oninput,
+  class: className = '',
+}: Props = $props();
 
-  let textareaElement: HTMLTextAreaElement = $state()!;
-  let isFocused = $state(false);
+let textareaElement: HTMLTextAreaElement = $state()!;
+let isFocused = $state(false);
 
-  const focusColor = $derived(() => {
-    if (error) return "focus:ring-red-500 focus:border-red-500";
-    if (theme)
-      return sectionThemes[theme].colors.focus + " focus:border-transparent";
-    return "focus:ring-blue-500 focus:border-blue-500";
-  });
+const focusColor = $derived(() => {
+  if (error) return 'focus:ring-red-500 focus:border-red-500';
+  if (theme)
+    return sectionThemes[theme].colors.focus + ' focus:border-transparent';
+  return 'focus:ring-blue-500 focus:border-blue-500';
+});
 
-  const borderColor = $derived(() => {
-    if (error) return "border-red-300";
-    if (isFocused) {
-      if (theme) {
-        const color =
-          theme === "todos"
-            ? "border-blue-500"
-            : theme === "notes"
-              ? "border-purple-500"
-              : "border-green-500";
-        return color;
-      }
-      return "border-blue-500";
+const borderColor = $derived(() => {
+  if (error) return 'border-red-300';
+  if (isFocused) {
+    if (theme) {
+      const color =
+        theme === 'todos'
+          ? 'border-blue-500'
+          : theme === 'notes'
+            ? 'border-purple-500'
+            : 'border-green-500';
+      return color;
     }
-    return "border-gray-300";
-  });
-
-  function handleFocus() {
-    isFocused = true;
+    return 'border-blue-500';
   }
+  return 'border-gray-300';
+});
 
-  function handleBlur() {
-    isFocused = false;
+function handleFocus() {
+  isFocused = true;
+}
+
+function handleBlur() {
+  isFocused = false;
+}
+
+function handleInput(event: Event) {
+  if (autoResize && textareaElement) {
+    textareaElement.style.height = 'auto';
+    textareaElement.style.height = textareaElement.scrollHeight + 'px';
   }
+  oninput?.(event);
+}
 
-  function handleInput(event: Event) {
-    if (autoResize && textareaElement) {
-      textareaElement.style.height = "auto";
-      textareaElement.style.height = textareaElement.scrollHeight + "px";
-    }
-    oninput?.(event);
+// Auto-resize on mount if autoResize is true
+$effect(() => {
+  if (autoResize && textareaElement && value) {
+    textareaElement.style.height = 'auto';
+    textareaElement.style.height = textareaElement.scrollHeight + 'px';
   }
-
-  // Auto-resize on mount if autoResize is true
-  $effect(() => {
-    if (autoResize && textareaElement && value) {
-      textareaElement.style.height = "auto";
-      textareaElement.style.height = textareaElement.scrollHeight + "px";
-    }
-  });
+});
 </script>
 
 <div class="space-y-2">

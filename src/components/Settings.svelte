@@ -1,55 +1,55 @@
 <script lang="ts">
-  import { settingsStore } from "../lib/stores";
-  import BottomSheet from "./ui/BottomSheet.svelte";
-  import Button from "./ui/Button.svelte";
-  import Icon from "./ui/Icon.svelte";
+import { settingsStore } from '../lib/stores';
+import BottomSheet from './ui/BottomSheet.svelte';
+import Button from './ui/Button.svelte';
+import Icon from './ui/Icon.svelte';
 
-  let showSettings = $state(false);
-  const settings = $derived($settingsStore);
+let showSettings = $state(false);
+const settings = $derived($settingsStore);
 
-  // Popular currencies
-  const currencies = [
-    { code: "USD", symbol: "$", name: "US Dollar" },
-    { code: "EUR", symbol: "€", name: "Euro" },
-    { code: "GBP", symbol: "£", name: "British Pound" },
-    { code: "JPY", symbol: "¥", name: "Japanese Yen" },
-    { code: "CAD", symbol: "C$", name: "Canadian Dollar" },
-    { code: "AUD", symbol: "A$", name: "Australian Dollar" },
-    { code: "CHF", symbol: "Fr", name: "Swiss Franc" },
-    { code: "CNY", symbol: "¥", name: "Chinese Yuan" },
-    { code: "INR", symbol: "₹", name: "Indian Rupee" },
-    { code: "SGD", symbol: "S$", name: "Singapore Dollar" },
-    { code: "IDR", symbol: "Rp", name: "Indonesian Rupiah" },
-  ];
+// Popular currencies
+const currencies = [
+  { code: 'USD', symbol: '$', name: 'US Dollar' },
+  { code: 'EUR', symbol: '€', name: 'Euro' },
+  { code: 'GBP', symbol: '£', name: 'British Pound' },
+  { code: 'JPY', symbol: '¥', name: 'Japanese Yen' },
+  { code: 'CAD', symbol: 'C$', name: 'Canadian Dollar' },
+  { code: 'AUD', symbol: 'A$', name: 'Australian Dollar' },
+  { code: 'CHF', symbol: 'Fr', name: 'Swiss Franc' },
+  { code: 'CNY', symbol: '¥', name: 'Chinese Yuan' },
+  { code: 'INR', symbol: '₹', name: 'Indian Rupee' },
+  { code: 'SGD', symbol: 'S$', name: 'Singapore Dollar' },
+  { code: 'IDR', symbol: 'Rp', name: 'Indonesian Rupiah' },
+];
 
-  function updateCurrency(currencyCode: string) {
-    const currency = currencies.find((c) => c.code === currencyCode);
-    if (currency) {
-      settingsStore.update((s) => ({
-        ...s,
-        currency: currency.code,
-        currencySymbol: currency.symbol,
-        locale: getLocaleForCurrency(currency.code),
-      }));
-    }
+function updateCurrency(currencyCode: string) {
+  const currency = currencies.find((c) => c.code === currencyCode);
+  if (currency) {
+    settingsStore.update((s) => ({
+      ...s,
+      currency: currency.code,
+      currencySymbol: currency.symbol,
+      locale: getLocaleForCurrency(currency.code),
+    }));
   }
+}
 
-  function getLocaleForCurrency(currencyCode: string): string {
-    const localeMap: Record<string, string> = {
-      USD: "en-US",
-      EUR: "de-DE",
-      GBP: "en-GB",
-      JPY: "ja-JP",
-      CAD: "en-CA",
-      AUD: "en-AU",
-      CHF: "de-CH",
-      CNY: "zh-CN",
-      INR: "en-IN",
-      SGD: "en-SG",
-      IDR: "id-ID",
-    };
-    return localeMap[currencyCode] || "en-US";
-  }
+function getLocaleForCurrency(currencyCode: string): string {
+  const localeMap: Record<string, string> = {
+    USD: 'en-US',
+    EUR: 'de-DE',
+    GBP: 'en-GB',
+    JPY: 'ja-JP',
+    CAD: 'en-CA',
+    AUD: 'en-AU',
+    CHF: 'de-CH',
+    CNY: 'zh-CN',
+    INR: 'en-IN',
+    SGD: 'en-SG',
+    IDR: 'id-ID',
+  };
+  return localeMap[currencyCode] || 'en-US';
+}
 </script>
 
 <!-- Settings Button -->
