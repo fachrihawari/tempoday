@@ -1,5 +1,7 @@
 <script lang="ts">
-  import Home from './pages/Home.svelte';
+import Home from './pages/Home.svelte';
 </script>
 
-<Home />
+<div class="h-screen overflow-y-auto">
+  <Home />
+</div>

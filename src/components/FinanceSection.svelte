@@ -1,89 +1,93 @@
 <!-- Enhanced FinanceSection using reusable UI components -->
 <script lang="ts">
-  import {
-    currentDayData,
-    updateCurrentDayData,
-    settingsStore,
-    type Transaction,
-  } from "../lib/stores";
-  import { formatCurrency, generateId } from "../lib/utils";
-  import Card from "./ui/Card.svelte";
-  import Button from "./ui/Button.svelte";
-  import Input from "./ui/Input.svelte";
-  import Icon from "./ui/Icon.svelte";
-  import InlineForm from "./ui/InlineForm.svelte";
-  import EmptyState from "./ui/EmptyState.svelte";
+import { formatCurrency } from '../lib/currency';
+import {
+  type Transaction,
+  currentDayData,
+  settingsStore,
+  updateCurrentDayData,
+} from '../lib/stores';
+import { generateId } from '../lib/unique';
+import BottomSheet from './ui/BottomSheet.svelte';
+import Button from './ui/Button.svelte';
+import Card from './ui/Card.svelte';
+import EmptyState from './ui/EmptyState.svelte';
+import Icon from './ui/Icon.svelte';
+import Input from './ui/Input.svelte';
 
-  const transactions = $derived($currentDayData.transactions);
-  const settings = $derived($settingsStore);
+const transactions = $derived($currentDayData.transactions);
+const settings = $derived($settingsStore);
 
-  let showAddForm = $state(false);
-  let description = $state("");
-  let amount = $state("");
-  let type = $state<"income" | "expense">("expense");
+let showAddForm = $state(false);
+let description = $state('');
+let amount = $state('');
+let type = $state<'income' | 'expense'>('expense');
 
-  // Helper function to format currency with current settings
-  function formatAmount(amount: number): string {
-    return formatCurrency(amount, settings.currency, settings.locale);
+// Helper function to format currency with current settings
+function formatAmount(amount: number): string {
+  return formatCurrency(amount, settings.currency, settings.locale);
+}
+
+function addTransaction(
+  desc: string,
+  amt: number,
+  transactionType: 'income' | 'expense',
+) {
+  const newTransaction: Transaction = {
+    id: generateId(),
+    description: desc,
+    amount: amt,
+    type: transactionType,
+    date: new Date().toISOString().split('T')[0],
+  };
+
+  updateCurrentDayData({
+    transactions: [...$currentDayData.transactions, newTransaction],
+  });
+}
+
+function deleteTransaction(transactionId: string) {
+  updateCurrentDayData({
+    transactions: $currentDayData.transactions.filter(
+      (t) => t.id !== transactionId,
+    ),
+  });
+}
+
+// Calculate totals
+const totalIncome = $derived(
+  transactions
+    .filter((t) => t.type === 'income')
+    .reduce((sum, t) => sum + t.amount, 0),
+);
+
+const totalExpenses = $derived(
+  transactions
+    .filter((t) => t.type === 'expense')
+    .reduce((sum, t) => sum + t.amount, 0),
+);
+
+const netBalance = $derived(totalIncome - totalExpenses);
+
+function handleAddTransaction(event?: Event) {
+  if (event) {
+    event.preventDefault();
   }
+  const desc = description.trim();
+  const amt = parseFloat(amount);
 
-  function addTransaction(
-    desc: string,
-    amt: number,
-    transactionType: "income" | "expense",
-  ) {
-    const newTransaction: Transaction = {
-      id: generateId(),
-      description: desc,
-      amount: amt,
-      type: transactionType,
-      date: new Date().toISOString().split("T")[0],
-    };
-
-    updateCurrentDayData({
-      transactions: [...$currentDayData.transactions, newTransaction],
-    });
+  if (desc && !isNaN(amt) && amt > 0) {
+    addTransaction(desc, amt, type);
+    resetForm();
   }
+}
 
-  function deleteTransaction(transactionId: string) {
-    updateCurrentDayData({
-      transactions: $currentDayData.transactions.filter(
-        (t) => t.id !== transactionId,
-      ),
-    });
-  }
-
-  // Calculate totals
-  const totalIncome = $derived(
-    transactions
-      .filter((t) => t.type === "income")
-      .reduce((sum, t) => sum + t.amount, 0),
-  );
-
-  const totalExpenses = $derived(
-    transactions
-      .filter((t) => t.type === "expense")
-      .reduce((sum, t) => sum + t.amount, 0),
-  );
-
-  const netBalance = $derived(totalIncome - totalExpenses);
-
-  function handleAddTransaction() {
-    const desc = description.trim();
-    const amt = parseFloat(amount);
-
-    if (desc && !isNaN(amt) && amt > 0) {
-      addTransaction(desc, amt, type);
-      resetForm();
-    }
-  }
-
-  function resetForm() {
-    description = "";
-    amount = "";
-    type = "expense";
-    showAddForm = false;
-  }
+function resetForm() {
+  description = '';
+  amount = '';
+  type = 'expense';
+  showAddForm = false;
+}
 </script>
 
 <Card title="Financial Records" icon="dollar" iconColor="text-green-500">
@@ -171,53 +175,88 @@
     </div>
 
     <!-- Add Transaction Form -->
-    <InlineForm
-      bind:show={showAddForm}
-      onSubmit={handleAddTransaction}
-      onCancel={resetForm}
-      submitText="Add {type === 'income' ? 'Income' : 'Expense'}"
-      submitVariant="financials"
-      className="mt-4"
-    >
+    <BottomSheet bind:open={showAddForm} title="Add Transaction">
       {#snippet children()}
-        <!-- Type Selection -->
-        <div class="flex gap-2">
-          <Button
-            variant={type === "income" ? "primary" : "secondary"}
-            onclick={() => (type = "income")}
-            class="flex-1 {type === 'income'
-              ? '!bg-green-100 !text-green-700 !border-2 !border-green-200'
-              : ''}"
-          >
-            {#snippet children()}Income{/snippet}
-          </Button>
-          <Button
-            variant={type === "expense" ? "primary" : "secondary"}
-            onclick={() => (type = "expense")}
-            class="flex-1 {type === 'expense'
-              ? '!bg-red-100 !text-red-700 !border-2 !border-red-200'
-              : ''}"
-          >
-            {#snippet children()}Expense{/snippet}
-          </Button>
-        </div>
+        <form onsubmit={handleAddTransaction} class="space-y-6">
+          <!-- Type Selection -->
+          <fieldset>
+            <legend class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Transaction Type</legend>
+            <div class="flex gap-2">
+              <Button
+                type="button"
+                variant={type === "income" ? "primary" : "outline"}
+                onclick={() => (type = "income")}
+                class="flex-1 transition-all duration-200 {type === 'income'
+                  ? '!bg-green-100 !text-green-700 !border-2 !border-green-200 shadow-sm'
+                  : ''}"
+              >
+                {#snippet children()}
+                  <Icon name="trending-up" size="sm" class="mr-2" />
+                  Income
+                {/snippet}
+              </Button>
+              <Button
+                type="button"
+                variant={type === "expense" ? "primary" : "outline"}
+                onclick={() => (type = "expense")}
+                class="flex-1 transition-all duration-200 {type === 'expense'
+                  ? '!bg-red-100 !text-red-700 !border-2 !border-red-200 shadow-sm'
+                  : ''}"
+              >
+                {#snippet children()}
+                  <Icon name="trending-down" size="sm" class="mr-2" />
+                  Expense
+                {/snippet}
+              </Button>
+            </div>
+          </fieldset>
 
-        <!-- Description Input -->
-        <Input
-          bind:value={description}
-          placeholder="Description (e.g., Lunch, Salary, Gas)"
-          label="Description"
-        />
+          <!-- Description Input -->
+          <Input
+            bind:value={description}
+            placeholder="What was this for?"
+            label="Description"
+            theme="financials"
+            required
+          />
 
-        <!-- Amount Input -->
-        <Input
-          bind:value={amount}
-          type="number"
-          placeholder="Amount"
-          label="Amount ({settings.currencySymbol})"
-        />
+          <!-- Amount Input -->
+          <Input
+            bind:value={amount}
+            type="number"
+            step="0.01"
+            min="0"
+            placeholder="0.00"
+            label="Amount ({settings.currencySymbol})"
+            theme="financials"
+            required
+          />
+
+          <div class="flex gap-3 pt-2">
+            <Button 
+              type="button"
+              variant="ghost"
+              onclick={resetForm}
+              class="flex-none w-1/4"
+            >
+              {#snippet children()}
+                Cancel
+              {/snippet}
+            </Button>
+            <Button 
+              type="submit"
+              variant="financials"
+              class="flex-1"
+            >
+              {#snippet children()}
+                <Icon name="plus" size="sm" class="mr-2" />
+                Add {type === 'income' ? 'Income' : 'Expense'}
+              {/snippet}
+            </Button>
+          </div>
+        </form>
       {/snippet}
-    </InlineForm>
+    </BottomSheet>
 
     {#if !showAddForm && transactions.length > 0}
       <Button

@@ -1,22 +1,24 @@
 <!-- Reusable EmptyState Component -->
 <script lang="ts">
-  import Icon from "./Icon.svelte";
-  
-  interface Props {
-    icon: 'check' | 'trash' | 'settings' | 'plus' | 'close' | 'dollar' | 'clipboard' | 'edit';
-    title: string;
-    subtitle: string;
-    onclick?: () => void;
-    class?: string;
-  }
+import Icon from './Icon.svelte';
 
-  let { 
-    icon, 
-    title, 
-    subtitle, 
-    onclick,
-    class: className = ''
-  }: Props = $props();
+interface Props {
+  icon:
+    | 'check'
+    | 'trash'
+    | 'settings'
+    | 'plus'
+    | 'close'
+    | 'dollar'
+    | 'clipboard'
+    | 'edit';
+  title: string;
+  subtitle: string;
+  onclick?: () => void;
+  class?: string;
+}
+
+let { icon, title, subtitle, onclick, class: className = '' }: Props = $props();
 </script>
 
 <button

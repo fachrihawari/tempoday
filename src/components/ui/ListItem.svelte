@@ -1,21 +1,16 @@
 <!-- Reusable List Item Component -->
 <script lang="ts">
-  import Button from './Button.svelte';
-  import Icon from './Icon.svelte';
+import Button from './Button.svelte';
+import Icon from './Icon.svelte';
 
-  interface Props {
-    class?: string;
-    children: any;
-    actions?: any;
-    onClick?: () => void;
-  }
+interface Props {
+  class?: string;
+  children: any;
+  actions?: any;
+  onClick?: () => void;
+}
 
-  let { 
-    class: className = '',
-    children,
-    actions,
-    onClick
-  }: Props = $props();
+let { class: className = '', children, actions, onClick }: Props = $props();
 </script>
 
 <!-- svelte-ignore a11y_click_events_have_key_events -->

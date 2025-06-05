@@ -1,76 +1,99 @@
 <script lang="ts">
-  import { currentDayData, updateCurrentDayData } from "../lib/stores";
-  import Card from './ui/Card.svelte';
-  import Button from './ui/Button.svelte';
-  import Icon from './ui/Icon.svelte';
-  import EmptyState from './ui/EmptyState.svelte';
-  import InlineForm from './ui/InlineForm.svelte';
+import { currentDayData, updateCurrentDayData } from '../lib/stores';
+import BottomSheet from './ui/BottomSheet.svelte';
+import Button from './ui/Button.svelte';
+import Card from './ui/Card.svelte';
+import EmptyState from './ui/EmptyState.svelte';
+import Icon from './ui/Icon.svelte';
+import Textarea from './ui/Textarea.svelte';
 
-  const note = $derived($currentDayData.note);
+const note = $derived($currentDayData.note);
 
-  let isEditing = $state(false);
-  let editingText = $state("");
+let isEditing = $state(false);
+let editingText = $state('');
 
-  function updateNote(newNote: string) {
-    updateCurrentDayData({ note: newNote });
+function updateNote(newNote: string) {
+  updateCurrentDayData({ note: newNote });
+}
+
+function startEditing() {
+  editingText = note;
+  isEditing = true;
+}
+
+function saveNote(event?: Event) {
+  if (event) {
+    event.preventDefault();
   }
+  updateNote(editingText);
+  cancelEditing();
+}
 
-  function startEditing() {
-    editingText = note;
-    isEditing = true;
-  }
+function cancelEditing() {
+  editingText = '';
+  isEditing = false;
+}
 
-  function saveNote() {
-    updateNote(editingText);
+function handleKeydown(event: KeyboardEvent) {
+  if (event.key === 'Escape') {
     cancelEditing();
   }
-
-  function cancelEditing() {
-    editingText = "";
-    isEditing = false;
+  // Allow Ctrl+Enter or Cmd+Enter to save
+  if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
+    saveNote();
   }
+}
 
-  function handleKeydown(event: KeyboardEvent) {
-    if (event.key === "Escape") {
-      cancelEditing();
-    }
-    // Allow Ctrl+Enter or Cmd+Enter to save
-    if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
-      saveNote();
-    }
-  }
-
-  // Auto-save functionality with debounce
-  let saveTimeout: number;
-  function handleInput() {
-    clearTimeout(saveTimeout);
-    saveTimeout = setTimeout(() => {
-      updateNote(editingText);
-    }, 1000); // Auto-save after 1 second of no typing
-  }
+// Auto-save functionality with debounce
+let saveTimeout: number;
+function handleInput() {
+  clearTimeout(saveTimeout);
+  saveTimeout = setTimeout(() => {
+    updateNote(editingText);
+  }, 1000); // Auto-save after 1 second of no typing
+}
 </script>
 
 <Card title="Daily Note" icon="edit" iconColor="text-purple-500">
   {#snippet children()}
     <!-- Note Edit Form -->
-    <InlineForm
-      bind:show={isEditing}
-      onSubmit={saveNote}
-      onCancel={cancelEditing}
-      submitText="Save Note"
-      submitVariant="notes"
-    >
+    <BottomSheet bind:open={isEditing} title={note.trim() ? "Edit Note" : "Add Note"}>
       {#snippet children()}
-        <textarea
-          bind:value={editingText}
-          oninput={handleInput}
-          onkeydown={handleKeydown}
-          placeholder="Write your thoughts, reflections, or anything you want to remember about this day..."
-          class="w-full h-32 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm resize-none"
-          aria-label="Daily note"
-        ></textarea>
+        <form onsubmit={saveNote} class="space-y-6">
+          <Textarea
+            bind:value={editingText}
+            placeholder="Write your thoughts, reflections, or anything you want to remember about this day..."
+            label="Daily Note"
+            theme="notes"
+            rows={8}
+            autoResize={true}
+            required
+          />
+          <div class="flex gap-3 pt-2">
+            <Button 
+              type="button"
+              variant="ghost"
+              onclick={cancelEditing}
+              class="flex-none w-1/4"
+            >
+              {#snippet children()}
+                Cancel
+              {/snippet}
+            </Button>
+            <Button 
+              type="submit"
+              variant="notes"
+              class="flex-1"
+            >
+              {#snippet children()}
+                <Icon name="save" size="sm" class="mr-2" />
+                Save Note
+              {/snippet}
+            </Button>
+          </div>
+        </form>
       {/snippet}
-    </InlineForm>
+    </BottomSheet>
 
     {#if !isEditing}
       <div class="{note.trim() ? 'mb-4' : ''}">
