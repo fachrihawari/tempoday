@@ -1,85 +1,28 @@
 import * as schema from "./schema";
 import type { DB } from ".";
+import { autoRunMigrations, type MigrationResult } from './auto-migration';
 
-// Initialize database for TempoDay MVP
-export async function initializeDatabase(db: DB) {
+// Initialize database for TempoDay MVP using migration system
+export async function initializeDatabase(db: DB): Promise<MigrationResult> {
+  console.log('🔄 Initializing TempoDay database...');
   try {
-    // Create tables manually for PGlite - no migration support
-    await createTempoDayTables(db);
+    // Use automatic migration system instead of manual table creation
+    const migrationResult = await autoRunMigrations(db);
 
-    // Insert sample data for MVP testing
-    await insertSampleData(db);
+    // Insert sample data for MVP testing (only in development)
+    if (migrationResult.wasNeeded || import.meta.env.DEV) {
+      await insertSampleData(db);
+    }
 
     console.log('✅ TempoDay database initialized successfully');
+    return migrationResult;
   } catch (error) {
     console.error('❌ Database initialization failed:', error);
     throw error;
   }
 }
 
-// Create TempoDay MVP tables manually
-async function createTempoDayTables(db: DB) {
-  try {
-    // Tasks table for To-Do List Section
-    await db.execute(`
-      CREATE TABLE IF NOT EXISTS tasks (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        title VARCHAR(100) NOT NULL,
-        completed BOOLEAN DEFAULT FALSE,
-        date DATE NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
-    `);
-
-    // Notes table for Daily Note Section (Diary-like)
-    await db.execute(`
-      CREATE TABLE IF NOT EXISTS notes (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        content TEXT DEFAULT '',
-        date DATE NOT NULL UNIQUE,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
-    `);
-
-    // Transactions table for Financial Records Section
-    await db.execute(`
-      CREATE TABLE IF NOT EXISTS transactions (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        description VARCHAR(100) NOT NULL,
-        amount NUMERIC(10,2) NOT NULL,
-        type VARCHAR(7) CHECK (type IN ('income', 'expense')) NOT NULL,
-        date DATE NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
-    `);
-
-    // Settings table for app configuration
-    await db.execute(`
-      CREATE TABLE IF NOT EXISTS settings (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        data JSONB DEFAULT '{"currency":"USD","currencySymbol":"$","locale":"en-US"}',
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
-    `);
-
-    // Create indexes for better TempoDay performance
-    await db.execute(`
-      CREATE INDEX IF NOT EXISTS idx_tasks_date ON tasks(date);
-      CREATE INDEX IF NOT EXISTS idx_notes_date ON notes(date);
-      CREATE INDEX IF NOT EXISTS idx_transactions_date ON transactions(date);
-    `);
-
-    console.log('✅ TempoDay tables created successfully');
-  } catch (error) {
-    console.error('❌ Failed to create TempoDay tables:', error);
-    throw error;
-  }
-}
-
+// Sample data insertion for MVP testing
 async function insertSampleData(db: DB) {
   if (!import.meta.env.DEV) {
     console.log('🚫 Skipping sample data insertion in production')  

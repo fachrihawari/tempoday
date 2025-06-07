@@ -23,7 +23,3 @@ export function setDbError(error: string) {
   appState.dbError = error;
   appState.initializing = false;
 }
-
-export function setInitializing(initializing: boolean) {
-  appState.initializing = initializing;
-}

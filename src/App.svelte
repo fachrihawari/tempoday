@@ -1,12 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import Home from "./pages/Home.svelte";
-  import {
-    appState,
-    setDbReady,
-    setDbError,
-    setInitializing,
-  } from "./stores/app.svelte";
+  import { appState, setDbReady, setDbError } from "./stores/app.svelte";
   import { db } from "./db";
   import { initializeDatabase } from "./db/setup";
   import Loading from "./components/ui/Loading.svelte";
@@ -15,9 +10,7 @@
   // Initialize database when component mounts
   onMount(async () => {
     try {
-      setInitializing(true);
-
-      // Initialize database
+      // Initialize database with automatic migration system
       await initializeDatabase(db);
 
       // Database is ready
@@ -36,7 +29,7 @@
 <div class="h-screen overflow-y-auto">
   {#if appState.initializing}
     <div class="flex items-center justify-center h-full">
-      <Loading message="Initializing TempoDay database..." />
+      <Loading message="Preparing TempoDay..." />
     </div>
   {:else if appState.dbError}
     <div class="flex items-center justify-center h-full">
