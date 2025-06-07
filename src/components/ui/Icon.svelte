@@ -1,18 +1,26 @@
 <script lang="ts">
+export type IconName =
+  | 'check'
+  | 'trash'
+  | 'settings'
+  | 'plus'
+  | 'close'
+  | 'dollar'
+  | 'clipboard'
+  | 'edit'
+  | 'save'
+  | 'trending-up'
+  | 'trending-down'
+  | 'alert-circle'
+  | 'info-circle'
+  | 'exclamation-triangle'
+  | 'times-circle'
+  | 'check-circle';
+export type IconSize = 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl';
+
 interface Props {
-  name:
-    | 'check'
-    | 'trash'
-    | 'settings'
-    | 'plus'
-    | 'close'
-    | 'dollar'
-    | 'clipboard'
-    | 'edit'
-    | 'save'
-    | 'trending-up'
-    | 'trending-down';
-  size?: 'sm' | 'md' | 'lg';
+  name: IconName;
+  size?: IconSize;
   class?: string;
 }
 
@@ -22,6 +30,9 @@ const sizes = {
   sm: 'w-4 h-4',
   md: 'w-5 h-5',
   lg: 'w-6 h-6',
+  xl: 'w-8 h-8',
+  '2xl': 'w-10 h-10',
+  '3xl': 'w-12 h-12'
 };
 
 const icons = {
@@ -36,6 +47,11 @@ const icons = {
   save: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path>`,
   'trending-up': `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>`,
   'trending-down': `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"></path>`,
+  'alert-circle': `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>`,
+  'info-circle': `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>`,
+  'exclamation-triangle': `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>`,
+  'times-circle': `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>`,
+  'check-circle': `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>`
 };
 </script>
 
