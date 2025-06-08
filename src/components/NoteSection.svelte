@@ -11,7 +11,7 @@
   import Alert from "./ui/Alert.svelte";
 
   // Reactive values from the repository
-  let { note, isLoading, isSaving, error, content, hasContent } =
+  let { isLoading, isSaving, error, content, hasContent } =
     $derived(reactiveNotes);
 
   let isEditing = $state(false);
@@ -20,7 +20,6 @@
   // Watch for date changes and load note
   $effect(() => {
     const dateKey = formatDateKey($selectedDate);
-    console.log(`Loading note for date: ${dateKey}`);
     reactiveNotes.loadNote(dateKey);
   });
 

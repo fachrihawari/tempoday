@@ -20,7 +20,6 @@
   // Watch for date changes and load tasks
   $effect(() => {
     const dateKey = formatDateKey($selectedDate);
-    console.log(`Loading tasks for date: ${dateKey}`);
     reactiveTasks.loadTasks(dateKey);
   });
 
