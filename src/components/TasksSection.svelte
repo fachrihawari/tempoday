@@ -1,6 +1,7 @@
 <script lang="ts">
   import { reactiveTasks } from "../db/reactive/tasks.svelte";
-  import { selectedDate, formatDateKey } from "../lib/stores";
+  import { appState } from "../stores/app.svelte";
+  import { formatDateKey } from "../lib/date";
   import BottomSheet from "./ui/BottomSheet.svelte";
   import Button from "./ui/Button.svelte";
   import Card from "./ui/Card.svelte";
@@ -19,7 +20,7 @@
 
   // Watch for date changes and load tasks
   $effect(() => {
-    const dateKey = formatDateKey($selectedDate);
+    const dateKey = formatDateKey(appState.selectedDate);
     reactiveTasks.loadTasks(dateKey);
   });
 
@@ -27,7 +28,7 @@
     if (event) event.preventDefault();
 
     const text = newTaskText.trim();
-    const dateKey = formatDateKey($selectedDate);
+    const dateKey = formatDateKey(appState.selectedDate);
     await reactiveTasks.createTask(text, dateKey);
     resetForm();
   }

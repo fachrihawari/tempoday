@@ -3,7 +3,8 @@
   import { formatCurrency } from "../lib/currency";
   import { reactiveTransactions } from "../db/reactive/transactions.svelte";
   import { reactiveSettings } from "../db/reactive/settings.svelte";
-  import { selectedDate, formatDateKey } from "../lib/stores";
+  import { appState } from "../stores/app.svelte";
+  import { formatDateKey } from "../lib/date";
   import BottomSheet from "./ui/BottomSheet.svelte";
   import Button from "./ui/Button.svelte";
   import Card from "./ui/Card.svelte";
@@ -12,7 +13,7 @@
   import Input from "./ui/Input.svelte";
   import Loading from "./ui/Loading.svelte";
   import Alert from "./ui/Alert.svelte";
-    import { onMount } from "svelte";
+  import { onMount } from "svelte";
 
   // Reactive values from the repository
   let { transactions, isLoading, isCreating, isDeleting, error, totalIncome, totalExpenses, netBalance, totalCount } = $derived(reactiveTransactions);
@@ -27,7 +28,7 @@
 
   // Watch for date changes and load transactions
   $effect(() => {
-    const dateKey = formatDateKey($selectedDate);
+    const dateKey = formatDateKey(appState.selectedDate);
     reactiveTransactions.loadTransactions(dateKey);
   });
 
@@ -50,7 +51,7 @@
     const amt = parseFloat(amount);
 
     if (desc && !isNaN(amt) && amt > 0) {
-      const dateKey = formatDateKey($selectedDate);
+      const dateKey = formatDateKey(appState.selectedDate);
       try {
         await reactiveTransactions.createTransaction({
           description: desc,

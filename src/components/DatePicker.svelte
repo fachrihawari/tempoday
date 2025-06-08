@@ -7,7 +7,7 @@ import {
   isSameDate,
   isToday,
 } from '../lib/date';
-import { selectedDate } from '../lib/stores';
+import { appState, setSelectedDate } from '../stores/app.svelte';
 import Button from './ui/Button.svelte';
 
 let scrollContainer: HTMLElement;
@@ -19,14 +19,14 @@ function initializeDateRange(centerDate: Date) {
 }
 
 function selectDate(date: Date) {
-  selectedDate.set(new Date(date));
+  setSelectedDate(new Date(date));
 }
 
 function goToToday() {
   const today = new Date();
 
   // Set the selected date first
-  selectedDate.set(today);
+  setSelectedDate(today);
 
   // Check if today is already in the current date range
   const isInRange = dateRange.some((date) => isSameDate(date, today));
@@ -74,7 +74,7 @@ function scrollToDate(targetDate: Date, immediate = false) {
 
 onMount(() => {
   // Initialize with the current selected date or today
-  const currentDate = $selectedDate || new Date();
+  const currentDate = appState.selectedDate || new Date();
   initializeDateRange(currentDate);
 
   // Use multiple strategies to ensure proper initial positioning
@@ -102,7 +102,7 @@ onMount(() => {
 
 // Reactive effect to handle external selectedDate changes
 $effect(() => {
-  const currentSelectedDate = $selectedDate;
+  const currentSelectedDate = appState.selectedDate;
 
   if (currentSelectedDate && dateRange.length > 0 && scrollContainer) {
     // Check if selected date is in current range
@@ -129,10 +129,10 @@ $effect(() => {
 
 // Watch for container size changes (useful for responsive design)
 $effect(() => {
-  if (scrollContainer && $selectedDate) {
+  if (scrollContainer && appState.selectedDate) {
     // Re-center the selected date when container size might have changed
     const resizeObserver = new ResizeObserver(() => {
-      setTimeout(() => scrollToDate($selectedDate, true), 10);
+      setTimeout(() => scrollToDate(appState.selectedDate, true), 10);
     });
 
     resizeObserver.observe(scrollContainer);
@@ -202,7 +202,7 @@ function handleScroll() {
   <!-- Current Date Display -->
   <div class="px-4 flex justify-between items-center">
     <h2 class="text-lg font-semibold text-gray-800">
-      {formatDate($selectedDate)}
+      {formatDate(appState.selectedDate)}
     </h2>
 
     <Button variant="primary" onclick={goToToday} class="px-3 py-1 text-sm">
@@ -224,7 +224,7 @@ function handleScroll() {
         <button
           onclick={() => selectDate(date)}
           class="flex-shrink-0 w-16 h-20 flex flex-col items-center justify-center rounded-lg transition-all duration-200 scroll-snap-align-center
-            {isSameDate(date, $selectedDate)
+            {isSameDate(date, appState.selectedDate)
             ? 'bg-blue-500 text-white shadow-lg scale-105'
             : isToday(date)
               ? 'bg-blue-100 text-blue-700 border-2 border-blue-300'

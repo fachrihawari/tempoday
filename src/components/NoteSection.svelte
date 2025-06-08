@@ -1,6 +1,7 @@
 <script lang="ts">
   import { reactiveNotes } from "../db/reactive/notes.svelte";
-  import { selectedDate, formatDateKey } from "../lib/stores";
+  import { appState } from "../stores/app.svelte";
+  import { formatDateKey } from "../lib/date";
   import BottomSheet from "./ui/BottomSheet.svelte";
   import Button from "./ui/Button.svelte";
   import Card from "./ui/Card.svelte";
@@ -19,7 +20,7 @@
 
   // Watch for date changes and load note
   $effect(() => {
-    const dateKey = formatDateKey($selectedDate);
+    const dateKey = formatDateKey(appState.selectedDate);
     reactiveNotes.loadNote(dateKey);
   });
 
@@ -33,7 +34,7 @@
       event.preventDefault();
     }
 
-    const dateKey = formatDateKey($selectedDate);
+    const dateKey = formatDateKey(appState.selectedDate);
     try {
       await reactiveNotes.saveNote(editingText, dateKey);
       cancelEditing();
@@ -64,7 +65,7 @@
 
   // Auto-save functionality with debounce
   function handleInput() {
-    const dateKey = formatDateKey($selectedDate);
+    const dateKey = formatDateKey(appState.selectedDate);
     reactiveNotes.autoSaveNote(editingText, dateKey, 1000);
   }
 </script>
