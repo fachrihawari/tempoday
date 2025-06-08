@@ -70,14 +70,6 @@
 </script>
 
 <Card title="Daily Note" icon="edit" iconColor="text-purple-500">
-  {#snippet headerAction()}
-    {#if isLoading}
-      <Icon name="loader" size="sm" class="animate-spin" />
-    {:else if isSaving}
-      <Icon name="loader" size="sm" class="animate-spin text-purple-500" />
-    {/if}
-  {/snippet}
-
   {#snippet children()}
     {#if error}
       <Alert

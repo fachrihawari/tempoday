@@ -44,9 +44,7 @@
 
 <Card title="Tasks" icon="clipboard" iconColor="text-blue-500">
   {#snippet headerAction()}
-    {#if isLoading}
-      <Icon name="loader" size="sm" class="animate-spin" />
-    {:else if totalCount > 0}
+    {#if totalCount > 0}
       <span class="text-sm text-gray-500">
         {completedCount}/{totalCount}
       </span>
@@ -65,64 +63,64 @@
 
     <!-- Task List -->
     <div class="space-y-2 {tasks.length > 0 ? 'mb-4' : ''}">
-      {#each tasks as task (task.id)}
-        <div
-          class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 group"
-        >
-          <button
-            onclick={() => reactiveTasks.toggleTask(task.id)}
-            disabled={reactiveTasks.isToggling[task.id]}
-            class="flex-shrink-0 w-5 h-5 rounded border-2 flex items-center justify-center transition-colors
-              {task.completed
-              ? 'bg-green-500 border-green-500 text-white'
-              : 'border-gray-300 hover:border-green-400'}
-              {reactiveTasks.isToggling[task.id]
-              ? 'opacity-50 cursor-not-allowed bg-white border-white hover:border-white hover:bg-white'
-              : ''}"
-          >
-            {#if reactiveTasks.isToggling[task.id]}
-              <Icon name="loader" size="sm" class="w-3 h-3 animate-spin" />
-            {:else if task.completed}
-              <Icon name="check" size="sm" class="w-3 h-3" />
-            {/if}
-          </button>
-
-          <span
-            class="flex-1 text-sm {task.completed
-              ? 'line-through text-gray-500'
-              : 'text-gray-900'}"
-          >
-            {task.title}
-          </span>
-
-          <Button
-            variant="ghost"
-            size="sm"
-            onclick={() => reactiveTasks.deleteTask(task.id)}
-            disabled={reactiveTasks.isDeleting[task.id]}
-            class="!p-1 text-red-500 hover:bg-red-50
-              {reactiveTasks.isDeleting[task.id] ? 'opacity-100' : ''}"
-          >
-            {#snippet children()}
-              {#if reactiveTasks.isDeleting[task.id]}
-                <Icon name="loader" size="sm" class="animate-spin" />
-              {:else}
-                <Icon name="trash" size="sm" />
-              {/if}
-            {/snippet}
-          </Button>
-        </div>
-      {/each}
-
-      {#if tasks.length === 0 && !isLoading}
-        <EmptyState
-          icon="clipboard"
-          title="No tasks for this day"
-          subtitle="Tap to add your first task"
-          onclick={() => (showAddForm = true)}
-        />
-      {:else if isLoading}
+      {#if isLoading}
         <Loading size="xl" message="Loading tasks..." />
+      {:else}
+        {#each tasks as task (task.id)}
+          <div
+            class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 group"
+          >
+            <button
+              onclick={() => reactiveTasks.toggleTask(task.id)}
+              disabled={reactiveTasks.isToggling[task.id]}
+              class="flex-shrink-0 w-5 h-5 rounded border-2 flex items-center justify-center transition-colors
+              {task.completed
+                ? 'bg-green-500 border-green-500 text-white'
+                : 'border-gray-300 hover:border-green-400'}
+              {reactiveTasks.isToggling[task.id]
+                ? 'opacity-50 cursor-not-allowed bg-white border-white hover:border-white hover:bg-white'
+                : ''}"
+            >
+              {#if reactiveTasks.isToggling[task.id]}
+                <Icon name="loader" size="sm" class="w-3 h-3 animate-spin" />
+              {:else if task.completed}
+                <Icon name="check" size="sm" class="w-3 h-3" />
+              {/if}
+            </button>
+
+            <span
+              class="flex-1 text-sm {task.completed
+                ? 'line-through text-gray-500'
+                : 'text-gray-900'}"
+            >
+              {task.title}
+            </span>
+
+            <Button
+              variant="ghost"
+              size="sm"
+              onclick={() => reactiveTasks.deleteTask(task.id)}
+              disabled={reactiveTasks.isDeleting[task.id]}
+              class="!p-1 text-red-500 hover:bg-red-50
+              {reactiveTasks.isDeleting[task.id] ? 'opacity-100' : ''}"
+            >
+              {#snippet children()}
+                {#if reactiveTasks.isDeleting[task.id]}
+                  <Icon name="loader" size="sm" class="animate-spin" />
+                {:else}
+                  <Icon name="trash" size="sm" />
+                {/if}
+              {/snippet}
+            </Button>
+          </div>
+        {:else}
+          <EmptyState
+            icon="clipboard"
+            title="No tasks for this day"
+            subtitle="Tap to add your first task"
+            onclick={() => (showAddForm = true)}
+          />
+        {/each}
       {/if}
     </div>
 
