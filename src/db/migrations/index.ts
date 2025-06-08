@@ -1,4 +1,5 @@
 import type { DB } from '../index';
+import { getPendingMigrations } from '../utils';
 
 export interface Migration {
   version: string; // Now using semantic version strings like "0.0.1"
@@ -31,40 +32,18 @@ export async function getCurrentVersion(): Promise<string> {
   return storedInfo.installedVersion;
 }
 
-// Simple semantic version comparison
-function compareVersions(a: string, b: string): number {
-  const parseVersion = (v: string) => v.split('.').map(Number);
-  const [aMajor, aMinor, aPatch] = parseVersion(a);
-  const [bMajor, bMinor, bPatch] = parseVersion(b);
-
-  if (aMajor !== bMajor) return aMajor - bMajor;
-  if (aMinor !== bMinor) return aMinor - bMinor;
-  return aPatch - bPatch;
-}
-
 // Apply pending migrations
 export async function runMigrations(db: DB, currentVersion: string, maxVersion: string): Promise<void> {
   console.log('🔄 Checking for pending migrations...');
 
-  let pendingMigrations = migrations.filter(m =>
-    compareVersions(m.version, currentVersion) > 0
-  );
-  
-  // If maxVersion is provided, also filter by maximum version
-  if (maxVersion) {
-    pendingMigrations = pendingMigrations.filter(m => 
-      compareVersions(m.version, maxVersion) <= 0
-    );
-    console.log(`🔒 Constraining migrations to max version: ${maxVersion}`);
-  }
+  const pendingMigrations = getPendingMigrations(migrations, currentVersion, maxVersion);
 
   if (pendingMigrations.length === 0) {
     console.log('✅ Database is up to date (version ' + currentVersion + ')');
     return;
   }
 
-  // Sort migrations by version
-  pendingMigrations.sort((a, b) => compareVersions(a.version, b.version));
+  console.log(`🔒 Constraining migrations: ${currentVersion} < version <= ${maxVersion}`);
 
   console.log(`📦 Found ${pendingMigrations.length} pending migration(s)`);
   if (pendingMigrations.length > 0) {

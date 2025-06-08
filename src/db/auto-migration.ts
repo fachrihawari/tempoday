@@ -3,23 +3,12 @@
 
 import type { DB } from './index';
 import { runMigrations, getCurrentVersion } from './migrations/index';
+import { getPendingMigrations } from './utils';
 import {
   isMigrationNeeded,
   updateVersionInfo,
-  getStoredVersionInfo,
   APP_VERSION
 } from './version';
-
-// Simple semantic version comparison (duplicated from migrations/index for now)
-function compareVersions(a: string, b: string): number {
-  const parseVersion = (v: string) => v.split('.').map(Number);
-  const [aMajor, aMinor, aPatch] = parseVersion(a);
-  const [bMajor, bMinor, bPatch] = parseVersion(b);
-  
-  if (aMajor !== bMajor) return aMajor - bMajor;
-  if (aMinor !== bMinor) return aMinor - bMinor;
-  return aPatch - bPatch;
-}
 
 export interface MigrationResult {
   wasNeeded: boolean;
@@ -64,22 +53,9 @@ export async function autoRunMigrations(db: DB): Promise<MigrationResult> {
     // Only import migrations if we potentially need them
     const { migrations } = await import('./migrations/index');
     
-    const pendingMigrations = migrations.filter(m => 
-      compareVersions(m.version, currentDbVersion) > 0 && 
-      compareVersions(m.version, APP_VERSION) <= 0
-    );
+    const pendingMigrations = getPendingMigrations(migrations, currentDbVersion, APP_VERSION);
     
     const hasPendingMigrations = pendingMigrations.length > 0;
-    
-    // Debug logging for migration filtering
-    console.log(`🔍 Migration filtering: Installed version ${currentDbVersion}, App version ${APP_VERSION}`);
-    console.log(`📦 Total migrations available: ${migrations.length}`);
-    console.log(`📦 Pending migrations (${currentDbVersion} < version <= ${APP_VERSION}): ${pendingMigrations.length}`);
-    
-    if (hasPendingMigrations) {
-      console.log('📋 Pending migration versions:', pendingMigrations.map(m => m.version));
-    }
-    
     if (!hasPendingMigrations) {
       result.currentVersion = currentDbVersion;
       
