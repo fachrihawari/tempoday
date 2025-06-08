@@ -1,93 +1,93 @@
 <!-- Enhanced FinanceSection using reusable UI components -->
 <script lang="ts">
-import { formatCurrency } from '../lib/currency';
-import {
-  type Transaction,
-  currentDayData,
-  settingsStore,
-  updateCurrentDayData,
-} from '../lib/stores';
-import { generateId } from '../lib/unique';
-import BottomSheet from './ui/BottomSheet.svelte';
-import Button from './ui/Button.svelte';
-import Card from './ui/Card.svelte';
-import EmptyState from './ui/EmptyState.svelte';
-import Icon from './ui/Icon.svelte';
-import Input from './ui/Input.svelte';
+  import { formatCurrency } from "../lib/currency";
+  import {
+    type Transaction,
+    currentDayData,
+    settingsStore,
+    updateCurrentDayData,
+  } from "../lib/stores";
+  import { generateId } from "../lib/unique";
+  import BottomSheet from "./ui/BottomSheet.svelte";
+  import Button from "./ui/Button.svelte";
+  import Card from "./ui/Card.svelte";
+  import EmptyState from "./ui/EmptyState.svelte";
+  import Icon from "./ui/Icon.svelte";
+  import Input from "./ui/Input.svelte";
 
-const transactions = $derived($currentDayData.transactions);
-const settings = $derived($settingsStore);
+  const transactions = $derived($currentDayData.transactions);
+  const settings = $derived($settingsStore);
 
-let showAddForm = $state(false);
-let description = $state('');
-let amount = $state('');
-let type = $state<'income' | 'expense'>('expense');
+  let showAddForm = $state(false);
+  let description = $state("");
+  let amount = $state("");
+  let type = $state<"income" | "expense">("expense");
 
-// Helper function to format currency with current settings
-function formatAmount(amount: number): string {
-  return formatCurrency(amount, settings.currency, settings.locale);
-}
-
-function addTransaction(
-  desc: string,
-  amt: number,
-  transactionType: 'income' | 'expense',
-) {
-  const newTransaction: Transaction = {
-    id: generateId(),
-    description: desc,
-    amount: amt,
-    type: transactionType,
-    date: new Date().toISOString().split('T')[0],
-  };
-
-  updateCurrentDayData({
-    transactions: [...$currentDayData.transactions, newTransaction],
-  });
-}
-
-function deleteTransaction(transactionId: string) {
-  updateCurrentDayData({
-    transactions: $currentDayData.transactions.filter(
-      (t) => t.id !== transactionId,
-    ),
-  });
-}
-
-// Calculate totals
-const totalIncome = $derived(
-  transactions
-    .filter((t) => t.type === 'income')
-    .reduce((sum, t) => sum + t.amount, 0),
-);
-
-const totalExpenses = $derived(
-  transactions
-    .filter((t) => t.type === 'expense')
-    .reduce((sum, t) => sum + t.amount, 0),
-);
-
-const netBalance = $derived(totalIncome - totalExpenses);
-
-function handleAddTransaction(event?: Event) {
-  if (event) {
-    event.preventDefault();
+  // Helper function to format currency with current settings
+  function formatAmount(amount: number): string {
+    return formatCurrency(amount, settings.currency, settings.locale);
   }
-  const desc = description.trim();
-  const amt = parseFloat(amount);
 
-  if (desc && !isNaN(amt) && amt > 0) {
-    addTransaction(desc, amt, type);
-    resetForm();
+  function addTransaction(
+    desc: string,
+    amt: number,
+    transactionType: "income" | "expense",
+  ) {
+    const newTransaction: Transaction = {
+      id: generateId(),
+      description: desc,
+      amount: amt,
+      type: transactionType,
+      date: new Date().toISOString().split("T")[0],
+    };
+
+    updateCurrentDayData({
+      transactions: [...$currentDayData.transactions, newTransaction],
+    });
   }
-}
 
-function resetForm() {
-  description = '';
-  amount = '';
-  type = 'expense';
-  showAddForm = false;
-}
+  function deleteTransaction(transactionId: string) {
+    updateCurrentDayData({
+      transactions: $currentDayData.transactions.filter(
+        (t) => t.id !== transactionId,
+      ),
+    });
+  }
+
+  // Calculate totals
+  const totalIncome = $derived(
+    transactions
+      .filter((t) => t.type === "income")
+      .reduce((sum, t) => sum + t.amount, 0),
+  );
+
+  const totalExpenses = $derived(
+    transactions
+      .filter((t) => t.type === "expense")
+      .reduce((sum, t) => sum + t.amount, 0),
+  );
+
+  const netBalance = $derived(totalIncome - totalExpenses);
+
+  function handleAddTransaction(event?: Event) {
+    if (event) {
+      event.preventDefault();
+    }
+    const desc = description.trim();
+    const amt = parseFloat(amount);
+
+    if (desc && !isNaN(amt) && amt > 0) {
+      addTransaction(desc, amt, type);
+      resetForm();
+    }
+  }
+
+  function resetForm() {
+    description = "";
+    amount = "";
+    type = "expense";
+    showAddForm = false;
+  }
 </script>
 
 <Card title="Financial Records" icon="dollar" iconColor="text-green-500">
@@ -137,7 +137,7 @@ function resetForm() {
             <p class="text-xs text-gray-500 capitalize">{transaction.type}</p>
           </div>
 
-          <div class="text-right group-hover:mr-8">
+          <div class="text-right">
             <p
               class="text-sm font-medium {transaction.type === 'income'
                 ? 'text-green-600'
@@ -149,18 +149,16 @@ function resetForm() {
             </p>
           </div>
 
-          <div class="w-8 flex justify-center absolute right-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onclick={() => deleteTransaction(transaction.id)}
-              class="opacity-0 group-hover:opacity-100 !p-1 text-red-500 hover:bg-red-50 !w-6 !h-6"
-            >
-              {#snippet children()}
-                <Icon name="trash" size="sm" />
-              {/snippet}
-            </Button>
-          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onclick={() => deleteTransaction(transaction.id)}
+            class="!p-1 text-red-500 hover:bg-red-50 !w-6 !h-6"
+          >
+            {#snippet children()}
+              <Icon name="trash" size="sm" />
+            {/snippet}
+          </Button>
         </div>
       {/each}
 
@@ -180,7 +178,10 @@ function resetForm() {
         <form onsubmit={handleAddTransaction} class="space-y-6">
           <!-- Type Selection -->
           <fieldset>
-            <legend class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Transaction Type</legend>
+            <legend
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3"
+              >Transaction Type</legend
+            >
             <div class="flex gap-2">
               <Button
                 type="button"
@@ -233,7 +234,7 @@ function resetForm() {
           />
 
           <div class="flex gap-3 pt-2">
-            <Button 
+            <Button
               type="button"
               variant="ghost"
               onclick={resetForm}
@@ -243,14 +244,10 @@ function resetForm() {
                 Cancel
               {/snippet}
             </Button>
-            <Button 
-              type="submit"
-              variant="financials"
-              class="flex-1"
-            >
+            <Button type="submit" variant="financials" class="flex-1">
               {#snippet children()}
                 <Icon name="plus" size="sm" class="mr-2" />
-                Add {type === 'income' ? 'Income' : 'Expense'}
+                Add {type === "income" ? "Income" : "Expense"}
               {/snippet}
             </Button>
           </div>

@@ -103,7 +103,7 @@
             size="sm"
             onclick={() => reactiveTasks.deleteTask(task.id)}
             disabled={reactiveTasks.isDeleting[task.id]}
-            class="opacity-0 group-hover:opacity-100 !p-1 text-red-500 hover:bg-red-50
+            class="!p-1 text-red-500 hover:bg-red-50
               {reactiveTasks.isDeleting[task.id] ? 'opacity-100' : ''}"
           >
             {#snippet children()}
