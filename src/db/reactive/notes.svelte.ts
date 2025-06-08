@@ -63,7 +63,6 @@ export class ReactiveNotes {
     } catch (err) {
       this.error = err instanceof Error ? err.message : 'Failed to save note';
       console.error('Error saving note:', err);
-      throw err; // Re-throw so component can handle it
     } finally {
       this.isSaving = false;
     }

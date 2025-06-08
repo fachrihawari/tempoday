@@ -57,7 +57,6 @@ export class ReactiveTasks {
     } catch (err) {
       this.error = err instanceof Error ? err.message : 'Failed to create task';
       console.error('Error creating task:', err);
-      throw err; // Re-throw so component can handle it
     } finally {
       this.isCreating = false;
     }

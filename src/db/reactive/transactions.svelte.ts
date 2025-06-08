@@ -60,7 +60,6 @@ export class ReactiveTransactions {
     } catch (err) {
       this.error = err instanceof Error ? err.message : 'Failed to create transaction';
       console.error('Error creating transaction:', err);
-      throw err; // Re-throw so component can handle it
     } finally {
       this.isCreating = false;
     }

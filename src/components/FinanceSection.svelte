@@ -2,7 +2,8 @@
 <script lang="ts">
   import { formatCurrency } from "../lib/currency";
   import { reactiveTransactions } from "../db/reactive/transactions.svelte";
-  import { selectedDate, formatDateKey, settingsStore } from "../lib/stores";
+  import { reactiveSettings } from "../db/reactive/settings.svelte";
+  import { selectedDate, formatDateKey } from "../lib/stores";
   import BottomSheet from "./ui/BottomSheet.svelte";
   import Button from "./ui/Button.svelte";
   import Card from "./ui/Card.svelte";
@@ -11,11 +12,13 @@
   import Input from "./ui/Input.svelte";
   import Loading from "./ui/Loading.svelte";
   import Alert from "./ui/Alert.svelte";
+    import { onMount } from "svelte";
 
   // Reactive values from the repository
   let { transactions, isLoading, isCreating, isDeleting, error, totalIncome, totalExpenses, netBalance, totalCount } = $derived(reactiveTransactions);
   
-  const settings = $derived($settingsStore);
+  // Reactive settings
+  let { settings } = $derived(reactiveSettings);
 
   let showAddForm = $state(false);
   let description = $state("");
@@ -26,6 +29,11 @@
   $effect(() => {
     const dateKey = formatDateKey($selectedDate);
     reactiveTransactions.loadTransactions(dateKey);
+  });
+
+  // Load settings when component mounts
+  onMount(() => {
+    reactiveSettings.loadSettings();
   });
 
   // Helper function to format currency with current settings
@@ -119,7 +127,7 @@
     <!-- Transaction List -->
     <div class="space-y-2 {transactions.length > 0 ? 'mb-4' : ''}">
       {#if isLoading}
-        <Loading size="lg" message="Loading transactions..." />
+        <Loading size="xl" message="Loading transactions..." />
       {:else}
         {#each transactions as transaction (transaction.id)}
           <div

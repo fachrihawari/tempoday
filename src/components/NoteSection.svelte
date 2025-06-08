@@ -133,7 +133,7 @@
     {#if !isEditing}
       <div class={hasContent ? "mb-4" : ""}>
         {#if isLoading}
-          <Loading size="lg" message="Loading note..." />
+          <Loading size="xl" message="Loading note..." />
         {:else if hasContent}
           <button onclick={startEditing} class="cursor-text w-full text-left">
             <div
