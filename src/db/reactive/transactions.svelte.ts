@@ -1,6 +1,6 @@
+import { db } from '../index';
 // Reactive wrapper for TransactionsRepository using Svelte 5 runes
 import { TransactionsRepository } from '../repositories/transactions';
-import { db } from '../index';
 import type { Transaction } from '../schema/transactions';
 
 export class ReactiveTransactions {
@@ -40,7 +40,8 @@ export class ReactiveTransactions {
       this.transactions = transactions;
       this.currentDate = date;
     } catch (err) {
-      this.error = err instanceof Error ? err.message : 'Failed to load transactions';
+      this.error =
+        err instanceof Error ? err.message : 'Failed to load transactions';
       console.error('Error loading transactions:', err);
     } finally {
       this.isLoading = false;
@@ -50,7 +51,12 @@ export class ReactiveTransactions {
   /**
    * Create a new transaction
    */
-  async createTransaction(transactionData: { description: string; amount: string; type: 'income' | 'expense'; date: string }): Promise<void> {
+  async createTransaction(transactionData: {
+    description: string;
+    amount: string;
+    type: 'income' | 'expense';
+    date: string;
+  }): Promise<void> {
     this.isCreating = true;
     this.error = null;
 
@@ -58,7 +64,8 @@ export class ReactiveTransactions {
       const newTransaction = await this.repo.createTransaction(transactionData);
       this.transactions = this.transactions.concat([newTransaction]);
     } catch (err) {
-      this.error = err instanceof Error ? err.message : 'Failed to create transaction';
+      this.error =
+        err instanceof Error ? err.message : 'Failed to create transaction';
       console.error('Error creating transaction:', err);
     } finally {
       this.isCreating = false;
@@ -79,9 +86,12 @@ export class ReactiveTransactions {
         throw new Error('Transaction not found or could not be deleted');
       }
 
-      this.transactions = this.transactions.filter(transaction => transaction.id !== transactionId);
+      this.transactions = this.transactions.filter(
+        (transaction) => transaction.id !== transactionId,
+      );
     } catch (err) {
-      this.error = err instanceof Error ? err.message : 'Failed to delete transaction';
+      this.error =
+        err instanceof Error ? err.message : 'Failed to delete transaction';
       console.error('Error deleting transaction:', err);
     } finally {
       this.isDeleting[transactionId] = false;
@@ -93,7 +103,7 @@ export class ReactiveTransactions {
    */
   get totalIncome(): number {
     return this.transactions
-      .filter(t => t.type === 'income')
+      .filter((t) => t.type === 'income')
       .reduce((sum, t) => sum + parseFloat(t.amount), 0);
   }
 
@@ -102,7 +112,7 @@ export class ReactiveTransactions {
    */
   get totalExpenses(): number {
     return this.transactions
-      .filter(t => t.type === 'expense')
+      .filter((t) => t.type === 'expense')
       .reduce((sum, t) => sum + parseFloat(t.amount), 0);
   }
 

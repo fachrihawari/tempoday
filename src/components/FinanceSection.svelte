@@ -1,82 +1,92 @@
 <!-- Enhanced FinanceSection using reusable UI components -->
 <script lang="ts">
-  import { formatCurrency } from "../lib/currency";
-  import { reactiveTransactions } from "../db/reactive/transactions.svelte";
-  import { reactiveSettings } from "../db/reactive/settings.svelte";
-  import { appState } from "../stores/app.svelte";
-  import { formatDateKey } from "../lib/date";
-  import BottomSheet from "./ui/BottomSheet.svelte";
-  import Button from "./ui/Button.svelte";
-  import Card from "./ui/Card.svelte";
-  import EmptyState from "./ui/EmptyState.svelte";
-  import Icon from "./ui/Icon.svelte";
-  import Input from "./ui/Input.svelte";
-  import Loading from "./ui/Loading.svelte";
-  import Alert from "./ui/Alert.svelte";
-  import { onMount } from "svelte";
+import { onMount } from 'svelte';
+import { reactiveSettings } from '../db/reactive/settings.svelte';
+import { reactiveTransactions } from '../db/reactive/transactions.svelte';
+import { formatCurrency } from '../lib/currency';
+import { formatDateKey } from '../lib/date';
+import { appState } from '../stores/app.svelte';
+import Alert from './ui/Alert.svelte';
+import BottomSheet from './ui/BottomSheet.svelte';
+import Button from './ui/Button.svelte';
+import Card from './ui/Card.svelte';
+import EmptyState from './ui/EmptyState.svelte';
+import Icon from './ui/Icon.svelte';
+import Input from './ui/Input.svelte';
+import Loading from './ui/Loading.svelte';
 
-  // Reactive values from the repository
-  let { transactions, isLoading, isCreating, isDeleting, error, totalIncome, totalExpenses, netBalance, totalCount } = $derived(reactiveTransactions);
-  
-  // Reactive settings
-  let { settings } = $derived(reactiveSettings);
+// Reactive values from the repository
+let {
+  transactions,
+  isLoading,
+  isCreating,
+  isDeleting,
+  error,
+  totalIncome,
+  totalExpenses,
+  netBalance,
+  totalCount,
+} = $derived(reactiveTransactions);
 
-  let showAddForm = $state(false);
-  let description = $state("");
-  let amount = $state("");
-  let type = $state<"income" | "expense">("expense");
+// Reactive settings
+let { settings } = $derived(reactiveSettings);
 
-  // Watch for date changes and load transactions
-  $effect(() => {
+let showAddForm = $state(false);
+let description = $state('');
+let amount = $state('');
+let type = $state<'income' | 'expense'>('expense');
+
+// Watch for date changes and load transactions
+$effect(() => {
+  const dateKey = formatDateKey(appState.selectedDate);
+  reactiveTransactions.loadTransactions(dateKey);
+});
+
+// Load settings when component mounts
+onMount(() => {
+  reactiveSettings.loadSettings();
+});
+
+// Helper function to format currency with current settings
+function formatAmount(amount: number): string {
+  return formatCurrency(amount, settings.currency, settings.locale);
+}
+
+async function handleAddTransaction(event?: Event) {
+  if (event) {
+    event.preventDefault();
+  }
+
+  const desc = description.trim();
+  const amt = parseFloat(amount);
+
+  if (desc && !isNaN(amt) && amt > 0) {
     const dateKey = formatDateKey(appState.selectedDate);
-    reactiveTransactions.loadTransactions(dateKey);
-  });
-
-  // Load settings when component mounts
-  onMount(() => {
-    reactiveSettings.loadSettings();
-  });
-
-  // Helper function to format currency with current settings
-  function formatAmount(amount: number): string {
-    return formatCurrency(amount, settings.currency, settings.locale);
-  }
-
-  async function handleAddTransaction(event?: Event) {
-    if (event) {
-      event.preventDefault();
-    }
-    
-    const desc = description.trim();
-    const amt = parseFloat(amount);
-
-    if (desc && !isNaN(amt) && amt > 0) {
-      const dateKey = formatDateKey(appState.selectedDate);
-      try {
-        await reactiveTransactions.createTransaction({
-          description: desc,
-          amount: amt.toString(),
-          type: type,
-          date: dateKey
-        });
-        resetForm();
-      } catch (err) {
-        console.error('Failed to add transaction:', err);
-        // Error is already handled by reactive store
-      }
+    try {
+      await reactiveTransactions.createTransaction({
+        description: desc,
+        amount: amt.toString(),
+        type: type,
+        date: dateKey,
+      });
+      resetForm();
+    } catch (err) {
+      console.error('Failed to add transaction:', err);
+      // Error is already handled by reactive store
     }
   }
+}
 
-  function resetForm() {
-    description = "";
-    amount = "";
-    type = "expense";
-    showAddForm = false;
-    // Clear any error when closing form
-    if (error) {
-      reactiveTransactions.clearError();
-    }
+function resetForm() {
+  description = '';
+  amount = '';
+  type = 'expense';
+  showAddForm = false;
+  // Clear any error when closing form
+  if (error) {
+    reactiveTransactions.clearError();
   }
+}
 </script>
 
 <Card title="Financial Records" icon="dollar" iconColor="text-green-500">

@@ -1,13 +1,17 @@
 <script lang="ts">
-    import Icon, { type IconSize } from "./Icon.svelte";
+import Icon, { type IconSize } from './Icon.svelte';
 
-  interface Props {
-    class?: string;
-    message?: string;
-    size?: IconSize
-  }
+interface Props {
+  class?: string;
+  message?: string;
+  size?: IconSize;
+}
 
-  let { message = "Loading...", class: className = "", size = 'md' }: Props = $props();
+let {
+  message = 'Loading...',
+  class: className = '',
+  size = 'md',
+}: Props = $props();
 </script>
 
 <div class="flex flex-col items-center justify-center p-4 {className}">

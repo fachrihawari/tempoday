@@ -1,6 +1,6 @@
+import { db } from '../index';
 // Reactive wrapper for TasksRepository using Svelte 5 runes
 import { TasksRepository } from '../repositories/tasks';
-import { db } from '../index';
 import type { Task } from '../schema/tasks';
 
 export class ReactiveTasks {
@@ -52,7 +52,11 @@ export class ReactiveTasks {
     this.isCreating = true;
     this.error = null;
     try {
-      const newTask = await this.repo.createTask({ title, completed: false, date });
+      const newTask = await this.repo.createTask({
+        title,
+        completed: false,
+        date,
+      });
       this.tasks = this.tasks.concat([newTask]);
     } catch (err) {
       this.error = err instanceof Error ? err.message : 'Failed to create task';
@@ -70,8 +74,8 @@ export class ReactiveTasks {
       const updatedTask = await this.repo.toggleTaskCompletion(taskId);
 
       if (updatedTask) {
-        this.tasks = this.tasks.map(task =>
-          task.id === taskId ? updatedTask : task
+        this.tasks = this.tasks.map((task) =>
+          task.id === taskId ? updatedTask : task,
         );
       }
     } catch (err) {
@@ -93,7 +97,7 @@ export class ReactiveTasks {
         throw new Error('Task not found or could not be deleted');
       }
 
-      this.tasks = this.tasks.filter(task => task.id !== taskId);
+      this.tasks = this.tasks.filter((task) => task.id !== taskId);
     } catch (err) {
       this.error = err instanceof Error ? err.message : 'Failed to delete task';
       console.error('Error deleting task:', err);
@@ -106,7 +110,7 @@ export class ReactiveTasks {
    * Get completed tasks count (reactive derived value)
    */
   get completedCount(): number {
-    return this.tasks.filter(task => task.completed).length;
+    return this.tasks.filter((task) => task.completed).length;
   }
 
   /**

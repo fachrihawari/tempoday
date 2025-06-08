@@ -1,8 +1,12 @@
 import { eq } from 'drizzle-orm';
 import type { DB } from '../index';
-import { transactions, type Transaction, type NewTransaction } from '../schema/transactions';
+import {
+  type NewTransaction,
+  type Transaction,
+  transactions,
+} from '../schema/transactions';
 
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export class TransactionsRepository {
   constructor(private db: DB) {}
@@ -23,7 +27,9 @@ export class TransactionsRepository {
   /**
    * Create a new transaction
    */
-  async createTransaction(transaction: Omit<NewTransaction, 'id' | 'createdAt' | 'updatedAt'>): Promise<Transaction> {
+  async createTransaction(
+    transaction: Omit<NewTransaction, 'id' | 'createdAt' | 'updatedAt'>,
+  ): Promise<Transaction> {
     await delay(500); // Simulate network delay
 
     const [newTransaction] = await this.db

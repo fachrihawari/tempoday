@@ -1,8 +1,12 @@
 import { eq } from 'drizzle-orm';
 import type { DB } from '../index';
-import { settings, type TempoDaySettings, defaultSettings } from '../schema/settings';
+import {
+  type TempoDaySettings,
+  defaultSettings,
+  settings,
+} from '../schema/settings';
 
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export class SettingsRepository {
   constructor(private db: DB) {}
@@ -13,10 +17,7 @@ export class SettingsRepository {
   async getSettings(): Promise<TempoDaySettings> {
     await delay(300); // Simulate network delay (shorter for settings)
 
-    const result = await this.db
-      .select()
-      .from(settings)
-      .limit(1);
+    const result = await this.db.select().from(settings).limit(1);
 
     if (result.length === 0) {
       // No settings exist, create default settings
@@ -29,13 +30,12 @@ export class SettingsRepository {
   /**
    * Update settings (creates if doesn't exist)
    */
-  async updateSettings(newSettings: Partial<TempoDaySettings>): Promise<TempoDaySettings> {
+  async updateSettings(
+    newSettings: Partial<TempoDaySettings>,
+  ): Promise<TempoDaySettings> {
     await delay(500); // Simulate network delay
 
-    const existing = await this.db
-      .select()
-      .from(settings)
-      .limit(1);
+    const existing = await this.db.select().from(settings).limit(1);
 
     const updatedSettings = {
       ...defaultSettings,

@@ -1,8 +1,7 @@
 // TempoDay Database Version Management
-import { version } from '../../package.json' assert { type: 'json'};
+import { version } from '../../package.json' assert { type: 'json' };
 
-console.log({ version }, "📦 Loaded package version");
-
+console.log({ version }, '📦 Loaded package version');
 
 // Current application version from package.json
 export const APP_VERSION = version;
@@ -24,7 +23,7 @@ export function getStoredVersionInfo(): VersionInfo | null {
   if (cachedVersionInfo !== undefined) {
     return cachedVersionInfo;
   }
-  
+
   try {
     const stored = localStorage.getItem(VERSION_KEY);
     const result = stored ? JSON.parse(stored) : null;
@@ -53,7 +52,9 @@ export function isMigrationNeeded(): boolean {
   }
 
   if (stored.installedVersion !== APP_VERSION) {
-    console.log(`🔄 App version changed: ${stored.installedVersion} → ${APP_VERSION}`);
+    console.log(
+      `🔄 App version changed: ${stored.installedVersion} → ${APP_VERSION}`,
+    );
     return true;
   }
 

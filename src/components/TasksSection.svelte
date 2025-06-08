@@ -1,46 +1,46 @@
 <script lang="ts">
-  import { reactiveTasks } from "../db/reactive/tasks.svelte";
-  import { appState } from "../stores/app.svelte";
-  import { formatDateKey } from "../lib/date";
-  import BottomSheet from "./ui/BottomSheet.svelte";
-  import Button from "./ui/Button.svelte";
-  import Card from "./ui/Card.svelte";
-  import EmptyState from "./ui/EmptyState.svelte";
-  import Icon from "./ui/Icon.svelte";
-  import Input from "./ui/Input.svelte";
-  import Loading from "./ui/Loading.svelte";
-  import Alert from "./ui/Alert.svelte";
+import { reactiveTasks } from '../db/reactive/tasks.svelte';
+import { formatDateKey } from '../lib/date';
+import { appState } from '../stores/app.svelte';
+import Alert from './ui/Alert.svelte';
+import BottomSheet from './ui/BottomSheet.svelte';
+import Button from './ui/Button.svelte';
+import Card from './ui/Card.svelte';
+import EmptyState from './ui/EmptyState.svelte';
+import Icon from './ui/Icon.svelte';
+import Input from './ui/Input.svelte';
+import Loading from './ui/Loading.svelte';
 
-  // Reactive values from the repository
-  let { tasks, isLoading, isCreating, error, completedCount, totalCount } =
-    $derived(reactiveTasks);
+// Reactive values from the repository
+let { tasks, isLoading, isCreating, error, completedCount, totalCount } =
+  $derived(reactiveTasks);
 
-  let showAddForm = $state(false);
-  let newTaskText = $state("");
+let showAddForm = $state(false);
+let newTaskText = $state('');
 
-  // Watch for date changes and load tasks
-  $effect(() => {
-    const dateKey = formatDateKey(appState.selectedDate);
-    reactiveTasks.loadTasks(dateKey);
-  });
+// Watch for date changes and load tasks
+$effect(() => {
+  const dateKey = formatDateKey(appState.selectedDate);
+  reactiveTasks.loadTasks(dateKey);
+});
 
-  async function handleAddTask(event?: Event) {
-    if (event) event.preventDefault();
+async function handleAddTask(event?: Event) {
+  if (event) event.preventDefault();
 
-    const text = newTaskText.trim();
-    const dateKey = formatDateKey(appState.selectedDate);
-    await reactiveTasks.createTask(text, dateKey);
-    resetForm();
+  const text = newTaskText.trim();
+  const dateKey = formatDateKey(appState.selectedDate);
+  await reactiveTasks.createTask(text, dateKey);
+  resetForm();
+}
+
+function resetForm() {
+  newTaskText = '';
+  showAddForm = false;
+  // Clear any error when closing form
+  if (error) {
+    reactiveTasks.clearError();
   }
-
-  function resetForm() {
-    newTaskText = "";
-    showAddForm = false;
-    // Clear any error when closing form
-    if (error) {
-      reactiveTasks.clearError();
-    }
-  }
+}
 </script>
 
 <Card title="Tasks" icon="clipboard" iconColor="text-blue-500">

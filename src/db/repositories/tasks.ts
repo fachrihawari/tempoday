@@ -1,8 +1,8 @@
 import { eq } from 'drizzle-orm';
 import type { DB } from '../index';
-import { tasks, type Task, type NewTask } from '../schema/tasks';
+import { type NewTask, type Task, tasks } from '../schema/tasks';
 
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export class TasksRepository {
   constructor(private db: DB) {}
@@ -23,13 +23,12 @@ export class TasksRepository {
   /**
    * Create a new task
    */
-  async createTask(task: Omit<NewTask, 'id' | 'createdAt' | 'updatedAt'>): Promise<Task> {
+  async createTask(
+    task: Omit<NewTask, 'id' | 'createdAt' | 'updatedAt'>,
+  ): Promise<Task> {
     await delay(1000); // Simulate network delay
 
-    const [newTask] = await this.db
-      .insert(tasks)
-      .values(task)
-      .returning();
+    const [newTask] = await this.db.insert(tasks).values(task).returning();
     return newTask;
   }
 
@@ -52,9 +51,9 @@ export class TasksRepository {
 
     const [updatedTask] = await this.db
       .update(tasks)
-      .set({ 
+      .set({
         completed: !currentTask.completed,
-        updatedAt: new Date()
+        updatedAt: new Date(),
       })
       .where(eq(tasks.id, taskId))
       .returning();

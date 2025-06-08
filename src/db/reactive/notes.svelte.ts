@@ -1,6 +1,6 @@
+import { db } from '../index';
 // Reactive wrapper for NotesRepository using Svelte 5 runes
 import { NotesRepository } from '../repositories/notes';
-import { db } from '../index';
 import type { Note } from '../schema/notes';
 
 export class ReactiveNotes {

@@ -1,6 +1,6 @@
+import { db } from '../index';
 // Reactive wrapper for SettingsRepository using Svelte 5 runes
 import { SettingsRepository } from '../repositories/settings';
-import { db } from '../index';
 import type { TempoDaySettings } from '../schema/settings';
 import { defaultSettings } from '../schema/settings';
 
@@ -39,7 +39,8 @@ export class ReactiveSettings {
       this.settings = await this.repo.getSettings();
       this.isInitialized = true;
     } catch (err) {
-      this.error = err instanceof Error ? err.message : 'Failed to load settings';
+      this.error =
+        err instanceof Error ? err.message : 'Failed to load settings';
       console.error('Error loading settings:', err);
     } finally {
       this.isLoading = false;
@@ -57,7 +58,8 @@ export class ReactiveSettings {
       const updatedSettings = await this.repo.updateSettings(newSettings);
       this.settings = updatedSettings;
     } catch (err) {
-      this.error = err instanceof Error ? err.message : 'Failed to update settings';
+      this.error =
+        err instanceof Error ? err.message : 'Failed to update settings';
       console.error('Error updating settings:', err);
     } finally {
       this.isSaving = false;
@@ -69,7 +71,7 @@ export class ReactiveSettings {
    */
   async updateSetting<K extends keyof TempoDaySettings>(
     key: K,
-    value: TempoDaySettings[K]
+    value: TempoDaySettings[K],
   ): Promise<void> {
     await this.updateSettings({ [key]: value } as Partial<TempoDaySettings>);
   }

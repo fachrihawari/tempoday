@@ -26,16 +26,16 @@ export function compareVersions(a: string, b: string): number {
 export function getPendingMigrations(
   migrations: Migration[],
   currentVersion: string,
-  maxVersion?: string
+  maxVersion?: string,
 ): Migration[] {
-  let pendingMigrations = migrations.filter(m =>
-    compareVersions(m.version, currentVersion) > 0
+  let pendingMigrations = migrations.filter(
+    (m) => compareVersions(m.version, currentVersion) > 0,
   );
-  
+
   // If maxVersion is provided, also filter by maximum version
   if (maxVersion) {
-    pendingMigrations = pendingMigrations.filter(m => 
-      compareVersions(m.version, maxVersion) <= 0
+    pendingMigrations = pendingMigrations.filter(
+      (m) => compareVersions(m.version, maxVersion) <= 0,
     );
   }
 

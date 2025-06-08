@@ -1,5 +1,5 @@
-import type { Migration } from './index';
 import type { DB } from '../index';
+import type { Migration } from './index';
 
 export const migration_001_initial_tables: Migration = {
   version: '0.0.1',
@@ -18,7 +18,9 @@ export const migration_001_initial_tables: Migration = {
       );
     `);
     console.log('📝 Creating index on tasks.date...');
-    await db.execute(`CREATE INDEX IF NOT EXISTS idx_tasks_date ON tasks(date);`);
+    await db.execute(
+      `CREATE INDEX IF NOT EXISTS idx_tasks_date ON tasks(date);`,
+    );
 
     console.log('📝 Creating notes table...');
     await db.execute(`
@@ -31,7 +33,9 @@ export const migration_001_initial_tables: Migration = {
       );
     `);
     console.log('📝 Creating index on notes.date...');
-    await db.execute(`CREATE INDEX IF NOT EXISTS idx_notes_date ON notes(date);`);
+    await db.execute(
+      `CREATE INDEX IF NOT EXISTS idx_notes_date ON notes(date);`,
+    );
 
     console.log('📝 Creating transactions table...');
     await db.execute(`
@@ -46,7 +50,9 @@ export const migration_001_initial_tables: Migration = {
       );
     `);
     console.log('📝 Creating index on transactions.date...');
-    await db.execute(`CREATE INDEX IF NOT EXISTS idx_transactions_date ON transactions(date);`);
+    await db.execute(
+      `CREATE INDEX IF NOT EXISTS idx_transactions_date ON transactions(date);`,
+    );
 
     console.log('📝 Creating settings table...');
     await db.execute(`
@@ -57,5 +63,5 @@ export const migration_001_initial_tables: Migration = {
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
-  }
+  },
 };

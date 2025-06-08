@@ -1,8 +1,8 @@
 import { eq } from 'drizzle-orm';
 import type { DB } from '../index';
-import { notes, type Note, type NewNote } from '../schema/notes';
+import { type NewNote, type Note, notes } from '../schema/notes';
 
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export class NotesRepository {
   constructor(private db: DB) {}
@@ -35,9 +35,9 @@ export class NotesRepository {
       // Update existing note
       const [updatedNote] = await this.db
         .update(notes)
-        .set({ 
+        .set({
           content: noteData.content,
-          updatedAt: new Date()
+          updatedAt: new Date(),
         })
         .where(eq(notes.date, noteData.date))
         .returning();
@@ -48,7 +48,7 @@ export class NotesRepository {
         .insert(notes)
         .values({
           content: noteData.content,
-          date: noteData.date
+          date: noteData.date,
         })
         .returning();
       return newNote;

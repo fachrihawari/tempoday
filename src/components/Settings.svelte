@@ -1,63 +1,63 @@
 <script lang="ts">
-  import { reactiveSettings } from "../db/reactive/settings.svelte";
-  import BottomSheet from "./ui/BottomSheet.svelte";
-  import Button from "./ui/Button.svelte";
-  import Icon from "./ui/Icon.svelte";
-  import Loading from "./ui/Loading.svelte";
-  import Alert from "./ui/Alert.svelte";
+import { reactiveSettings } from '../db/reactive/settings.svelte';
+import Alert from './ui/Alert.svelte';
+import BottomSheet from './ui/BottomSheet.svelte';
+import Button from './ui/Button.svelte';
+import Icon from './ui/Icon.svelte';
+import Loading from './ui/Loading.svelte';
 
-  let showSettings = $state(false);
+let showSettings = $state(false);
 
-  // Reactive values from the settings store
-  let { settings, isLoading, isSaving, error } = $derived(reactiveSettings);
+// Reactive values from the settings store
+let { settings, isLoading, isSaving, error } = $derived(reactiveSettings);
 
-  // Popular currencies
-  const currencies = [
-    { code: "USD", symbol: "$", name: "US Dollar" },
-    { code: "EUR", symbol: "€", name: "Euro" },
-    { code: "GBP", symbol: "£", name: "British Pound" },
-    { code: "JPY", symbol: "¥", name: "Japanese Yen" },
-    { code: "CAD", symbol: "C$", name: "Canadian Dollar" },
-    { code: "AUD", symbol: "A$", name: "Australian Dollar" },
-    { code: "CHF", symbol: "Fr", name: "Swiss Franc" },
-    { code: "CNY", symbol: "¥", name: "Chinese Yuan" },
-    { code: "INR", symbol: "₹", name: "Indian Rupee" },
-    { code: "SGD", symbol: "S$", name: "Singapore Dollar" },
-    { code: "IDR", symbol: "Rp", name: "Indonesian Rupiah" },
-  ];
+// Popular currencies
+const currencies = [
+  { code: 'USD', symbol: '$', name: 'US Dollar' },
+  { code: 'EUR', symbol: '€', name: 'Euro' },
+  { code: 'GBP', symbol: '£', name: 'British Pound' },
+  { code: 'JPY', symbol: '¥', name: 'Japanese Yen' },
+  { code: 'CAD', symbol: 'C$', name: 'Canadian Dollar' },
+  { code: 'AUD', symbol: 'A$', name: 'Australian Dollar' },
+  { code: 'CHF', symbol: 'Fr', name: 'Swiss Franc' },
+  { code: 'CNY', symbol: '¥', name: 'Chinese Yuan' },
+  { code: 'INR', symbol: '₹', name: 'Indian Rupee' },
+  { code: 'SGD', symbol: 'S$', name: 'Singapore Dollar' },
+  { code: 'IDR', symbol: 'Rp', name: 'Indonesian Rupiah' },
+];
 
-  // Load settings when component initializes
-  $effect(() => {
-    reactiveSettings.loadSettings();
-  });
+// Load settings when component initializes
+$effect(() => {
+  reactiveSettings.loadSettings();
+});
 
-  async function updateCurrency(currencyCode: string) {
-    const currency = currencies.find((c) => c.code === currencyCode);
-    if (currency) {
-      await reactiveSettings.updateSettings({
-        currency: currency.code,
-        currencySymbol: currency.symbol,
-        locale: getLocaleForCurrency(currency.code),
-      });
-    }
+async function updateCurrency(currencyCode: string) {
+  const currency = currencies.find((c) => c.code === currencyCode);
+  if (currency) {
+    await reactiveSettings.updateSettings({
+      currency: currency.code,
+      currencySymbol: currency.symbol,
+      locale: getLocaleForCurrency(currency.code),
+    });
   }
+}
 
-  function getLocaleForCurrency(currencyCode: string): string {
-    const localeMap: Record<string, string> = {
-      USD: "en-US",
-      EUR: "de-DE",
-      GBP: "en-GB",
-      JPY: "ja-JP",
-      CAD: "en-CA",
-      AUD: "en-AU",
-      CHF: "de-CH",
-      CNY: "zh-CN",
-      INR: "en-IN",
-      SGD: "en-SG",
-      IDR: "id-ID",
-    };
-    return localeMap[currencyCode] || "en-US";
-  }
+function getLocaleForCurrency(currencyCode: string): string {
+  const localeMap: Record<string, string> = {
+    USD: 'en-US',
+    EUR: 'de-DE',
+    GBP: 'en-GB',
+    JPY: 'ja-JP',
+    CAD: 'en-CA',
+    AUD: 'en-AU',
+    CHF: 'de-CH',
+    CNY: 'zh-CN',
+    INR: 'en-IN',
+    SGD: 'en-SG',
+    IDR: 'id-ID',
+  };
+  return localeMap[currencyCode] || 'en-US';
+}
 </script>
 
 <!-- Settings Button -->

@@ -1,73 +1,73 @@
 <script lang="ts">
-  import { reactiveNotes } from "../db/reactive/notes.svelte";
-  import { appState } from "../stores/app.svelte";
-  import { formatDateKey } from "../lib/date";
-  import BottomSheet from "./ui/BottomSheet.svelte";
-  import Button from "./ui/Button.svelte";
-  import Card from "./ui/Card.svelte";
-  import EmptyState from "./ui/EmptyState.svelte";
-  import Icon from "./ui/Icon.svelte";
-  import Textarea from "./ui/Textarea.svelte";
-  import Loading from "./ui/Loading.svelte";
-  import Alert from "./ui/Alert.svelte";
+import { reactiveNotes } from '../db/reactive/notes.svelte';
+import { formatDateKey } from '../lib/date';
+import { appState } from '../stores/app.svelte';
+import Alert from './ui/Alert.svelte';
+import BottomSheet from './ui/BottomSheet.svelte';
+import Button from './ui/Button.svelte';
+import Card from './ui/Card.svelte';
+import EmptyState from './ui/EmptyState.svelte';
+import Icon from './ui/Icon.svelte';
+import Loading from './ui/Loading.svelte';
+import Textarea from './ui/Textarea.svelte';
 
-  // Reactive values from the repository
-  let { isLoading, isSaving, error, content, hasContent } =
-    $derived(reactiveNotes);
+// Reactive values from the repository
+let { isLoading, isSaving, error, content, hasContent } =
+  $derived(reactiveNotes);
 
-  let isEditing = $state(false);
-  let editingText = $state("");
+let isEditing = $state(false);
+let editingText = $state('');
 
-  // Watch for date changes and load note
-  $effect(() => {
-    const dateKey = formatDateKey(appState.selectedDate);
-    reactiveNotes.loadNote(dateKey);
-  });
+// Watch for date changes and load note
+$effect(() => {
+  const dateKey = formatDateKey(appState.selectedDate);
+  reactiveNotes.loadNote(dateKey);
+});
 
-  function startEditing() {
-    editingText = content;
-    isEditing = true;
+function startEditing() {
+  editingText = content;
+  isEditing = true;
+}
+
+async function saveNote(event?: Event) {
+  if (event) {
+    event.preventDefault();
   }
 
-  async function saveNote(event?: Event) {
-    if (event) {
-      event.preventDefault();
-    }
-
-    const dateKey = formatDateKey(appState.selectedDate);
-    try {
-      await reactiveNotes.saveNote(editingText, dateKey);
-      cancelEditing();
-    } catch (err) {
-      console.error("Failed to save note:", err);
-      // Error is already handled by reactive store
-    }
+  const dateKey = formatDateKey(appState.selectedDate);
+  try {
+    await reactiveNotes.saveNote(editingText, dateKey);
+    cancelEditing();
+  } catch (err) {
+    console.error('Failed to save note:', err);
+    // Error is already handled by reactive store
   }
+}
 
-  function cancelEditing() {
-    editingText = "";
-    isEditing = false;
-    // Clear any error when closing form
-    if (error) {
-      reactiveNotes.clearError();
-    }
+function cancelEditing() {
+  editingText = '';
+  isEditing = false;
+  // Clear any error when closing form
+  if (error) {
+    reactiveNotes.clearError();
   }
+}
 
-  function handleKeydown(event: KeyboardEvent) {
-    if (event.key === "Escape") {
-      cancelEditing();
-    }
-    // Allow Ctrl+Enter or Cmd+Enter to save
-    if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
-      saveNote();
-    }
+function handleKeydown(event: KeyboardEvent) {
+  if (event.key === 'Escape') {
+    cancelEditing();
   }
+  // Allow Ctrl+Enter or Cmd+Enter to save
+  if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
+    saveNote();
+  }
+}
 
-  // Auto-save functionality with debounce
-  function handleInput() {
-    const dateKey = formatDateKey(appState.selectedDate);
-    reactiveNotes.autoSaveNote(editingText, dateKey, 1000);
-  }
+// Auto-save functionality with debounce
+function handleInput() {
+  const dateKey = formatDateKey(appState.selectedDate);
+  reactiveNotes.autoSaveNote(editingText, dateKey, 1000);
+}
 </script>
 
 <Card title="Daily Note" icon="edit" iconColor="text-purple-500">

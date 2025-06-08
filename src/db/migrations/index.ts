@@ -22,37 +22,52 @@ export async function getCurrentVersion(): Promise<string> {
   // Use version tracking from localStorage instead of database table
   const { getStoredVersionInfo } = await import('../version');
   const storedInfo = getStoredVersionInfo();
-  
+
   if (!storedInfo) {
     console.log('📊 No version info found, fallback to version: 0.0.0');
     return '0.0.0';
   }
-  
+
   console.log('📊 Installed version:', storedInfo.installedVersion);
   return storedInfo.installedVersion;
 }
 
 // Apply pending migrations
-export async function runMigrations(db: DB, currentVersion: string, maxVersion: string): Promise<void> {
+export async function runMigrations(
+  db: DB,
+  currentVersion: string,
+  maxVersion: string,
+): Promise<void> {
   console.log('🔄 Checking for pending migrations...');
 
-  const pendingMigrations = getPendingMigrations(migrations, currentVersion, maxVersion);
+  const pendingMigrations = getPendingMigrations(
+    migrations,
+    currentVersion,
+    maxVersion,
+  );
 
   if (pendingMigrations.length === 0) {
     console.log('✅ Database is up to date (version ' + currentVersion + ')');
     return;
   }
 
-  console.log(`🔒 Constraining migrations: ${currentVersion} < version <= ${maxVersion}`);
+  console.log(
+    `🔒 Constraining migrations: ${currentVersion} < version <= ${maxVersion}`,
+  );
 
   console.log(`📦 Found ${pendingMigrations.length} pending migration(s)`);
   if (pendingMigrations.length > 0) {
-    console.log('📋 Will apply migrations:', pendingMigrations.map(m => `${m.version} (${m.name})`).join(', '));
+    console.log(
+      '📋 Will apply migrations:',
+      pendingMigrations.map((m) => `${m.version} (${m.name})`).join(', '),
+    );
   }
 
   for (const migration of pendingMigrations) {
     try {
-      console.log(`🔄 Applying migration ${migration.version}: ${migration.name}`);
+      console.log(
+        `🔄 Applying migration ${migration.version}: ${migration.name}`,
+      );
 
       await migration.up(db);
 

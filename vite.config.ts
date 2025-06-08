@@ -7,5 +7,5 @@ export default defineConfig({
   plugins: [svelte(), tailwindcss()],
   optimizeDeps: {
     exclude: ['@electric-sql/pglite'],
-  }
+  },
 });

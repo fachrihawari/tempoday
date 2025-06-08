@@ -1,6 +1,6 @@
-import * as schema from "./schema";
-import type { DB } from ".";
+import type { DB } from '.';
 import { autoRunMigrations } from './auto-migration';
+import * as schema from './schema';
 
 // Initialize database for TempoDay MVP using migration system
 export async function initializeDatabase(db: DB) {
@@ -22,7 +22,7 @@ export async function initializeDatabase(db: DB) {
 // Sample data insertion for MVP testing
 async function insertSampleData(db: DB) {
   if (!import.meta.env.DEV) {
-    console.log('🚫 Skipping sample data insertion in production')
+    console.log('🚫 Skipping sample data insertion in production');
     return;
   }
 
@@ -49,8 +49,16 @@ async function insertSampleData(db: DB) {
       // Day 1 (4 days ago) - Project Planning
       { title: 'Plan TempoDay MVP features', completed: true, date: dates[0] },
       { title: 'Research calendar libraries', completed: true, date: dates[0] },
-      { title: 'Create wireframes for Day View', completed: true, date: dates[0] },
-      { title: 'Set up development environment', completed: true, date: dates[0] },
+      {
+        title: 'Create wireframes for Day View',
+        completed: true,
+        date: dates[0],
+      },
+      {
+        title: 'Set up development environment',
+        completed: true,
+        date: dates[0],
+      },
 
       // Day 2 (3 days ago) - Database Setup
       { title: 'Set up PGlite database', completed: true, date: dates[1] },
@@ -65,13 +73,25 @@ async function insertSampleData(db: DB) {
       { title: 'Add loading states', completed: false, date: dates[2] },
 
       // Day 4 (yesterday) - Financial Features
-      { title: 'Implement transaction tracking', completed: true, date: dates[3] },
+      {
+        title: 'Implement transaction tracking',
+        completed: true,
+        date: dates[3],
+      },
       { title: 'Add daily financial summary', completed: true, date: dates[3] },
       { title: 'Create expense categories', completed: false, date: dates[3] },
-      { title: 'Test financial calculations', completed: false, date: dates[3] },
+      {
+        title: 'Test financial calculations',
+        completed: false,
+        date: dates[3],
+      },
 
       // Day 5 (today) - Testing & Polish
-      { title: 'Test reactive state management', completed: true, date: dates[4] },
+      {
+        title: 'Test reactive state management',
+        completed: true,
+        date: dates[4],
+      },
       { title: 'Fix infinite loop issues', completed: true, date: dates[4] },
       { title: 'Polish UI components', completed: false, date: dates[4] },
       { title: 'Add error handling', completed: false, date: dates[4] },
@@ -169,35 +189,140 @@ Ready for some user testing to validate the core concept!`,
     // Sample financial transactions for each day
     const sampleTransactions = [
       // Day 1 (4 days ago) - Project setup day
-      { description: 'Coffee shop work session', amount: '5.25', type: 'expense' as const, date: dates[0] },
-      { description: 'Domain registration', amount: '12.99', type: 'expense' as const, date: dates[0] },
-      { description: 'Lunch during planning', amount: '18.50', type: 'expense' as const, date: dates[0] },
+      {
+        description: 'Coffee shop work session',
+        amount: '5.25',
+        type: 'expense' as const,
+        date: dates[0],
+      },
+      {
+        description: 'Domain registration',
+        amount: '12.99',
+        type: 'expense' as const,
+        date: dates[0],
+      },
+      {
+        description: 'Lunch during planning',
+        amount: '18.50',
+        type: 'expense' as const,
+        date: dates[0],
+      },
 
       // Day 2 (3 days ago) - Database work
-      { description: 'Technical books purchase', amount: '45.00', type: 'expense' as const, date: dates[1] },
-      { description: 'Consultation payment received', amount: '150.00', type: 'income' as const, date: dates[1] },
-      { description: 'Morning coffee', amount: '4.75', type: 'expense' as const, date: dates[1] },
-      { description: 'Dinner while coding', amount: '22.30', type: 'expense' as const, date: dates[1] },
+      {
+        description: 'Technical books purchase',
+        amount: '45.00',
+        type: 'expense' as const,
+        date: dates[1],
+      },
+      {
+        description: 'Consultation payment received',
+        amount: '150.00',
+        type: 'income' as const,
+        date: dates[1],
+      },
+      {
+        description: 'Morning coffee',
+        amount: '4.75',
+        type: 'expense' as const,
+        date: dates[1],
+      },
+      {
+        description: 'Dinner while coding',
+        amount: '22.30',
+        type: 'expense' as const,
+        date: dates[1],
+      },
 
       // Day 3 (2 days ago) - UI development
-      { description: 'Figma Pro subscription', amount: '15.00', type: 'expense' as const, date: dates[2] },
-      { description: 'Freelance project payment', amount: '275.00', type: 'income' as const, date: dates[2] },
-      { description: 'Coffee and pastry', amount: '8.90', type: 'expense' as const, date: dates[2] },
-      { description: 'Lunch at food truck', amount: '12.50', type: 'expense' as const, date: dates[2] },
-      { description: 'Gas for car', amount: '45.00', type: 'expense' as const, date: dates[2] },
+      {
+        description: 'Figma Pro subscription',
+        amount: '15.00',
+        type: 'expense' as const,
+        date: dates[2],
+      },
+      {
+        description: 'Freelance project payment',
+        amount: '275.00',
+        type: 'income' as const,
+        date: dates[2],
+      },
+      {
+        description: 'Coffee and pastry',
+        amount: '8.90',
+        type: 'expense' as const,
+        date: dates[2],
+      },
+      {
+        description: 'Lunch at food truck',
+        amount: '12.50',
+        type: 'expense' as const,
+        date: dates[2],
+      },
+      {
+        description: 'Gas for car',
+        amount: '45.00',
+        type: 'expense' as const,
+        date: dates[2],
+      },
 
       // Day 4 (yesterday) - Financial features
-      { description: 'Testing transaction: Coffee', amount: '4.50', type: 'expense' as const, date: dates[3] },
-      { description: 'Side project income', amount: '125.00', type: 'income' as const, date: dates[3] },
-      { description: 'Lunch at cafe', amount: '16.75', type: 'expense' as const, date: dates[3] },
-      { description: 'Grocery shopping', amount: '67.45', type: 'expense' as const, date: dates[3] },
-      { description: 'Online course purchase', amount: '89.99', type: 'expense' as const, date: dates[3] },
+      {
+        description: 'Testing transaction: Coffee',
+        amount: '4.50',
+        type: 'expense' as const,
+        date: dates[3],
+      },
+      {
+        description: 'Side project income',
+        amount: '125.00',
+        type: 'income' as const,
+        date: dates[3],
+      },
+      {
+        description: 'Lunch at cafe',
+        amount: '16.75',
+        type: 'expense' as const,
+        date: dates[3],
+      },
+      {
+        description: 'Grocery shopping',
+        amount: '67.45',
+        type: 'expense' as const,
+        date: dates[3],
+      },
+      {
+        description: 'Online course purchase',
+        amount: '89.99',
+        type: 'expense' as const,
+        date: dates[3],
+      },
 
       // Day 5 (today) - Testing day
-      { description: 'Morning coffee run', amount: '5.50', type: 'expense' as const, date: dates[4] },
-      { description: 'Client payment received', amount: '320.00', type: 'income' as const, date: dates[4] },
-      { description: 'Team lunch expense', amount: '28.75', type: 'expense' as const, date: dates[4] },
-      { description: 'Office supplies', amount: '23.40', type: 'expense' as const, date: dates[4] },
+      {
+        description: 'Morning coffee run',
+        amount: '5.50',
+        type: 'expense' as const,
+        date: dates[4],
+      },
+      {
+        description: 'Client payment received',
+        amount: '320.00',
+        type: 'income' as const,
+        date: dates[4],
+      },
+      {
+        description: 'Team lunch expense',
+        amount: '28.75',
+        type: 'expense' as const,
+        date: dates[4],
+      },
+      {
+        description: 'Office supplies',
+        amount: '23.40',
+        type: 'expense' as const,
+        date: dates[4],
+      },
     ];
 
     await db.insert(schema.transactions).values(sampleTransactions);
@@ -211,7 +336,9 @@ Ready for some user testing to validate the core concept!`,
       },
     });
 
-    console.log(`✅ TempoDay MVP sample data inserted successfully for ${dates.length} days`);
+    console.log(
+      `✅ TempoDay MVP sample data inserted successfully for ${dates.length} days`,
+    );
     console.log(`📅 Date range: ${dates[0]} to ${dates[4]}`);
   } catch (error) {
     console.error('❌ Failed to insert TempoDay sample data:', error);

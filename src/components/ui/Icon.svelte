@@ -33,7 +33,7 @@ const sizes = {
   lg: 'w-6 h-6',
   xl: 'w-8 h-8',
   '2xl': 'w-10 h-10',
-  '3xl': 'w-12 h-12'
+  '3xl': 'w-12 h-12',
 };
 
 const icons = {

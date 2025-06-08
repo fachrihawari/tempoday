@@ -1,62 +1,62 @@
 <script lang="ts">
-  import Icon, { type IconName } from "./Icon.svelte";
-  import Button from "./Button.svelte";
+import Button from './Button.svelte';
+import Icon, { type IconName } from './Icon.svelte';
 
-  interface Props {
-    title?: string;
-    description: string;
-    type: "info" | "success" | "warning" | "error";
-    class?: string;
-    dismissible?: boolean;
-    onDismiss?: () => void;
-  }
+interface Props {
+  title?: string;
+  description: string;
+  type: 'info' | 'success' | 'warning' | 'error';
+  class?: string;
+  dismissible?: boolean;
+  onDismiss?: () => void;
+}
 
-  let {
-    title = "Error",
-    description,
-    type,
-    class: className = "",
-    dismissible = false,
-    onDismiss,
-  }: Props = $props();
+let {
+  title = 'Error',
+  description,
+  type,
+  class: className = '',
+  dismissible = false,
+  onDismiss,
+}: Props = $props();
 
-  let show = $state(true);
+let show = $state(true);
 
-  const typeConfig: Record<
-    Props["type"],
-    { classes: string; icon: IconName; iconColor: string }
-  > = {
-    info: {
-      classes: "bg-blue-50 text-blue-800 border-blue-200",
-      icon: "info-circle" as IconName,
-      iconColor: "text-blue-600",
-    },
-    success: {
-      classes: "bg-green-50 text-green-800 border-green-200",
-      icon: "check-circle" as IconName,
-      iconColor: "text-green-600",
-    },
-    warning: {
-      classes: "bg-yellow-50 text-yellow-800 border-yellow-200",
-      icon: "exclamation-triangle" as IconName,
-      iconColor: "text-yellow-600",
-    },
-    error: {
-      classes: "bg-red-50 text-red-800 border-red-200",
-      icon: "alert-circle" as IconName,
-      iconColor: "text-red-600",
-    },
-  };
+const typeConfig: Record<
+  Props['type'],
+  { classes: string; icon: IconName; iconColor: string }
+> = {
+  info: {
+    classes: 'bg-blue-50 text-blue-800 border-blue-200',
+    icon: 'info-circle' as IconName,
+    iconColor: 'text-blue-600',
+  },
+  success: {
+    classes: 'bg-green-50 text-green-800 border-green-200',
+    icon: 'check-circle' as IconName,
+    iconColor: 'text-green-600',
+  },
+  warning: {
+    classes: 'bg-yellow-50 text-yellow-800 border-yellow-200',
+    icon: 'exclamation-triangle' as IconName,
+    iconColor: 'text-yellow-600',
+  },
+  error: {
+    classes: 'bg-red-50 text-red-800 border-red-200',
+    icon: 'alert-circle' as IconName,
+    iconColor: 'text-red-600',
+  },
+};
 
-  const config = $derived(typeConfig[type]);
-  const alertClasses = $derived(
-    `p-4 border-l-4 rounded-md flex flex-col items-center ${config.classes} ${className}`,
-  );
+const config = $derived(typeConfig[type]);
+const alertClasses = $derived(
+  `p-4 border-l-4 rounded-md flex flex-col items-center ${config.classes} ${className}`,
+);
 
-  function handleDismiss() {
-    show = false;
-    onDismiss?.();
-  }
+function handleDismiss() {
+  show = false;
+  onDismiss?.();
+}
 </script>
 
 {#if show}
