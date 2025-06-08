@@ -1,67 +1,105 @@
 <script lang="ts">
-import { currentDayData, updateCurrentDayData } from '../lib/stores';
-import BottomSheet from './ui/BottomSheet.svelte';
-import Button from './ui/Button.svelte';
-import Card from './ui/Card.svelte';
-import EmptyState from './ui/EmptyState.svelte';
-import Icon from './ui/Icon.svelte';
-import Textarea from './ui/Textarea.svelte';
+  import { reactiveNotes } from "../db/reactive/notes.svelte";
+  import { selectedDate, formatDateKey } from "../lib/stores";
+  import BottomSheet from "./ui/BottomSheet.svelte";
+  import Button from "./ui/Button.svelte";
+  import Card from "./ui/Card.svelte";
+  import EmptyState from "./ui/EmptyState.svelte";
+  import Icon from "./ui/Icon.svelte";
+  import Textarea from "./ui/Textarea.svelte";
+  import Loading from "./ui/Loading.svelte";
+  import Alert from "./ui/Alert.svelte";
 
-const note = $derived($currentDayData.note);
+  // Reactive values from the repository
+  let { note, isLoading, isSaving, error, content, hasContent } =
+    $derived(reactiveNotes);
 
-let isEditing = $state(false);
-let editingText = $state('');
+  let isEditing = $state(false);
+  let editingText = $state("");
 
-function updateNote(newNote: string) {
-  updateCurrentDayData({ note: newNote });
-}
+  // Watch for date changes and load note
+  $effect(() => {
+    const dateKey = formatDateKey($selectedDate);
+    console.log(`Loading note for date: ${dateKey}`);
+    reactiveNotes.loadNote(dateKey);
+  });
 
-function startEditing() {
-  editingText = note;
-  isEditing = true;
-}
-
-function saveNote(event?: Event) {
-  if (event) {
-    event.preventDefault();
+  function startEditing() {
+    editingText = content;
+    isEditing = true;
   }
-  updateNote(editingText);
-  cancelEditing();
-}
 
-function cancelEditing() {
-  editingText = '';
-  isEditing = false;
-}
+  async function saveNote(event?: Event) {
+    if (event) {
+      event.preventDefault();
+    }
 
-function handleKeydown(event: KeyboardEvent) {
-  if (event.key === 'Escape') {
-    cancelEditing();
+    const dateKey = formatDateKey($selectedDate);
+    try {
+      await reactiveNotes.saveNote(editingText, dateKey);
+      cancelEditing();
+    } catch (err) {
+      console.error("Failed to save note:", err);
+      // Error is already handled by reactive store
+    }
   }
-  // Allow Ctrl+Enter or Cmd+Enter to save
-  if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
-    saveNote();
-  }
-}
 
-// Auto-save functionality with debounce
-let saveTimeout: number;
-function handleInput() {
-  clearTimeout(saveTimeout);
-  saveTimeout = setTimeout(() => {
-    updateNote(editingText);
-  }, 1000); // Auto-save after 1 second of no typing
-}
+  function cancelEditing() {
+    editingText = "";
+    isEditing = false;
+    // Clear any error when closing form
+    if (error) {
+      reactiveNotes.clearError();
+    }
+  }
+
+  function handleKeydown(event: KeyboardEvent) {
+    if (event.key === "Escape") {
+      cancelEditing();
+    }
+    // Allow Ctrl+Enter or Cmd+Enter to save
+    if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
+      saveNote();
+    }
+  }
+
+  // Auto-save functionality with debounce
+  function handleInput() {
+    const dateKey = formatDateKey($selectedDate);
+    reactiveNotes.autoSaveNote(editingText, dateKey, 1000);
+  }
 </script>
 
 <Card title="Daily Note" icon="edit" iconColor="text-purple-500">
+  {#snippet headerAction()}
+    {#if isLoading}
+      <Icon name="loader" size="sm" class="animate-spin" />
+    {:else if isSaving}
+      <Icon name="loader" size="sm" class="animate-spin text-purple-500" />
+    {/if}
+  {/snippet}
+
   {#snippet children()}
+    {#if error}
+      <Alert
+        type="error"
+        description={error}
+        onDismiss={() => reactiveNotes.clearError()}
+        class="mb-4"
+      />
+    {/if}
+
     <!-- Note Edit Form -->
-    <BottomSheet bind:open={isEditing} title={note.trim() ? "Edit Note" : "Add Note"}>
+    <BottomSheet
+      bind:open={isEditing}
+      title={hasContent ? "Edit Note" : "Add Note"}
+    >
       {#snippet children()}
         <form onsubmit={saveNote} class="space-y-6">
           <Textarea
             bind:value={editingText}
+            oninput={handleInput}
+            onkeydown={handleKeydown}
             placeholder="Write your thoughts, reflections, or anything you want to remember about this day..."
             label="Daily Note"
             theme="notes"
@@ -70,7 +108,7 @@ function handleInput() {
             required
           />
           <div class="flex gap-3 pt-2">
-            <Button 
+            <Button
               type="button"
               variant="ghost"
               onclick={cancelEditing}
@@ -80,14 +118,20 @@ function handleInput() {
                 Cancel
               {/snippet}
             </Button>
-            <Button 
+            <Button
               type="submit"
               variant="notes"
               class="flex-1"
+              disabled={isSaving}
             >
               {#snippet children()}
-                <Icon name="save" size="sm" class="mr-2" />
-                Save Note
+                {#if isSaving}
+                  <Icon name="loader" size="sm" class="mr-2 animate-spin" />
+                  Saving...
+                {:else}
+                  <Icon name="save" size="sm" class="mr-2" />
+                  Save Note
+                {/if}
               {/snippet}
             </Button>
           </div>
@@ -96,13 +140,15 @@ function handleInput() {
     </BottomSheet>
 
     {#if !isEditing}
-      <div class="{note.trim() ? 'mb-4' : ''}">
-        {#if note.trim()}
+      <div class={hasContent ? "mb-4" : ""}>
+        {#if isLoading}
+          <Loading size="lg" message="Loading note..." />
+        {:else if hasContent}
           <button onclick={startEditing} class="cursor-text w-full text-left">
             <div
               class="bg-gray-50 rounded-lg p-3 min-h-[80px] whitespace-pre-wrap text-sm text-gray-900 leading-relaxed"
             >
-              {note}
+              {content}
             </div>
           </button>
         {:else}
@@ -115,7 +161,7 @@ function handleInput() {
         {/if}
       </div>
 
-      {#if note.trim()}
+      {#if hasContent && !isLoading}
         <Button
           variant="notes"
           dashed={true}

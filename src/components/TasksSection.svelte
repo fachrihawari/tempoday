@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { onMount } from "svelte";
   import { reactiveTasks } from "../db/reactive/tasks.svelte";
   import { selectedDate, formatDateKey } from "../lib/stores";
   import BottomSheet from "./ui/BottomSheet.svelte";
@@ -19,10 +18,9 @@
   let newTaskText = $state("");
 
   // Watch for date changes and load tasks
-  onMount(() => {
+  $effect(() => {
     const dateKey = formatDateKey($selectedDate);
     console.log(`Loading tasks for date: ${dateKey}`);
-
     reactiveTasks.loadTasks(dateKey);
   });
 

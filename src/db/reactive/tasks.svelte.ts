@@ -29,7 +29,7 @@ export class ReactiveTasks {
    * Load tasks for a specific date and update reactive state
    */
   async loadTasks(date: string): Promise<void> {
-    if (this.currentDate === date && this.tasks.length > 0) {
+    if (this.currentDate === date) {
       return; // Already loaded for this date
     }
 
@@ -115,16 +115,6 @@ export class ReactiveTasks {
    */
   get totalCount(): number {
     return this.tasks.length;
-  }
-
-  /**
-   * Check if any operation is in progress
-   */
-  get isAnyOperationInProgress(): boolean {
-    return this.isLoading ||
-      this.isCreating ||
-      Object.values(this.isToggling).some(Boolean) ||
-      Object.values(this.isDeleting).some(Boolean);
   }
 
   /**
