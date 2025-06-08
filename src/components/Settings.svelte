@@ -101,8 +101,7 @@ function getLocaleForCurrency(currencyCode: string): string {
             onchange={(e) =>
               updateCurrency((e.target as HTMLSelectElement).value)}
             disabled={isSaving}
-            class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-base
-              {isSaving ? 'opacity-50 cursor-not-allowed' : ''}"
+            class={`w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-base ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
             {#each currencies as currency (currency.code)}
               <option value={currency.code}>

@@ -63,7 +63,7 @@ function resetForm() {
     {/if}
 
     <!-- Task List -->
-    <div class="space-y-2 {tasks.length > 0 ? 'mb-4' : ''}">
+    <div class="space-y-2" class:mb-4={tasks.length > 0}>
       {#if isLoading}
         <Loading size="xl" message="Loading tasks..." />
       {:else}

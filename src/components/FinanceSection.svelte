@@ -95,7 +95,7 @@ function resetForm() {
       <Icon name="loader" size="sm" class="animate-spin" />
     {:else if totalCount > 0}
       <span class="text-sm text-gray-500">
-        {totalCount} transaction{totalCount !== 1 ? 's' : ''}
+        {totalCount} transaction{totalCount !== 1 ? "s" : ""}
       </span>
     {/if}
   {/snippet}
@@ -136,7 +136,7 @@ function resetForm() {
     {/if}
 
     <!-- Transaction List -->
-    <div class="space-y-2 {transactions.length > 0 ? 'mb-4' : ''}">
+    <div class="space-y-2" class:mb-4={transactions.length > 0}>
       {#if isLoading}
         <Loading size="xl" message="Loading transactions..." />
       {:else}
@@ -173,10 +173,17 @@ function resetForm() {
             <Button
               variant="ghost"
               size="sm"
-              onclick={() => reactiveTransactions.deleteTransaction(transaction.id)}
+              onclick={() => {
+                reactiveTransactions.deleteTransaction(transaction.id);
+              }}
               disabled={isDeleting[transaction.id]}
-              class="!p-1 text-red-500 hover:bg-red-50 !w-6 !h-6
-                {isDeleting[transaction.id] ? 'opacity-50 cursor-not-allowed' : ''}"
+              class={`!p-1 text-red-500 hover:bg-red-50 !w-6 !h-6
+                ${
+                  isDeleting[transaction.id]
+                    ? "opacity-50 cursor-not-allowed"
+                    : ""
+                }
+              `}
             >
               {#snippet children()}
                 {#if isDeleting[transaction.id]}
@@ -272,9 +279,9 @@ function resetForm() {
                 Cancel
               {/snippet}
             </Button>
-            <Button 
-              type="submit" 
-              variant="financials" 
+            <Button
+              type="submit"
+              variant="financials"
               class="flex-1"
               disabled={!description.trim() || !amount.trim() || isCreating}
             >
