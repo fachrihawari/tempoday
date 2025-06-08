@@ -2,7 +2,7 @@
 import DatePicker from '../components/DatePicker.svelte';
 import FinanceSection from '../components/FinanceSection.svelte';
 import NoteSection from '../components/NoteSection.svelte';
-import TodoSection from '../components/TodoSection.svelte';
+import TasksSection from '../components/TasksSection.svelte';
 import Header from '../components/ui/Header.svelte';
 </script>
 
@@ -14,8 +14,8 @@ import Header from '../components/ui/Header.svelte';
 
 <!-- Day Content Sections -->
 <div class="flex-1 overflow-y-auto">
-  <!-- To-Do Section -->
-  <TodoSection />
+  <!-- Tasks Section -->
+  <TasksSection />
 
   <!-- Note Section -->
   <NoteSection />

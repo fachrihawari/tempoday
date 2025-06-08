@@ -45,7 +45,7 @@
   }
 </script>
 
-<Card title="To-Do List" icon="clipboard" iconColor="text-blue-500">
+<Card title="Tasks" icon="clipboard" iconColor="text-blue-500">
   {#snippet headerAction()}
     {#if isLoading}
       <Icon name="loader" size="sm" class="animate-spin" />
@@ -80,7 +80,7 @@
               ? 'bg-green-500 border-green-500 text-white'
               : 'border-gray-300 hover:border-green-400'}
               {reactiveTasks.isToggling[task.id]
-              ? 'opacity-50 cursor-not-allowed'
+              ? 'opacity-50 cursor-not-allowed bg-white border-white hover:border-white hover:bg-white'
               : ''}"
           >
             {#if reactiveTasks.isToggling[task.id]}
