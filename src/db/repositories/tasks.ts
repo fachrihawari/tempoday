@@ -2,6 +2,8 @@ import { eq } from 'drizzle-orm';
 import type { DB } from '../index';
 import { tasks, type Task, type NewTask } from '../schema/tasks';
 
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
 export class TasksRepository {
   constructor(private db: DB) {}
 
@@ -9,6 +11,8 @@ export class TasksRepository {
    * Get all tasks for a specific date
    */
   async getTasksByDate(date: string): Promise<Task[]> {
+    await delay(1000); // Simulate network delay
+
     return await this.db
       .select()
       .from(tasks)
@@ -20,6 +24,8 @@ export class TasksRepository {
    * Create a new task
    */
   async createTask(task: Omit<NewTask, 'id' | 'createdAt' | 'updatedAt'>): Promise<Task> {
+    await delay(1000); // Simulate network delay
+
     const [newTask] = await this.db
       .insert(tasks)
       .values(task)
@@ -31,6 +37,8 @@ export class TasksRepository {
    * Update task completion status
    */
   async toggleTaskCompletion(taskId: string): Promise<Task | null> {
+    await delay(1000); // Simulate network delay
+
     // First get the current task to toggle its completion status
     const [currentTask] = await this.db
       .select()
@@ -55,51 +63,16 @@ export class TasksRepository {
   }
 
   /**
-   * Update task title
-   */
-  async updateTask(taskId: string, updates: Partial<Pick<Task, 'title' | 'completed'>>): Promise<Task | null> {
-    const [updatedTask] = await this.db
-      .update(tasks)
-      .set({ 
-        ...updates,
-        updatedAt: new Date()
-      })
-      .where(eq(tasks.id, taskId))
-      .returning();
-
-    return updatedTask || null;
-  }
-
-  /**
    * Delete a task
    */
   async deleteTask(taskId: string): Promise<boolean> {
+    await delay(1000); // Simulate network delay
+
     const result = await this.db
       .delete(tasks)
       .where(eq(tasks.id, taskId))
       .returning();
 
     return result.length > 0;
-  }
-
-  /**
-   * Get task statistics for a specific date
-   */
-  async getTaskStats(date: string): Promise<{
-    totalTasks: number;
-    completedTasks: number;
-    completionRate: number;
-  }> {
-    const allTasks = await this.getTasksByDate(date);
-
-    const totalTasks = allTasks.length;
-    const completedTasks = allTasks.filter(task => task.completed).length;
-    const completionRate = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
-
-    return {
-      totalTasks,
-      completedTasks,
-      completionRate
-    };
   }
 }

@@ -46,7 +46,7 @@ const borderColor = $derived(() => {
   if (isFocused) {
     if (theme) {
       const color =
-        theme === 'todos'
+        theme === 'tasks'
           ? 'border-blue-500'
           : theme === 'notes'
             ? 'border-purple-500'

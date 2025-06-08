@@ -1,6 +1,6 @@
 // Centralized Theme System for TempoDay
 export const sectionThemes = {
-  todos: {
+  tasks: {
     primary: 'blue',
     colors: {
       icon: 'text-blue-500',

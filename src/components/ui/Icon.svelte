@@ -15,7 +15,8 @@ export type IconName =
   | 'info-circle'
   | 'exclamation-triangle'
   | 'times-circle'
-  | 'check-circle';
+  | 'check-circle'
+  | 'loader';
 export type IconSize = 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl';
 
 interface Props {
@@ -51,7 +52,11 @@ const icons = {
   'info-circle': `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>`,
   'exclamation-triangle': `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>`,
   'times-circle': `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>`,
-  'check-circle': `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>`
+  'check-circle': `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>`,
+  loader: `
+    <circle cx="12" cy="12" r="10" stroke="#bfdbfe" stroke-width="2" fill="white" />
+    <path stroke="#3b82f6" stroke-width="2" stroke-linecap="round" d="M12 2a10 10 0 0 1 8.66 5" />
+  `,
 };
 </script>
 

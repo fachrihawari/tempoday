@@ -8,6 +8,7 @@
     type: "info" | "success" | "warning" | "error";
     class?: string;
     dismissible?: boolean;
+    onDismiss?: () => void;
   }
 
   let {
@@ -16,6 +17,7 @@
     type,
     class: className = "",
     dismissible = false,
+    onDismiss,
   }: Props = $props();
 
   let show = $state(true);
@@ -53,6 +55,7 @@
 
   function handleDismiss() {
     show = false;
+    onDismiss?.();
   }
 </script>
 

@@ -31,7 +31,7 @@
 <div class="h-screen overflow-y-auto">
   {#if appState.initializing}
     <div class="flex items-center justify-center h-full">
-      <Loading message="Preparing TempoDay..." />
+      <Loading size='3xl' message="Preparing TempoDay..." />
     </div>
   {:else if appState.dbError}
     <div class="flex items-center justify-center h-full">
