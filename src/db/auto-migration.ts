@@ -33,6 +33,7 @@ export interface MigrationResult {
  * This is the main entry point for automatic migration handling
  */
 export async function autoRunMigrations(db: DB): Promise<MigrationResult> {
+  const startTime = performance.now();
   console.log('🔍 Checking for automatic migrations...');
   
   const result: MigrationResult = {
@@ -42,14 +43,25 @@ export async function autoRunMigrations(db: DB): Promise<MigrationResult> {
   };
 
   try {
-    // Get current database state
-    const currentDbVersion = await getCurrentVersion(db);
-    result.previousVersion = currentDbVersion;
-    
-    // Check if migration is needed - either by version change or pending migrations
+    // Quick check: if version info indicates no migration needed, use fast path
     const versionMigrationNeeded = isMigrationNeeded();
     
-    // Also check if there are any pending migrations in the database
+    // Get the current version from localStorage
+    const currentDbVersion = await getCurrentVersion();
+    
+    // Update result with current version
+    result.previousVersion = currentDbVersion;
+
+    // Fast path: no version change detected, just get current version from localStorage
+    if (!versionMigrationNeeded) {
+      result.currentVersion = currentDbVersion;
+      
+      const endTime = performance.now();
+      console.log(`✅ No migrations needed - app version unchanged (${(endTime - startTime).toFixed(2)}ms)`);
+      return result;
+    }
+    
+    // Only import migrations if we potentially need them
     const { migrations } = await import('./migrations/index');
     
     const pendingMigrations = migrations.filter(m => 
@@ -58,51 +70,43 @@ export async function autoRunMigrations(db: DB): Promise<MigrationResult> {
     );
     
     const hasPendingMigrations = pendingMigrations.length > 0;
-    const migrationNeeded = versionMigrationNeeded || hasPendingMigrations;
     
     // Debug logging for migration filtering
-    if (migrations.length > 0) {
-      console.log(`🔍 Migration filtering: DB version ${currentDbVersion}, App version ${APP_VERSION}`);
-      console.log(`📦 Total migrations available: ${migrations.length}`);
-      console.log(`📦 Pending migrations (${currentDbVersion} < version <= ${APP_VERSION}): ${pendingMigrations.length}`);
-      
-      if (pendingMigrations.length > 0) {
-        console.log('📋 Pending migration versions:', pendingMigrations.map(m => m.version));
-      }
+    console.log(`🔍 Migration filtering: Installed version ${currentDbVersion}, App version ${APP_VERSION}`);
+    console.log(`📦 Total migrations available: ${migrations.length}`);
+    console.log(`📦 Pending migrations (${currentDbVersion} < version <= ${APP_VERSION}): ${pendingMigrations.length}`);
+    
+    if (hasPendingMigrations) {
+      console.log('📋 Pending migration versions:', pendingMigrations.map(m => m.version));
     }
     
-    if (!migrationNeeded) {
+    if (!hasPendingMigrations) {
       result.currentVersion = currentDbVersion;
-      console.log('✅ No migrations needed - database is up to date');
+      
+      const endTime = performance.now();
+      console.log(`✅ No pending migrations found - database is up to date (${(endTime - startTime).toFixed(2)}ms)`);
       return result;
     }
 
     result.wasNeeded = true;
-    const storedInfo = getStoredVersionInfo();
 
     console.log('🔄 Migrations needed - starting automatic migration...');
     console.log(`📊 Previous version: ${currentDbVersion}, Target: ${APP_VERSION}`);
     
-    if (storedInfo) {
-      console.log(`📱 Installed version: ${storedInfo.installedVersion} → ${APP_VERSION}`);
-    }
-    
-    if (hasPendingMigrations) {
-      console.log(`📦 Found ${pendingMigrations.length} pending migration(s)`);
-    }
-
     // Run the migrations with APP_VERSION constraint
-    await runMigrations(db, APP_VERSION);
+    await runMigrations(db, currentDbVersion, APP_VERSION);
 
     // Get final state
-    const finalVersion = await getCurrentVersion(db);
-    result.currentVersion = finalVersion;
+    result.currentVersion = APP_VERSION;
 
     // Update version tracking - use APP_VERSION since we successfully applied migrations up to this version
     updateVersionInfo(APP_VERSION);
 
     console.log('✅ Automatic migrations completed successfully');
-    console.log(`📈 Migration completed: ${currentDbVersion} → ${finalVersion}`);
+    console.log(`📈 Migration completed: ${currentDbVersion} → ${APP_VERSION}`);
+
+    const endTime = performance.now();
+    console.log(`⏱️ Auto-migration check completed in ${(endTime - startTime).toFixed(2)}ms`);
 
     return result;
 
@@ -123,15 +127,21 @@ export async function autoRunMigrations(db: DB): Promise<MigrationResult> {
  * Only available in development mode
  */
 // @ts-expect-error
- window.forceMigrationCheck = function forceMigrationCheck(): void {
+window.forceMigrationCheck = function forceMigrationCheck(): void {
   if (!import.meta.env.DEV) {
     throw new Error('Force migration check is only available in development mode');
   }
 
   console.log('🔄 Forcing migration check (development mode)');
   localStorage.removeItem('tempoday_version');
+  
+  // Clear version cache
+  import('./version').then(({ clearVersionCache }) => {
+    clearVersionCache();
+  });
+  
   indexedDB.deleteDatabase('/pglite/tempoday-db'); // Clear IndexedDB for a fresh start
-  console.log('🗑️ Cleared localStorage and IndexedDB for fresh migration check');
+  console.log('🗑️ Cleared localStorage, cache, and IndexedDB for fresh migration check');
 
   console.log('✅ Version info cleared - next initialization will trigger migrations');
 }

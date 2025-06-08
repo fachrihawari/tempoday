@@ -16,49 +16,19 @@ export const migrations: Migration[] = [
   migration_002_add_task_priority,
 ];
 
-// Get current schema version from database
-export async function getCurrentVersion(db: DB): Promise<string> {
-  try {
-    // Create migrations table if it doesn't exist
-    await db.execute(`
-      CREATE TABLE IF NOT EXISTS _migrations (
-        version VARCHAR(20) PRIMARY KEY,
-        name VARCHAR(255) NOT NULL,
-        applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
-    `);
-
-    // Get the latest applied migration by sorting version strings
-    const result = await db.execute(`
-      SELECT version FROM _migrations 
-      ORDER BY applied_at DESC 
-      LIMIT 1;
-    `);
-
-    if (result.rows && result.rows.length > 0) {
-      // For PGlite/Drizzle, try different ways to access the version
-      const row = result.rows[0] as { version: string }
-
-      // Try accessing as object property first (PGlite format)
-      let version = row.version;
-
-      // If still undefined, try other possible formats
-      if (version === undefined) {
-        console.error('🔍 Unable to extract version from row:', row);
-        console.error('🔍 Row keys:', Object.keys(row || {}));
-        return '0.0.0';
-      }
-
-      console.log('📊 Found latest migration version:', version);
-      return String(version);
-    } else {
-      console.log('📊 No migrations found, returning 0.0.0');
-      return '0.0.0';
-    }
-  } catch (error) {
-    console.error('❌ Failed to get current migration version:', error);
+// Get current schema version from localStorage
+export async function getCurrentVersion(): Promise<string> {
+  // Use version tracking from localStorage instead of database table
+  const { getStoredVersionInfo } = await import('../version');
+  const storedInfo = getStoredVersionInfo();
+  
+  if (!storedInfo) {
+    console.log('📊 No version info found, fallback to version: 0.0.0');
     return '0.0.0';
   }
+  
+  console.log('📊 Installed version:', storedInfo.installedVersion);
+  return storedInfo.installedVersion;
 }
 
 // Simple semantic version comparison
@@ -73,10 +43,9 @@ function compareVersions(a: string, b: string): number {
 }
 
 // Apply pending migrations
-export async function runMigrations(db: DB, maxVersion?: string): Promise<void> {
+export async function runMigrations(db: DB, currentVersion: string, maxVersion: string): Promise<void> {
   console.log('🔄 Checking for pending migrations...');
 
-  const currentVersion = await getCurrentVersion(db);
   let pendingMigrations = migrations.filter(m =>
     compareVersions(m.version, currentVersion) > 0
   );
@@ -108,22 +77,7 @@ export async function runMigrations(db: DB, maxVersion?: string): Promise<void> 
 
       await migration.up(db);
 
-      // Record migration in database
-      await db.execute(`
-        INSERT INTO _migrations (version, name) 
-        VALUES ('${migration.version}', '${migration.name}');
-      `);
-
-      // Verify the migration was recorded
-      const verifyResult = await db.execute(`
-        SELECT version FROM _migrations WHERE version = '${migration.version}';
-      `);
-
-      if (!verifyResult.rows || verifyResult.rows.length === 0) {
-        throw new Error(`Failed to record migration ${migration.version} in database`);
-      }
-
-      console.log(`✅ Migration ${migration.version} applied and recorded successfully`);
+      console.log(`✅ Migration ${migration.version} applied successfully`);
     } catch (error) {
       console.error(`❌ Migration ${migration.version} failed:`, error);
       throw new Error(`Migration ${migration.version} failed: ${error}`);

@@ -10,8 +10,10 @@
   // Initialize database when component mounts
   onMount(async () => {
     try {
+      console.time("Database Initialization");
       // Initialize database with automatic migration system
       await initializeDatabase(db);
+      console.timeEnd("Database Initialization");
 
       // Database is ready
       setDbReady();

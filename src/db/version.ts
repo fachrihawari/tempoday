@@ -15,12 +15,23 @@ export interface VersionInfo {
 
 const VERSION_KEY = 'tempoday_version';
 
+// Cache for version info to avoid repeated localStorage access
+let cachedVersionInfo: VersionInfo | null | undefined = undefined;
+
 // Get stored version info from localStorage
 export function getStoredVersionInfo(): VersionInfo | null {
+  // Use cache if available
+  if (cachedVersionInfo !== undefined) {
+    return cachedVersionInfo;
+  }
+  
   try {
     const stored = localStorage.getItem(VERSION_KEY);
-    return stored ? JSON.parse(stored) : null;
+    const result = stored ? JSON.parse(stored) : null;
+    cachedVersionInfo = result;
+    return result;
   } catch {
+    cachedVersionInfo = null;
     return null;
   }
 }
@@ -28,6 +39,8 @@ export function getStoredVersionInfo(): VersionInfo | null {
 // Store version info to localStorage
 export function storeVersionInfo(info: VersionInfo): void {
   localStorage.setItem(VERSION_KEY, JSON.stringify(info));
+  // Update cache
+  cachedVersionInfo = info;
 }
 
 // Check if migration is needed by comparing app versions
@@ -57,4 +70,9 @@ export function updateVersionInfo(installedVersion: string): void {
 
   storeVersionInfo(versionInfo);
   console.log('📝 Version info updated:', versionInfo);
+}
+
+// Clear version cache (for development/testing)
+export function clearVersionCache(): void {
+  cachedVersionInfo = undefined;
 }

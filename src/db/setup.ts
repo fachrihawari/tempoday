@@ -3,19 +3,16 @@ import type { DB } from ".";
 import { autoRunMigrations, type MigrationResult } from './auto-migration';
 
 // Initialize database for TempoDay MVP using migration system
-export async function initializeDatabase(db: DB): Promise<MigrationResult> {
+export async function initializeDatabase(db: DB) {
   console.log('🔄 Initializing TempoDay database...');
   try {
     // Use automatic migration system instead of manual table creation
-    const migrationResult = await autoRunMigrations(db);
+    await autoRunMigrations(db);
 
     // Insert sample data for MVP testing (only in development)
-    if (migrationResult.wasNeeded || import.meta.env.DEV) {
-      await insertSampleData(db);
-    }
+    await insertSampleData(db);
 
     console.log('✅ TempoDay database initialized successfully');
-    return migrationResult;
   } catch (error) {
     console.error('❌ Database initialization failed:', error);
     throw error;
@@ -30,7 +27,6 @@ async function insertSampleData(db: DB) {
   }
 
   console.log('📝 Inserting TempoDay sample data for MVP testing...');
-
   const today = '2025-06-05';
 
   try {
