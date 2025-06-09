@@ -36,3 +36,8 @@ export function formatDayOfWeek(date: Date): string {
 export function isSameDate(date1: Date, date2: Date): boolean {
   return date1.toDateString() === date2.toDateString();
 }
+
+// Utility function to format date as YYYY-MM-DD
+export function formatDateKey(date: Date): string {
+  return date.toISOString().split('T')[0];
+}

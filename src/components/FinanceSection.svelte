@@ -1,84 +1,79 @@
 <!-- Enhanced FinanceSection using reusable UI components -->
 <script lang="ts">
+import { onMount } from 'svelte';
+import { reactiveSettings } from '../db/reactive/settings.svelte';
+import { reactiveTransactions } from '../db/reactive/transactions.svelte';
 import { formatCurrency } from '../lib/currency';
-import {
-  type Transaction,
-  currentDayData,
-  settingsStore,
-  updateCurrentDayData,
-} from '../lib/stores';
-import { generateId } from '../lib/unique';
+import { formatDateKey } from '../lib/date';
+import { appState } from '../stores/app.svelte';
+import Alert from './ui/Alert.svelte';
 import BottomSheet from './ui/BottomSheet.svelte';
 import Button from './ui/Button.svelte';
 import Card from './ui/Card.svelte';
 import EmptyState from './ui/EmptyState.svelte';
 import Icon from './ui/Icon.svelte';
 import Input from './ui/Input.svelte';
+import Loading from './ui/Loading.svelte';
 
-const transactions = $derived($currentDayData.transactions);
-const settings = $derived($settingsStore);
+// Reactive values from the repository
+let {
+  transactions,
+  isLoading,
+  isCreating,
+  isDeleting,
+  error,
+  totalIncome,
+  totalExpenses,
+  netBalance,
+  totalCount,
+} = $derived(reactiveTransactions);
+
+// Reactive settings
+let { settings } = $derived(reactiveSettings);
 
 let showAddForm = $state(false);
 let description = $state('');
 let amount = $state('');
 let type = $state<'income' | 'expense'>('expense');
 
+// Watch for date changes and load transactions
+$effect(() => {
+  const dateKey = formatDateKey(appState.selectedDate);
+  reactiveTransactions.loadTransactions(dateKey);
+});
+
+// Load settings when component mounts
+onMount(() => {
+  reactiveSettings.loadSettings();
+});
+
 // Helper function to format currency with current settings
 function formatAmount(amount: number): string {
   return formatCurrency(amount, settings.currency, settings.locale);
 }
 
-function addTransaction(
-  desc: string,
-  amt: number,
-  transactionType: 'income' | 'expense',
-) {
-  const newTransaction: Transaction = {
-    id: generateId(),
-    description: desc,
-    amount: amt,
-    type: transactionType,
-    date: new Date().toISOString().split('T')[0],
-  };
-
-  updateCurrentDayData({
-    transactions: [...$currentDayData.transactions, newTransaction],
-  });
-}
-
-function deleteTransaction(transactionId: string) {
-  updateCurrentDayData({
-    transactions: $currentDayData.transactions.filter(
-      (t) => t.id !== transactionId,
-    ),
-  });
-}
-
-// Calculate totals
-const totalIncome = $derived(
-  transactions
-    .filter((t) => t.type === 'income')
-    .reduce((sum, t) => sum + t.amount, 0),
-);
-
-const totalExpenses = $derived(
-  transactions
-    .filter((t) => t.type === 'expense')
-    .reduce((sum, t) => sum + t.amount, 0),
-);
-
-const netBalance = $derived(totalIncome - totalExpenses);
-
-function handleAddTransaction(event?: Event) {
+async function handleAddTransaction(event?: Event) {
   if (event) {
     event.preventDefault();
   }
+
   const desc = description.trim();
   const amt = parseFloat(amount);
 
   if (desc && !isNaN(amt) && amt > 0) {
-    addTransaction(desc, amt, type);
-    resetForm();
+    const dateKey = formatDateKey(appState.selectedDate);
+    try {
+      await reactiveTransactions.createTransaction({
+        description: desc,
+        amount: amt.toString(),
+        type: type,
+        date: dateKey,
+      });
+      resetForm();
+    } catch (err) {
+      console.error('Failed to add transaction:', err);
+      // Error is already handled by reactive store
+    }
   }
 }
 
@@ -87,13 +82,36 @@ function resetForm() {
   amount = '';
   type = 'expense';
   showAddForm = false;
+  // Clear any error when closing form
+  if (error) {
+    reactiveTransactions.clearError();
+  }
 }
 </script>
 
 <Card title="Financial Records" icon="dollar" iconColor="text-green-500">
+  {#snippet headerAction()}
+    {#if isLoading}
+      <Icon name="loader" size="sm" class="animate-spin" />
+    {:else if totalCount > 0}
+      <span class="text-sm text-gray-500">
+        {totalCount} transaction{totalCount !== 1 ? "s" : ""}
+      </span>
+    {/if}
+  {/snippet}
+
   {#snippet children()}
+    {#if error}
+      <Alert
+        type="error"
+        description={error}
+        onDismiss={() => reactiveTransactions.clearError()}
+        class="mb-4"
+      />
+    {/if}
+
     <!-- Daily Summary -->
-    {#if transactions.length > 0}
+    {#if transactions.length > 0 && !isLoading}
       <div class="bg-gray-50 rounded-lg p-3 mb-4 space-y-2">
         <div class="flex justify-between text-sm">
           <span class="text-gray-600">Income:</span>
@@ -118,59 +136,74 @@ function resetForm() {
     {/if}
 
     <!-- Transaction List -->
-    <div class="space-y-2 {transactions.length > 0 ? 'mb-4' : ''}">
-      {#each transactions as transaction (transaction.id)}
-        <div
-          class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 group relative"
-        >
+    <div class="space-y-2" class:mb-4={transactions.length > 0}>
+      {#if isLoading}
+        <Loading size="xl" message="Loading transactions..." />
+      {:else}
+        {#each transactions as transaction (transaction.id)}
           <div
-            class="flex-shrink-0 w-3 h-3 rounded-full {transaction.type ===
-            'income'
-              ? 'bg-green-500'
-              : 'bg-red-500'}"
-          ></div>
+            class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 group relative"
+          >
+            <div
+              class="flex-shrink-0 w-3 h-3 rounded-full {transaction.type ===
+              'income'
+                ? 'bg-green-500'
+                : 'bg-red-500'}"
+            ></div>
 
-          <div class="flex-1 min-w-0">
-            <p class="text-sm text-gray-900 truncate">
-              {transaction.description}
-            </p>
-            <p class="text-xs text-gray-500 capitalize">{transaction.type}</p>
-          </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm text-gray-900 truncate">
+                {transaction.description}
+              </p>
+              <p class="text-xs text-gray-500 capitalize">{transaction.type}</p>
+            </div>
 
-          <div class="text-right group-hover:mr-8">
-            <p
-              class="text-sm font-medium {transaction.type === 'income'
-                ? 'text-green-600'
-                : 'text-red-600'}"
-            >
-              {transaction.type === "income" ? "+" : "-"}{formatAmount(
-                transaction.amount,
-              )}
-            </p>
-          </div>
+            <div class="text-right">
+              <p
+                class="text-sm font-medium {transaction.type === 'income'
+                  ? 'text-green-600'
+                  : 'text-red-600'}"
+              >
+                {transaction.type === "income" ? "+" : "-"}{formatAmount(
+                  parseFloat(transaction.amount),
+                )}
+              </p>
+            </div>
 
-          <div class="w-8 flex justify-center absolute right-2">
             <Button
               variant="ghost"
               size="sm"
-              onclick={() => deleteTransaction(transaction.id)}
-              class="opacity-0 group-hover:opacity-100 !p-1 text-red-500 hover:bg-red-50 !w-6 !h-6"
+              onclick={() => {
+                reactiveTransactions.deleteTransaction(transaction.id);
+              }}
+              disabled={isDeleting[transaction.id]}
+              class={`!p-1 text-red-500 hover:bg-red-50 !w-6 !h-6
+                ${
+                  isDeleting[transaction.id]
+                    ? "opacity-50 cursor-not-allowed"
+                    : ""
+                }
+              `}
             >
               {#snippet children()}
-                <Icon name="trash" size="sm" />
+                {#if isDeleting[transaction.id]}
+                  <Icon name="loader" size="sm" class="animate-spin" />
+                {:else}
+                  <Icon name="trash" size="sm" />
+                {/if}
               {/snippet}
             </Button>
           </div>
-        </div>
-      {/each}
+        {/each}
 
-      {#if transactions.length === 0}
-        <EmptyState
-          icon="dollar"
-          title="No transactions for this day"
-          subtitle="Tap to track your first transaction"
-          onclick={() => (showAddForm = true)}
-        />
+        {#if transactions.length === 0}
+          <EmptyState
+            icon="dollar"
+            title="No transactions for this day"
+            subtitle="Tap to track your first transaction"
+            onclick={() => (showAddForm = true)}
+          />
+        {/if}
       {/if}
     </div>
 
@@ -180,7 +213,10 @@ function resetForm() {
         <form onsubmit={handleAddTransaction} class="space-y-6">
           <!-- Type Selection -->
           <fieldset>
-            <legend class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Transaction Type</legend>
+            <legend
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3"
+              >Transaction Type</legend
+            >
             <div class="flex gap-2">
               <Button
                 type="button"
@@ -233,7 +269,7 @@ function resetForm() {
           />
 
           <div class="flex gap-3 pt-2">
-            <Button 
+            <Button
               type="button"
               variant="ghost"
               onclick={resetForm}
@@ -243,14 +279,20 @@ function resetForm() {
                 Cancel
               {/snippet}
             </Button>
-            <Button 
+            <Button
               type="submit"
               variant="financials"
               class="flex-1"
+              disabled={!description.trim() || !amount.trim() || isCreating}
             >
               {#snippet children()}
-                <Icon name="plus" size="sm" class="mr-2" />
-                Add {type === 'income' ? 'Income' : 'Expense'}
+                {#if isCreating}
+                  <Icon name="loader" size="sm" class="mr-2 animate-spin" />
+                  Adding...
+                {:else}
+                  <Icon name="plus" size="sm" class="mr-2" />
+                  Add {type === "income" ? "Income" : "Expense"}
+                {/if}
               {/snippet}
             </Button>
           </div>
@@ -258,7 +300,7 @@ function resetForm() {
       {/snippet}
     </BottomSheet>
 
-    {#if !showAddForm && transactions.length > 0}
+    {#if !showAddForm && transactions.length > 0 && !isLoading}
       <Button
         variant="financials"
         dashed={true}

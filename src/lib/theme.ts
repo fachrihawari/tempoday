@@ -1,6 +1,6 @@
 // Centralized Theme System for TempoDay
 export const sectionThemes = {
-  todos: {
+  tasks: {
     primary: 'blue',
     colors: {
       icon: 'text-blue-500',
@@ -42,7 +42,3 @@ export const sectionThemes = {
 } as const;
 
 export type SectionTheme = keyof typeof sectionThemes;
-
-export function getTheme(section: SectionTheme) {
-  return sectionThemes[section];
-}

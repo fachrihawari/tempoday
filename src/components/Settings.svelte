@@ -1,11 +1,15 @@
 <script lang="ts">
-import { settingsStore } from '../lib/stores';
+import { reactiveSettings } from '../db/reactive/settings.svelte';
+import Alert from './ui/Alert.svelte';
 import BottomSheet from './ui/BottomSheet.svelte';
 import Button from './ui/Button.svelte';
 import Icon from './ui/Icon.svelte';
+import Loading from './ui/Loading.svelte';
 
 let showSettings = $state(false);
-const settings = $derived($settingsStore);
+
+// Reactive values from the settings store
+let { settings, isLoading, isSaving, error } = $derived(reactiveSettings);
 
 // Popular currencies
 const currencies = [
@@ -22,15 +26,19 @@ const currencies = [
   { code: 'IDR', symbol: 'Rp', name: 'Indonesian Rupiah' },
 ];
 
-function updateCurrency(currencyCode: string) {
+// Load settings when component initializes
+$effect(() => {
+  reactiveSettings.loadSettings();
+});
+
+async function updateCurrency(currencyCode: string) {
   const currency = currencies.find((c) => c.code === currencyCode);
   if (currency) {
-    settingsStore.update((s) => ({
-      ...s,
+    await reactiveSettings.updateSettings({
       currency: currency.code,
       currencySymbol: currency.symbol,
       locale: getLocaleForCurrency(currency.code),
-    }));
+    });
   }
 }
 
@@ -66,41 +74,61 @@ function getLocaleForCurrency(currencyCode: string): string {
   onClose={() => (showSettings = false)}
 >
   {#snippet children()}
-    <div class="space-y-6">
-      <div class="space-y-3">
-        <div class="flex items-center gap-2">
-          <Icon name="dollar" class="text-gray-500" />
-          <label for="currency-select" class="font-medium text-gray-900"
-            >Currency</label
-          >
-        </div>
+    {#if error}
+      <Alert
+        type="error"
+        description={error}
+        onDismiss={() => reactiveSettings.clearError()}
+        class="mb-4"
+      />
+    {/if}
 
-        <select
-          id="currency-select"
-          value={settings.currency}
-          onchange={(e) => updateCurrency((e.target as HTMLSelectElement).value)}
-          class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-base"
-        >
-          {#each currencies as currency (currency.code)}
-            <option value={currency.code}>
-              {currency.symbol}
-              {currency.code} - {currency.name}
-            </option>
-          {/each}
-        </select>
+    {#if isLoading}
+      <Loading size="lg" message="Loading settings..." />
+    {:else}
+      <div class="space-y-6">
+        <div class="space-y-3">
+          <div class="flex items-center gap-2">
+            <Icon name="dollar" class="text-gray-500" />
+            <label for="currency-select" class="font-medium text-gray-900"
+              >Currency</label
+            >
+          </div>
+
+          <select
+            id="currency-select"
+            value={settings.currency}
+            onchange={(e) =>
+              updateCurrency((e.target as HTMLSelectElement).value)}
+            disabled={isSaving}
+            class={`w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-base ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
+          >
+            {#each currencies as currency (currency.code)}
+              <option value={currency.code}>
+                {currency.symbol}
+                {currency.code} - {currency.name}
+              </option>
+            {/each}
+          </select>
+        </div>
       </div>
-    </div>
+    {/if}
 
     <!-- Footer -->
-    <div class="mt-8 pt-4">
+    <div class="mt-4">
       <Button
         variant="primary"
         onclick={() => (showSettings = false)}
-        class="w-full"
+        fullWidth
       >
         {#snippet children()}
-          <Icon name="check" size="sm" class="mr-2" />
-          Done
+          {#if isSaving}
+            <Icon name="loader" size="sm" class="mr-2 animate-spin" />
+            Saving...
+            {:else}
+            <Icon name="check" size="sm" class="mr-2" />
+            Done
+          {/if}
         {/snippet}
       </Button>
     </div>
