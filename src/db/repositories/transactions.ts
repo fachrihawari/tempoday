@@ -6,8 +6,6 @@ import {
   transactions,
 } from '../schema/transactions';
 
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
 export class TransactionsRepository {
   constructor(private db: DB) {}
 
@@ -15,8 +13,6 @@ export class TransactionsRepository {
    * Get all transactions for a specific date
    */
   async getTransactionsByDate(date: string): Promise<Transaction[]> {
-    await delay(500); // Simulate network delay
-
     return await this.db
       .select()
       .from(transactions)
@@ -30,8 +26,6 @@ export class TransactionsRepository {
   async createTransaction(
     transaction: Omit<NewTransaction, 'id' | 'createdAt' | 'updatedAt'>,
   ): Promise<Transaction> {
-    await delay(500); // Simulate network delay
-
     const [newTransaction] = await this.db
       .insert(transactions)
       .values(transaction)
@@ -43,8 +37,6 @@ export class TransactionsRepository {
    * Delete a transaction
    */
   async deleteTransaction(transactionId: string): Promise<boolean> {
-    await delay(500); // Simulate network delay
-
     const result = await this.db
       .delete(transactions)
       .where(eq(transactions.id, transactionId))

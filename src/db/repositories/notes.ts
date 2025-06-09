@@ -2,8 +2,6 @@ import { eq } from 'drizzle-orm';
 import type { DB } from '../index';
 import { type NewNote, type Note, notes } from '../schema/notes';
 
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
 export class NotesRepository {
   constructor(private db: DB) {}
 
@@ -11,8 +9,6 @@ export class NotesRepository {
    * Get note for a specific date
    */
   async getNoteByDate(date: string): Promise<Note | null> {
-    await delay(500); // Simulate network delay
-
     const [note] = await this.db
       .select()
       .from(notes)
@@ -26,8 +22,6 @@ export class NotesRepository {
    * Create or update a note for a specific date
    */
   async upsertNote(noteData: NewNote): Promise<Note> {
-    await delay(500); // Simulate network delay
-
     // First try to find existing note for this date
     const existingNote = await this.getNoteByDate(noteData.date);
 

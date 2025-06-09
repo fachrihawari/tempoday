@@ -6,8 +6,6 @@ import {
   settings,
 } from '../schema/settings';
 
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
 export class SettingsRepository {
   constructor(private db: DB) {}
 
@@ -15,8 +13,6 @@ export class SettingsRepository {
    * Get current settings (there should only be one settings record)
    */
   async getSettings(): Promise<TempoDaySettings> {
-    await delay(300); // Simulate network delay (shorter for settings)
-
     const result = await this.db.select().from(settings).limit(1);
 
     if (result.length === 0) {
@@ -33,8 +29,6 @@ export class SettingsRepository {
   async updateSettings(
     newSettings: Partial<TempoDaySettings>,
   ): Promise<TempoDaySettings> {
-    await delay(500); // Simulate network delay
-
     const existing = await this.db.select().from(settings).limit(1);
 
     const updatedSettings = {
