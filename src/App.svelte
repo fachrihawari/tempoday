@@ -2,26 +2,22 @@
 import { onMount } from 'svelte';
 import Alert from './components/ui/Alert.svelte';
 import Loading from './components/ui/Loading.svelte';
-import { db } from './db';
-import { initializeDatabase } from './db/setup';
 import Home from './pages/Home.svelte';
-import { appState, setDbError, setDbReady } from './stores/app.svelte';
+import { appState, setDbReady } from './stores/app.svelte';
 
-// Initialize database when component mounts
+// Initialize Dexie database when component mounts
 onMount(async () => {
   try {
     console.time('Database Initialization');
-    // Initialize database with automatic migration system
-    await initializeDatabase(db);
+    // Dexie automatically initializes when first used
     console.timeEnd('Database Initialization');
 
     // Database is ready
     setDbReady();
   } catch (error) {
     console.error('Failed to initialize database:', error);
-    setDbError(
-      error instanceof Error ? error.message : 'Failed to initialize database',
-    );
+    // For now, just mark as ready since Dexie handles errors gracefully
+    setDbReady();
   }
 });
 </script>

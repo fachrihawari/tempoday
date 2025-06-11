@@ -20,10 +20,8 @@
     "vite": "^6.3.5"
   },
   "dependencies": {
-    "@electric-sql/pglite": "^0.3.3",
     "@tailwindcss/vite": "^4.1.8",
     "dexie": "^4.0.11",
-    "drizzle-orm": "^0.44.2",
     "tailwindcss": "^4.1.8"
   }
 }

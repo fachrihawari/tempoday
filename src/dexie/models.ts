@@ -28,3 +28,23 @@ export interface Transaction {
   createdAt: number; // epoch ms
   updatedAt: number; // epoch ms
 }
+
+export interface TempoDaySettings {
+  // Currency settings
+  currency: string;
+  currencySymbol: string;
+  locale: string;
+}
+
+export const defaultSettings: TempoDaySettings = {
+  currency: 'USD',
+  currencySymbol: '$',
+  locale: 'en-US',
+};
+
+export interface Settings {
+  id: string; // UUID
+  data: TempoDaySettings;
+  createdAt: number; // epoch ms
+  updatedAt: number; // epoch ms
+}

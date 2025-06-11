@@ -1,7 +1,7 @@
 <!-- Enhanced FinanceSection using reusable UI components -->
 <script lang="ts">
 import { onMount } from 'svelte';
-import { reactiveSettings } from '../db/reactive/settings.svelte';
+import { settingsStore } from '../stores/settings.svelte';
 import { reactiveTransactions } from '../stores/transactions.svelte';
 import { formatCurrency } from '../lib/currency';
 import { formatDateKey } from '../lib/date';
@@ -29,7 +29,7 @@ let {
 } = $derived(reactiveTransactions);
 
 // Reactive settings
-let { settings } = $derived(reactiveSettings);
+let { settings } = $derived(settingsStore);
 
 let showAddForm = $state(false);
 let description = $state('');
@@ -44,7 +44,7 @@ $effect(() => {
 
 // Load settings when component mounts
 onMount(() => {
-  reactiveSettings.loadSettings();
+  settingsStore.loadSettings();
 });
 
 // Helper function to format currency with current settings

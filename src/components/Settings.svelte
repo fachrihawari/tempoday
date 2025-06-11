@@ -1,5 +1,5 @@
 <script lang="ts">
-import { reactiveSettings } from '../db/reactive/settings.svelte';
+import { settingsStore } from '../stores/settings.svelte';
 import Alert from './ui/Alert.svelte';
 import BottomSheet from './ui/BottomSheet.svelte';
 import Button from './ui/Button.svelte';
@@ -9,7 +9,7 @@ import Loading from './ui/Loading.svelte';
 let showSettings = $state(false);
 
 // Reactive values from the settings store
-let { settings, isLoading, isSaving, error } = $derived(reactiveSettings);
+let { settings, isLoading, isSaving, error } = $derived(settingsStore);
 
 // Popular currencies
 const currencies = [
@@ -28,13 +28,13 @@ const currencies = [
 
 // Load settings when component initializes
 $effect(() => {
-  reactiveSettings.loadSettings();
+  settingsStore.loadSettings();
 });
 
 async function updateCurrency(currencyCode: string) {
   const currency = currencies.find((c) => c.code === currencyCode);
   if (currency) {
-    await reactiveSettings.updateSettings({
+    await settingsStore.updateSettings({
       currency: currency.code,
       currencySymbol: currency.symbol,
       locale: getLocaleForCurrency(currency.code),
@@ -78,7 +78,7 @@ function getLocaleForCurrency(currencyCode: string): string {
       <Alert
         type="error"
         description={error}
-        onDismiss={() => reactiveSettings.clearError()}
+        onDismiss={() => settingsStore.clearError()}
         class="mb-4"
       />
     {/if}
