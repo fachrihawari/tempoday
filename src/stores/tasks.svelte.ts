@@ -2,18 +2,7 @@
 import { uuid } from '../lib/unique';
 import { db } from '../dexie/db';
 import type { Task } from '../dexie/models';
-
-// Types for better API
-export type CreateTaskInput = Omit<Task, 'id' | 'createdAt' | 'updatedAt'>;
-export type UpdateTaskInput = Partial<Omit<Task, 'id' | 'createdAt'>>;
-
-// Error classes for better error handling
-export class TaskNotFoundError extends Error {
-  constructor(id: string) {
-    super(`Task with id ${id} not found`);
-    this.name = 'TaskNotFoundError';
-  }
-}
+import { NotFoundError } from '../lib/error';
 
 export class ReactiveTasks {
   // Reactive state for tasks
@@ -99,7 +88,7 @@ export class ReactiveTasks {
     try {
       const task = await this.getTaskById(taskId);
       if (!task) {
-        throw new TaskNotFoundError(taskId);
+        throw new NotFoundError(`Task with ID ${taskId} not found`);
       }
 
       const updatedCount = await db.tasks.update(taskId, {
@@ -107,7 +96,7 @@ export class ReactiveTasks {
       });
 
       if (updatedCount === 0) {
-        throw new TaskNotFoundError(taskId);
+        throw new NotFoundError(`Task with ID ${taskId} not found`);
       }
 
       // Update the local task state
@@ -115,7 +104,7 @@ export class ReactiveTasks {
         t.id === taskId ? { ...t, completed: !t.completed } : t
       );
     } catch (err) {
-      if (err instanceof TaskNotFoundError) {
+      if (err instanceof NotFoundError) {
         this.error = 'Task not found';
       } else {
         this.error = err instanceof Error ? err.message : 'Failed to update task';
@@ -136,7 +125,7 @@ export class ReactiveTasks {
     try {
       const existingTask = await this.getTaskById(taskId);
       if (!existingTask) {
-        throw new TaskNotFoundError(taskId);
+        throw new NotFoundError(`Task with ID ${taskId} not found`);
       }
 
       await db.tasks.delete(taskId);
@@ -144,7 +133,7 @@ export class ReactiveTasks {
       // Remove task from local state
       this.tasks = this.tasks.filter((task) => task.id !== taskId);
     } catch (err) {
-      if (err instanceof TaskNotFoundError) {
+      if (err instanceof NotFoundError) {
         this.error = 'Task not found';
       } else {
         this.error = err instanceof Error ? err.message : 'Failed to delete task';
