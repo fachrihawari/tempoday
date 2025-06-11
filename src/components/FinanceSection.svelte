@@ -2,7 +2,7 @@
 <script lang="ts">
 import { onMount } from 'svelte';
 import { reactiveSettings } from '../db/reactive/settings.svelte';
-import { reactiveTransactions } from '../db/reactive/transactions.svelte';
+import { reactiveTransactions } from '../stores/transactions.svelte';
 import { formatCurrency } from '../lib/currency';
 import { formatDateKey } from '../lib/date';
 import { appState } from '../stores/app.svelte';
@@ -15,7 +15,7 @@ import Icon from './ui/Icon.svelte';
 import Input from './ui/Input.svelte';
 import Loading from './ui/Loading.svelte';
 
-// Reactive values from the repository
+// Reactive values from the store
 let {
   transactions,
   isLoading,
@@ -65,7 +65,7 @@ async function handleAddTransaction(event?: Event) {
     try {
       await reactiveTransactions.createTransaction({
         description: desc,
-        amount: amt.toString(),
+        amount: amt,
         type: type,
         date: dateKey,
       });
@@ -165,7 +165,7 @@ function resetForm() {
                   : 'text-red-600'}"
               >
                 {transaction.type === "income" ? "+" : "-"}{formatAmount(
-                  parseFloat(transaction.amount),
+                  transaction.amount,
                 )}
               </p>
             </div>
