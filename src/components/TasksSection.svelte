@@ -1,5 +1,5 @@
 <script lang="ts">
-import { reactiveTasks } from '../db/reactive/tasks.svelte';
+import { reactiveTasks } from '../stores/tasks.svelte';
 import { formatDateKey } from '../lib/date';
 import { appState } from '../stores/app.svelte';
 import Alert from './ui/Alert.svelte';
@@ -11,7 +11,7 @@ import Icon from './ui/Icon.svelte';
 import Input from './ui/Input.svelte';
 import Loading from './ui/Loading.svelte';
 
-// Reactive values from the repository
+// Reactive values from the store
 let { tasks, isLoading, isCreating, error, completedCount, totalCount } =
   $derived(reactiveTasks);
 
@@ -94,7 +94,7 @@ function resetForm() {
                 ? 'line-through text-gray-500'
                 : 'text-gray-900'}"
             >
-              {task.title}
+              {task.description}
             </span>
 
             <Button
