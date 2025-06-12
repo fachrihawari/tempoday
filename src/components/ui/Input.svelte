@@ -2,7 +2,7 @@
 import { type SectionTheme, sectionThemes } from '../../lib/theme';
 
 interface Props {
-  value: string;
+  value: string | number;
   placeholder?: string;
   type?: 'text' | 'number' | 'email' | 'password';
   disabled?: boolean;
@@ -71,12 +71,9 @@ function handleBlur() {
 
 <div class="space-y-2">
   {#if label}
-    <label
-      for="input-{label}"
-      class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-    >
+    <label for="input-{label}" class="block text-sm font-medium text-gray-700">
       {label}
-      
+
       {#if required}
         <span class="text-red-600">*</span>
       {/if}
@@ -97,11 +94,11 @@ function handleBlur() {
     {oninput}
     onfocus={handleFocus}
     onblur={handleBlur}
-    class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 text-sm transition-all duration-200
-    {borderColor()}
-    {focusColor()}
-    {disabled ? 'bg-gray-50 cursor-not-allowed' : 'bg-white dark:bg-gray-800'}
-    {className}"
+    class={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 text-sm transition-all duration-200
+    ${borderColor()}
+    ${focusColor()}
+    ${disabled ? 'bg-gray-50 cursor-not-allowed' : 'bg-white'}
+    ${className}`}
   />
 
   {#if error}

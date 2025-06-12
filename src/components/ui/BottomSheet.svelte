@@ -167,7 +167,7 @@ $effect(() => {
   <!-- Bottom Sheet -->
   <div 
     bind:this={sheetElement}
-    class="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 rounded-t-3xl shadow-2xl z-50 max-h-[90vh] flex flex-col touch-pan-y overscroll-contain"
+    class="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-2xl z-50 max-h-[90vh] flex flex-col touch-pan-y overscroll-contain"
     transition:fly="{{ y: 300, duration: 300 }}"
     style="touch-action: pan-y; overscroll-behavior: contain;"
     role="dialog"
@@ -192,20 +192,20 @@ $effect(() => {
         }
       }}
     >
-      <div class="w-10 h-1.5 bg-gray-300 dark:bg-gray-600 rounded-full"></div>
+      <div class="w-10 h-1.5 bg-gray-300 rounded-full"></div>
     </div>
 
     <!-- Header -->
-    <div class="flex items-center justify-between px-6 pb-4 border-b border-gray-200 dark:border-gray-700">
-      <h2 id="sheet-title" class="text-xl font-semibold text-gray-900 dark:text-white">
+    <div class="flex items-center justify-between px-6 pb-4 border-b border-gray-200">
+      <h2 id="sheet-title" class="text-xl font-semibold text-gray-900">
         {title}
       </h2>
       <button
         onclick={close}
-        class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+        class="p-2 rounded-full hover:bg-gray-100 transition-colors"
         aria-label="Close"
       >
-        <Icon name="close" class="w-5 h-5 text-gray-500 dark:text-gray-400" />
+        <Icon name="close" class="w-5 h-5 text-gray-500" />
       </button>
     </div>
 

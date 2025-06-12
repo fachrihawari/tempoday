@@ -1,7 +1,7 @@
 <script lang="ts">
-import { reactiveNotes } from '../db/reactive/notes.svelte';
 import { formatDateKey } from '../lib/date';
 import { appState } from '../stores/app.svelte';
+import { reactiveNotes } from '../stores/notes.svelte';
 import Alert from './ui/Alert.svelte';
 import BottomSheet from './ui/BottomSheet.svelte';
 import Button from './ui/Button.svelte';
@@ -11,9 +11,8 @@ import Icon from './ui/Icon.svelte';
 import Loading from './ui/Loading.svelte';
 import Textarea from './ui/Textarea.svelte';
 
-// Reactive values from the repository
-let { isLoading, isSaving, error, content, hasContent } =
-  $derived(reactiveNotes);
+// Reactive values from the store
+let { isLoading, isSaving, error, content, hasNote } = $derived(reactiveNotes);
 
 let isEditing = $state(false);
 let editingText = $state('');
@@ -36,7 +35,7 @@ async function saveNote(event?: Event) {
 
   const dateKey = formatDateKey(appState.selectedDate);
   try {
-    await reactiveNotes.saveNote(editingText, dateKey);
+    await reactiveNotes.saveNote({ content: editingText, date: dateKey });
     cancelEditing();
   } catch (err) {
     console.error('Failed to save note:', err);
@@ -62,12 +61,6 @@ function handleKeydown(event: KeyboardEvent) {
     saveNote();
   }
 }
-
-// Auto-save functionality with debounce
-function handleInput() {
-  const dateKey = formatDateKey(appState.selectedDate);
-  reactiveNotes.autoSaveNote(editingText, dateKey, 1000);
-}
 </script>
 
 <Card title="Daily Note" icon="edit" iconColor="text-purple-500">
@@ -84,13 +77,12 @@ function handleInput() {
     <!-- Note Edit Form -->
     <BottomSheet
       bind:open={isEditing}
-      title={hasContent ? "Edit Note" : "Add Note"}
+      title={hasNote ? "Edit Note" : "Add Note"}
     >
       {#snippet children()}
         <form onsubmit={saveNote} class="space-y-6">
           <Textarea
             bind:value={editingText}
-            oninput={handleInput}
             onkeydown={handleKeydown}
             placeholder="Write your thoughts, reflections, or anything you want to remember about this day..."
             label="Daily Note"
@@ -131,41 +123,40 @@ function handleInput() {
       {/snippet}
     </BottomSheet>
 
-    {#if !isEditing}
-      <div class={hasContent ? "mb-4" : ""}>
-        {#if isLoading}
-          <Loading size="xl" message="Loading note..." />
-        {:else if hasContent}
-          <button onclick={startEditing} class="cursor-text w-full text-left">
-            <div
-              class="bg-gray-50 rounded-lg p-3 min-h-[80px] whitespace-pre-wrap text-sm text-gray-900 leading-relaxed"
-            >
-              {content}
-            </div>
-          </button>
-        {:else}
-          <EmptyState
-            icon="edit"
-            title="Add Note"
-            subtitle="Tap to write your daily thoughts"
-            onclick={startEditing}
-          />
-        {/if}
-      </div>
-
-      {#if hasContent && !isLoading}
-        <Button
-          variant="notes"
-          dashed={true}
+    <!-- Note Content - Always visible -->
+    <div class={hasNote ? "mb-4" : ""}>
+      {#if isLoading}
+        <Loading size="xl" message="Loading note..." />
+      {:else if hasNote}
+        <button onclick={startEditing} class="cursor-text w-full text-left">
+          <div
+            class="bg-gray-50 rounded-lg p-3 min-h-[80px] whitespace-pre-wrap text-sm text-gray-900 leading-relaxed"
+          >
+            {content}
+          </div>
+        </button>
+      {:else}
+        <EmptyState
+          icon="edit"
+          title="Add Note"
+          subtitle="Tap to write your daily thoughts"
           onclick={startEditing}
-          class="mt-2"
-        >
-          {#snippet children()}
-            <Icon name="edit" size="sm" class="mr-1" />
-            Edit note
-          {/snippet}
-        </Button>
+        />
       {/if}
+    </div>
+
+    {#if hasNote && !isLoading}
+      <Button
+        variant="notes"
+        dashed={true}
+        onclick={startEditing}
+        class="mt-2"
+      >
+        {#snippet children()}
+          <Icon name="edit" size="sm" class="mr-1" />
+          Edit note
+        {/snippet}
+      </Button>
     {/if}
   {/snippet}
 </Card>

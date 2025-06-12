@@ -1,7 +1,7 @@
 <script lang="ts">
-import { reactiveTasks } from '../db/reactive/tasks.svelte';
 import { formatDateKey } from '../lib/date';
 import { appState } from '../stores/app.svelte';
+import { reactiveTasks } from '../stores/tasks.svelte';
 import Alert from './ui/Alert.svelte';
 import BottomSheet from './ui/BottomSheet.svelte';
 import Button from './ui/Button.svelte';
@@ -11,7 +11,7 @@ import Icon from './ui/Icon.svelte';
 import Input from './ui/Input.svelte';
 import Loading from './ui/Loading.svelte';
 
-// Reactive values from the repository
+// Reactive values from the store
 let { tasks, isLoading, isCreating, error, completedCount, totalCount } =
   $derived(reactiveTasks);
 
@@ -29,7 +29,7 @@ async function handleAddTask(event?: Event) {
 
   const text = newTaskText.trim();
   const dateKey = formatDateKey(appState.selectedDate);
-  await reactiveTasks.createTask(text, dateKey);
+  await reactiveTasks.createTask({ description: text, date: dateKey });
   resetForm();
 }
 
@@ -94,7 +94,7 @@ function resetForm() {
                 ? 'line-through text-gray-500'
                 : 'text-gray-900'}"
             >
-              {task.title}
+              {task.description}
             </span>
 
             <Button
