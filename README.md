@@ -1,47 +1,58 @@
-# Svelte + TS + Vite
+# TempoDay
 
-This template should help get you started developing with Svelte and TypeScript in Vite.
+TempoDay is a privacy-focused, calendar-centric personal management app designed for simplicity and productivity. It allows users to manage to-do lists, daily notes (diary-like), and basic financial records, all linked to specific dates within a clean, intuitive calendar interface.
 
-## Recommended IDE Setup
+## Features
 
-[VS Code](https://code.visualstudio.com/) + [Svelte](https://marketplace.visualstudio.com/items?itemName=svelte.svelte-vscode).
+### 1. Calendar-Centric Navigation
+Tap a date to see and manage all your entries for that day.
 
-## Need an official Svelte framework?
+### 2. Day View Sections
+Each day is divided into three main sections:
 
-Check out [SvelteKit](https://github.com/sveltejs/kit#readme), which is also powered by Vite. Deploy anywhere with its serverless-first approach and adapt to various platforms, with out of the box support for TypeScript, SCSS, and Less, and easily-added support for mdsvex, GraphQL, PostCSS, Tailwind CSS, and more.
+#### A. To-Do List
+- Add, view, and complete tasks for the selected date.
+- Tasks are saved locally and completion status is persistent.
 
-## Technical considerations
+#### B. Daily Note (Diary)
+- Write and edit a daily note for each date.
+- Notes are saved locally and can be updated anytime.
 
-**Why use this over SvelteKit?**
+#### C. Financial Records
+- Add income or expense transactions for the day.
+- Each entry includes a description, amount, and type (income/expense).
+- Daily summary: total income, total expenses, and net balance.
 
-- It brings its own routing solution which might not be preferable for some users.
-- It is first and foremost a framework that just happens to use Vite under the hood, not a Vite app.
+### 3. Local Data Storage & Privacy
+- All data is stored locally on your device for privacy and offline access.
+- No cloud sync or user accounts required.
+- Your information never leaves your device, ensuring complete privacy and control.
 
-This template contains as little as possible to get started with Vite + TypeScript + Svelte, while taking into account the developer experience with regards to HMR and intellisense. It demonstrates capabilities on par with the other `create-vite` templates and is a good starting point for beginners dipping their toes into a Vite + Svelte project.
+### 4. Simple, Clean UI
+- Responsive design for mobile and desktop.
+- Clear separation between to-dos, notes, and finances.
+- Easy navigation between dates and sections.
 
-Should you later need the extended capabilities and extensibility provided by SvelteKit, the template has been structured similarly to SvelteKit so that it is easy to migrate.
+## Technology Stack
+- **Framework:** Svelte 5
+- **Styling:** Tailwind CSS
+- **Local Storage:** IndexedDB (via Dexie.js)
 
-**Why `global.d.ts` instead of `compilerOptions.types` inside `jsconfig.json` or `tsconfig.json`?**
+## Getting Started
 
-Setting `compilerOptions.types` shuts out all other types not explicitly listed in the configuration. Using triple-slash references keeps the default TypeScript setting of accepting type information from the entire workspace, while also adding `svelte` and `vite/client` type information.
+1. **Install dependencies:**
+   ```sh
+   bun install
+   # or
+   npm install
+   ```
+2. **Run the app locally:**
+   ```sh
+   bun dev
+   # or
+   npm run dev
+   ```
+3. **Open in your browser:**
+   Visit `http://localhost:5173` (or the port shown in your terminal).
 
-**Why include `.vscode/extensions.json`?**
 
-Other templates indirectly recommend extensions via the README, but this file allows VS Code to prompt the user to install the recommended extension upon opening the project.
-
-**Why enable `allowJs` in the TS template?**
-
-While `allowJs: false` would indeed prevent the use of `.js` files in the project, it does not prevent the use of JavaScript syntax in `.svelte` files. In addition, it would force `checkJs: false`, bringing the worst of both worlds: not being able to guarantee the entire codebase is TypeScript, and also having worse typechecking for the existing JavaScript. In addition, there are valid use cases in which a mixed codebase may be relevant.
-
-**Why is HMR not preserving my local component state?**
-
-HMR state preservation comes with a number of gotchas! It has been disabled by default in both `svelte-hmr` and `@sveltejs/vite-plugin-svelte` due to its often surprising behavior. You can read the details [here](https://github.com/rixo/svelte-hmr#svelte-hmr).
-
-If you have state that's important to retain within a component, consider creating an external store which would not be replaced by HMR.
-
-```ts
-// store.ts
-// An extremely simple external store
-import { writable } from 'svelte/store'
-export default writable(0)
-```
