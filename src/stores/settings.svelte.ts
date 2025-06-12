@@ -102,16 +102,6 @@ class SettingsStore {
   }
 
   /**
-   * Update a single setting
-   */
-  async updateSetting<K extends keyof TempoDaySettings>(
-    key: K,
-    value: TempoDaySettings[K],
-  ): Promise<void> {
-    await this.updateSettings({ [key]: value } as Partial<TempoDaySettings>);
-  }
-
-  /**
    * Create default settings record in the database
    */
   private async createDefaultSettings(): Promise<void> {
@@ -131,13 +121,6 @@ class SettingsStore {
    */
   clearError(): void {
     this.error = null;
-  }
-
-  /**
-   * Reset settings to defaults
-   */
-  async resetToDefaults(): Promise<void> {
-    await this.updateSettings(defaultSettings);
   }
 }
 

@@ -49,7 +49,10 @@ onMount(() => {
 
 // Helper function to format currency with current settings
 function formatAmount(amount: number): string {
-  return formatCurrency(amount, settings.currency, settings.locale);
+  // Provide fallback values if settings haven't loaded yet
+  const currency = settings?.currency || 'USD';
+  const locale = settings?.locale || 'en-US';
+  return formatCurrency(amount, currency, locale);
 }
 
 async function handleAddTransaction(event?: Event) {

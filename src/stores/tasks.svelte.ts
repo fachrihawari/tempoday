@@ -4,6 +4,9 @@ import { db } from '../dexie/db';
 import type { Task } from '../dexie/models';
 import { NotFoundError } from '../lib/error';
 
+// Types for better API
+export type CreateTaskInput = Pick<Task, 'description' | 'date'>;
+
 export class ReactiveTasks {
   // Reactive state for tasks
   tasks = $state<Task[]>([]);
@@ -54,22 +57,22 @@ export class ReactiveTasks {
   /**
    * Create a new task
    */
-  async createTask(description: string, date: string): Promise<void> {
+  async createTask(input: CreateTaskInput): Promise<void> {
     this.isCreating = true;
     this.error = null;
 
     try {
       const newTask = {
-        description,
+        ...input,
         completed: false,
-        date,
         id: uuid(),
       };
-      
       await db.tasks.add(newTask as Task);
 
-      const task = await this.getTaskById(newTask.id);
-      this.tasks = [...this.tasks, task!];
+      const savedTask = await this.getTaskById(newTask.id);
+      if (savedTask) {
+        this.tasks = [...this.tasks, savedTask];
+      }
     } catch (err) {
       this.error = err instanceof Error ? err.message : 'Failed to create task';
       console.error('Error creating task:', err);

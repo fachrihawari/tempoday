@@ -5,7 +5,4 @@ import { defineConfig } from 'vite';
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [svelte(), tailwindcss()],
-  optimizeDeps: {
-    exclude: ['@electric-sql/pglite'],
-  },
 });

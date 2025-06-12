@@ -111,33 +111,6 @@ export class ReactiveTransactions {
   }
 
   /**
-   * Get transaction statistics for a date
-   */
-  async getTransactionStats(date: string): Promise<{ 
-    totalIncome: number; 
-    totalExpenses: number; 
-    netBalance: number;
-    incomeCount: number;
-    expenseCount: number;
-  }> {
-    const transactions = await db.transactions.where('date').equals(date).toArray();
-    
-    const income = transactions.filter(t => t.type === 'income');
-    const expenses = transactions.filter(t => t.type === 'expense');
-    
-    const totalIncome = income.reduce((sum, t) => sum + t.amount, 0);
-    const totalExpenses = expenses.reduce((sum, t) => sum + t.amount, 0);
-    
-    return {
-      totalIncome,
-      totalExpenses,
-      netBalance: totalIncome - totalExpenses,
-      incomeCount: income.length,
-      expenseCount: expenses.length,
-    };
-  }
-
-  /**
    * Get income transactions (reactive derived value)
    */
   get incomeTransactions(): Transaction[] {

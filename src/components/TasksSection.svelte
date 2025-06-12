@@ -29,7 +29,7 @@ async function handleAddTask(event?: Event) {
 
   const text = newTaskText.trim();
   const dateKey = formatDateKey(appState.selectedDate);
-  await reactiveTasks.createTask(text, dateKey);
+  await reactiveTasks.createTask({ description: text, date: dateKey });
   resetForm();
 }
 

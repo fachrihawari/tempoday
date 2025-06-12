@@ -36,12 +36,6 @@ export interface TempoDaySettings {
   locale: string;
 }
 
-export const defaultSettings: TempoDaySettings = {
-  currency: 'USD',
-  currencySymbol: '$',
-  locale: 'en-US',
-};
-
 export interface Settings {
   id: string; // UUID
   data: TempoDaySettings;
