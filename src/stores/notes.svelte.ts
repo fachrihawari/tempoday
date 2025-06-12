@@ -78,18 +78,20 @@ export class ReactiveNotes {
         // Update local state
         this.note = { ...existingNote, content };
       } else {
-        // Create new note
-        const newNote = {
+        // Create new note with timestamps (hooks should update these)
+        const now = Date.now();
+        const newNote: Note = {
           id: uuid(),
           date,
           content,
+          createdAt: now,
+          updatedAt: now,
         };
 
-        await db.notes.add(newNote as Note);
+        await db.notes.add(newNote);
         
-        // Get the note with timestamps added by Dexie hooks
-        const savedNote = await db.notes.get(newNote.id);
-        this.note = savedNote || null;
+        // Update local state directly since we have the complete object
+        this.note = newNote;
       }
     } catch (err) {
       if (err instanceof NotFoundError) {

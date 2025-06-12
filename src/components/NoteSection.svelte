@@ -36,7 +36,7 @@ async function saveNote(event?: Event) {
 
   const dateKey = formatDateKey(appState.selectedDate);
   try {
-    await reactiveNotes.saveNote(editingText, dateKey);
+    await reactiveNotes.saveNote({ content: editingText, date: dateKey });
     cancelEditing();
   } catch (err) {
     console.error('Failed to save note:', err);

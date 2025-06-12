@@ -61,18 +61,18 @@ export class ReactiveTransactions {
     this.error = null;
 
     try {
-      const newTransaction = {
+      const now = Date.now();
+      const newTransaction: Transaction = {
         ...input,
         id: uuid(),
+        createdAt: now,
+        updatedAt: now,
       };
 
-      await db.transactions.add(newTransaction as Transaction);
+      await db.transactions.add(newTransaction);
 
-      // Get the transaction with timestamps added by Dexie hooks
-      const savedTransaction = await this.getTransactionById(newTransaction.id);
-      if (savedTransaction) {
-        this.transactions = [...this.transactions, savedTransaction];
-      }
+      // Add to local state directly
+      this.transactions = [...this.transactions, newTransaction];
     } catch (err) {
       this.error = err instanceof Error ? err.message : 'Failed to create transaction';
       console.error('Error creating transaction:', err);

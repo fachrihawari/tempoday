@@ -15,33 +15,6 @@ export class TempoDayDexie extends Dexie {
       transactions: 'id, date, type',
       settings: 'id',
     });
-
-    // Setup hooks for like automatic timestamps
-    this.setupHooks();
-  }
-
-  setupHooks() {
-    const creating = (_: string, obj: Task | Note | Transaction | Settings) => {
-      const now = Date.now();
-      obj.createdAt = now;
-      obj.updatedAt = now;
-    };
-    const updating = (modifications: Partial<Task | Note | Transaction | Settings>) => {
-      modifications.updatedAt = Date.now();
-    };
-
-    // Automatically set createdAt and updatedAt timestamps
-    this.tasks.hook('creating', creating);
-    this.tasks.hook('updating', updating);
-
-    this.notes.hook('creating', creating);
-    this.notes.hook('updating', updating);
-
-    this.transactions.hook('creating', creating);
-    this.transactions.hook('updating', updating);
-
-    this.settings.hook('creating', creating);
-    this.settings.hook('updating', updating);
   }
 }
 

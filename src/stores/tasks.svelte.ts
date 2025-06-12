@@ -62,17 +62,18 @@ export class ReactiveTasks {
     this.error = null;
 
     try {
-      const newTask = {
+      const now = Date.now();
+      const newTask: Task = {
         ...input,
         completed: false,
         id: uuid(),
+        createdAt: now,
+        updatedAt: now,
       };
-      await db.tasks.add(newTask as Task);
+      await db.tasks.add(newTask);
 
-      const savedTask = await this.getTaskById(newTask.id);
-      if (savedTask) {
-        this.tasks = [...this.tasks, savedTask];
-      }
+      // Add to local state directly
+      this.tasks = [...this.tasks, newTask];
     } catch (err) {
       this.error = err instanceof Error ? err.message : 'Failed to create task';
       console.error('Error creating task:', err);
