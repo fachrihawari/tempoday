@@ -106,21 +106,6 @@ export class ReactiveNotes {
   }
 
   /**
-   * Auto-save note with debouncing
-   */
-  autoSave(content: string, date: string, delay: number = 1000): void {
-    // Clear existing timeout
-    if (this.saveTimeout) {
-      clearTimeout(this.saveTimeout);
-    }
-
-    // Set new timeout
-    this.saveTimeout = setTimeout(() => {
-      this.saveNote({ content, date });
-    }, delay);
-  }
-
-  /**
    * Delete a note
    */
   async deleteNote(date: string): Promise<void> {

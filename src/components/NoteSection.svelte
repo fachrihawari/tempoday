@@ -61,12 +61,6 @@ function handleKeydown(event: KeyboardEvent) {
     saveNote();
   }
 }
-
-// Auto-save functionality with debounce
-function handleInput() {
-  const dateKey = formatDateKey(appState.selectedDate);
-  reactiveNotes.autoSave(editingText, dateKey, 1000);
-}
 </script>
 
 <Card title="Daily Note" icon="edit" iconColor="text-purple-500">
@@ -89,7 +83,6 @@ function handleInput() {
         <form onsubmit={saveNote} class="space-y-6">
           <Textarea
             bind:value={editingText}
-            oninput={handleInput}
             onkeydown={handleKeydown}
             placeholder="Write your thoughts, reflections, or anything you want to remember about this day..."
             label="Daily Note"
