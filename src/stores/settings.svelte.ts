@@ -1,6 +1,6 @@
-import { uuid } from '../lib/unique';
 import { db } from '../dexie/db';
 import type { Settings, TempoDaySettings } from '../dexie/models';
+import { uuid } from '../lib/unique';
 
 // Default settings for the app
 export const defaultSettings: TempoDaySettings = {
@@ -51,7 +51,8 @@ class SettingsStore {
 
       this.isInitialized = true;
     } catch (err) {
-      this.error = err instanceof Error ? err.message : 'Failed to load settings';
+      this.error =
+        err instanceof Error ? err.message : 'Failed to load settings';
       console.error('Error loading settings:', err);
     } finally {
       this.isLoading = false;
@@ -93,7 +94,8 @@ class SettingsStore {
       // Update reactive state
       this.settings = updatedSettingsData;
     } catch (err) {
-      this.error = err instanceof Error ? err.message : 'Failed to update settings';
+      this.error =
+        err instanceof Error ? err.message : 'Failed to update settings';
       console.error('Error updating settings:', err);
       throw err;
     } finally {

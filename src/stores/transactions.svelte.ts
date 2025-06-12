@@ -1,11 +1,14 @@
-// Reactive Dexie-based transactions store using Svelte 5 runes
-import { uuid } from '../lib/unique';
 import { db } from '../dexie/db';
 import type { Transaction, TransactionType } from '../dexie/models';
 import { NotFoundError } from '../lib/error';
+// Reactive Dexie-based transactions store using Svelte 5 runes
+import { uuid } from '../lib/unique';
 
 // Types for better API
-export type CreateTransactionInput = Omit<Transaction, 'id' | 'createdAt' | 'updatedAt'>;
+export type CreateTransactionInput = Omit<
+  Transaction,
+  'id' | 'createdAt' | 'updatedAt'
+>;
 
 export class ReactiveTransactions {
   // Reactive state for transactions
@@ -42,11 +45,15 @@ export class ReactiveTransactions {
     this.error = null;
 
     try {
-      const transactions = await db.transactions.where('date').equals(date).sortBy('createdAt');
+      const transactions = await db.transactions
+        .where('date')
+        .equals(date)
+        .sortBy('createdAt');
       this.transactions = transactions;
       this.currentDate = date;
     } catch (err) {
-      this.error = err instanceof Error ? err.message : 'Failed to load transactions';
+      this.error =
+        err instanceof Error ? err.message : 'Failed to load transactions';
       console.error('Error loading transactions:', err);
     } finally {
       this.isLoading = false;
@@ -74,7 +81,8 @@ export class ReactiveTransactions {
       // Add to local state directly
       this.transactions = [...this.transactions, newTransaction];
     } catch (err) {
-      this.error = err instanceof Error ? err.message : 'Failed to create transaction';
+      this.error =
+        err instanceof Error ? err.message : 'Failed to create transaction';
       console.error('Error creating transaction:', err);
     } finally {
       this.isCreating = false;
@@ -91,18 +99,23 @@ export class ReactiveTransactions {
     try {
       const existingTransaction = await this.getTransactionById(transactionId);
       if (!existingTransaction) {
-        throw new NotFoundError(`Transaction with ID ${transactionId} not found`);
+        throw new NotFoundError(
+          `Transaction with ID ${transactionId} not found`,
+        );
       }
 
       await db.transactions.delete(transactionId);
-      
+
       // Remove transaction from local state
-      this.transactions = this.transactions.filter((transaction) => transaction.id !== transactionId);
+      this.transactions = this.transactions.filter(
+        (transaction) => transaction.id !== transactionId,
+      );
     } catch (err) {
       if (err instanceof NotFoundError) {
         this.error = 'Transaction not found';
       } else {
-        this.error = err instanceof Error ? err.message : 'Failed to delete transaction';
+        this.error =
+          err instanceof Error ? err.message : 'Failed to delete transaction';
       }
       console.error('Error deleting transaction:', err);
     } finally {
@@ -114,14 +127,14 @@ export class ReactiveTransactions {
    * Get income transactions (reactive derived value)
    */
   get incomeTransactions(): Transaction[] {
-    return this.transactions.filter(t => t.type === 'income');
+    return this.transactions.filter((t) => t.type === 'income');
   }
 
   /**
    * Get expense transactions (reactive derived value)
    */
   get expenseTransactions(): Transaction[] {
-    return this.transactions.filter(t => t.type === 'expense');
+    return this.transactions.filter((t) => t.type === 'expense');
   }
 
   /**

@@ -1,8 +1,8 @@
-// Reactive Dexie-based notes store using Svelte 5 runes
-import { uuid } from '../lib/unique';
 import { db } from '../dexie/db';
 import type { Note } from '../dexie/models';
 import { NotFoundError } from '../lib/error';
+// Reactive Dexie-based notes store using Svelte 5 runes
+import { uuid } from '../lib/unique';
 
 // Types for better API
 export type CreateNoteInput = Omit<Note, 'id' | 'createdAt' | 'updatedAt'>;
@@ -89,7 +89,7 @@ export class ReactiveNotes {
         };
 
         await db.notes.add(newNote);
-        
+
         // Update local state directly since we have the complete object
         this.note = newNote;
       }
@@ -133,7 +133,7 @@ export class ReactiveNotes {
       }
 
       await db.notes.delete(existingNote.id);
-      
+
       // Clear local state if this is the current note
       if (this.currentDate === date) {
         this.note = null;
@@ -142,7 +142,8 @@ export class ReactiveNotes {
       if (err instanceof NotFoundError) {
         this.error = 'Note not found';
       } else {
-        this.error = err instanceof Error ? err.message : 'Failed to delete note';
+        this.error =
+          err instanceof Error ? err.message : 'Failed to delete note';
       }
       console.error('Error deleting note:', err);
     }

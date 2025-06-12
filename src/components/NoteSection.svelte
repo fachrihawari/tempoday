@@ -1,7 +1,7 @@
 <script lang="ts">
-import { reactiveNotes } from '../stores/notes.svelte';
 import { formatDateKey } from '../lib/date';
 import { appState } from '../stores/app.svelte';
+import { reactiveNotes } from '../stores/notes.svelte';
 import Alert from './ui/Alert.svelte';
 import BottomSheet from './ui/BottomSheet.svelte';
 import Button from './ui/Button.svelte';
@@ -12,8 +12,7 @@ import Loading from './ui/Loading.svelte';
 import Textarea from './ui/Textarea.svelte';
 
 // Reactive values from the store
-let { isLoading, isSaving, error, content, hasNote } =
-  $derived(reactiveNotes);
+let { isLoading, isSaving, error, content, hasNote } = $derived(reactiveNotes);
 
 let isEditing = $state(false);
 let editingText = $state('');

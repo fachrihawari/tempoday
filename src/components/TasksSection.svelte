@@ -1,7 +1,7 @@
 <script lang="ts">
-import { reactiveTasks } from '../stores/tasks.svelte';
 import { formatDateKey } from '../lib/date';
 import { appState } from '../stores/app.svelte';
+import { reactiveTasks } from '../stores/tasks.svelte';
 import Alert from './ui/Alert.svelte';
 import BottomSheet from './ui/BottomSheet.svelte';
 import Button from './ui/Button.svelte';

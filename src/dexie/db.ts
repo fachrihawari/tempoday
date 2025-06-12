@@ -1,5 +1,5 @@
 import Dexie from 'dexie';
-import type { Task, Note, Transaction, Settings } from './models';
+import type { Note, Settings, Task, Transaction } from './models';
 
 export class TempoDayDexie extends Dexie {
   tasks!: Dexie.Table<Task, string>;

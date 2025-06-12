@@ -2,7 +2,7 @@
 import { type SectionTheme, sectionThemes } from '../../lib/theme';
 
 interface Props {
-  value: string;
+  value: string | number;
   placeholder?: string;
   type?: 'text' | 'number' | 'email' | 'password';
   disabled?: boolean;

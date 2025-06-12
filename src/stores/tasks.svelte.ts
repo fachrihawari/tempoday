@@ -1,8 +1,8 @@
-// Reactive Dexie-based tasks store using Svelte 5 runes
-import { uuid } from '../lib/unique';
 import { db } from '../dexie/db';
 import type { Task } from '../dexie/models';
 import { NotFoundError } from '../lib/error';
+// Reactive Dexie-based tasks store using Svelte 5 runes
+import { uuid } from '../lib/unique';
 
 // Types for better API
 export type CreateTaskInput = Pick<Task, 'description' | 'date'>;
@@ -43,7 +43,10 @@ export class ReactiveTasks {
     this.error = null;
 
     try {
-      const tasks = await db.tasks.where('date').equals(date).sortBy('createdAt');
+      const tasks = await db.tasks
+        .where('date')
+        .equals(date)
+        .sortBy('createdAt');
       this.tasks = tasks;
       this.currentDate = date;
     } catch (err) {
@@ -104,14 +107,15 @@ export class ReactiveTasks {
       }
 
       // Update the local task state
-      this.tasks = this.tasks.map(t => 
-        t.id === taskId ? { ...t, completed: !t.completed } : t
+      this.tasks = this.tasks.map((t) =>
+        t.id === taskId ? { ...t, completed: !t.completed } : t,
       );
     } catch (err) {
       if (err instanceof NotFoundError) {
         this.error = 'Task not found';
       } else {
-        this.error = err instanceof Error ? err.message : 'Failed to update task';
+        this.error =
+          err instanceof Error ? err.message : 'Failed to update task';
       }
       console.error('Error toggling task:', err);
     } finally {
@@ -133,14 +137,15 @@ export class ReactiveTasks {
       }
 
       await db.tasks.delete(taskId);
-      
+
       // Remove task from local state
       this.tasks = this.tasks.filter((task) => task.id !== taskId);
     } catch (err) {
       if (err instanceof NotFoundError) {
         this.error = 'Task not found';
       } else {
-        this.error = err instanceof Error ? err.message : 'Failed to delete task';
+        this.error =
+          err instanceof Error ? err.message : 'Failed to delete task';
       }
       console.error('Error deleting task:', err);
     } finally {
@@ -151,10 +156,12 @@ export class ReactiveTasks {
   /**
    * Get task statistics for a date
    */
-  async getTaskStats(date: string): Promise<{ total: number; completed: number; pending: number }> {
+  async getTaskStats(
+    date: string,
+  ): Promise<{ total: number; completed: number; pending: number }> {
     const tasks = await db.tasks.where('date').equals(date).toArray();
-    const completed = tasks.filter(task => task.completed).length;
-    
+    const completed = tasks.filter((task) => task.completed).length;
+
     return {
       total: tasks.length,
       completed,
