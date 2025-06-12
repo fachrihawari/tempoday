@@ -87,7 +87,7 @@ $effect(() => {
   {#if label}
     <label
       for="textarea-{label}"
-      class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+      class="block text-sm font-medium text-gray-700"
     >
       {label}
 
@@ -109,11 +109,11 @@ $effect(() => {
     oninput={handleInput}
     onfocus={handleFocus}
     onblur={handleBlur}
-    class="w-full px-3 py-3 border rounded-lg focus:outline-none focus:ring-2 text-sm transition-all duration-200 resize-none
-    {borderColor()}
-    {focusColor()}
-    {disabled ? 'bg-gray-50 cursor-not-allowed' : 'bg-white dark:bg-gray-800'}
-    {className}"
+    class={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 text-sm transition-all duration-200 resize-none
+    ${borderColor()}
+    ${focusColor()}
+    ${disabled ? 'bg-gray-50 cursor-not-allowed' : 'bg-white'}
+    ${className}`}
   ></textarea>
 
   {#if error}

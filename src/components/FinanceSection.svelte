@@ -214,7 +214,7 @@ function resetForm() {
           <!-- Type Selection -->
           <fieldset>
             <legend
-              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3"
+              class="block text-sm font-medium text-gray-700 mb-3"
               >Transaction Type</legend
             >
             <div class="flex gap-2">
