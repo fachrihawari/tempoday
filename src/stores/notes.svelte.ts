@@ -6,7 +6,6 @@ import { NotFoundError } from '../lib/error';
 
 // Types for better API
 export type CreateNoteInput = Omit<Note, 'id' | 'createdAt' | 'updatedAt'>;
-export type UpdateNoteInput = Partial<Omit<Note, 'id' | 'createdAt'>>;
 
 export class ReactiveNotes {
   // Reactive state for notes
@@ -59,13 +58,13 @@ export class ReactiveNotes {
   /**
    * Save or update a note
    */
-  async saveNote(content: string, date: string): Promise<void> {
+  async saveNote({ content, date }: CreateNoteInput): Promise<void> {
     this.isSaving = true;
     this.error = null;
 
     try {
       const existingNote = await this.getNoteByDate(date);
-      
+
       if (existingNote) {
         // Update existing note
         const updatedCount = await db.notes.update(existingNote.id, {
@@ -115,7 +114,7 @@ export class ReactiveNotes {
 
     // Set new timeout
     this.saveTimeout = setTimeout(() => {
-      this.saveNote(content, date);
+      this.saveNote({ content, date });
     }, delay);
   }
 
