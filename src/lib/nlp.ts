@@ -338,21 +338,39 @@ function calculateTransactionScore(text: string, type: 'income' | 'expense'): nu
 function extractAmounts(text: string): number[] {
   const amounts: number[] = [];
   
-  // Match various money formats: $50, 50.99, $1,234.56, etc.
+  // Enhanced patterns to handle various money formats
   const patterns = [
+    // Standard dollar formats: $50, $1,234.56
     /\$\s*(\d{1,3}(?:,\d{3})*(?:\.\d{2})?)/g,
+    // Dollar amounts with words: 50 dollars, 1234 USD
     /(\d{1,3}(?:,\d{3})*(?:\.\d{2})?)\s*(?:dollars?|usd|bucks?)/gi,
+    // Numbers after transaction words: spent 45, bought 1234
     /(?:spent|paid|cost|earned|received|got|bought|purchase)\s+.*?(\d{1,3}(?:,\d{3})*(?:\.\d{2})?)/gi,
-    /(\d{1,3}(?:,\d{3})*(?:\.\d{2})?)\s*(?:for|on)\s/gi
+    // Numbers with prepositions: 45 for, 1234 on
+    /(\d{1,3}(?:,\d{3})*(?:\.\d{2})?)\s*(?:for|on)\s/gi,
+    // Large numbers without formatting: 3000000, 45000
+    /\b(\d{4,})\b/g,
+    // Numbers after "about": about 3000000
+    /about\s+(\d+)/gi
   ];
   
   for (const pattern of patterns) {
     let match;
     while ((match = pattern.exec(text)) !== null) {
       const amountStr = match[1].replace(/,/g, '');
-      const amount = parseFloat(amountStr);
-      if (!isNaN(amount) && amount > 0 && amount < 1000000) {
-        amounts.push(amount);
+      let amount = parseFloat(amountStr);
+      
+      // Handle large numbers without decimal points (assume they're in local currency units)
+      if (!isNaN(amount) && amount > 0) {
+        // If it's a very large number (>= 100000), assume it might be in a different currency unit
+        // For Indonesian Rupiah, divide by 1000 to get a reasonable dollar equivalent
+        if (amount >= 100000) {
+          amount = amount / 1000; // Convert large numbers to more reasonable amounts
+        }
+        
+        if (amount < 1000000) { // Reasonable upper limit
+          amounts.push(amount);
+        }
       }
     }
   }
@@ -462,9 +480,24 @@ function cleanTransactionDescription(text: string, amount?: number): string {
   
   // Remove the amount from description if present
   if (amount) {
-    const amountStr = amount.toString();
-    cleaned = cleaned.replace(new RegExp(`\\$?${amountStr}`, 'gi'), '').trim();
+    // Remove various amount formats
+    const amountPatterns = [
+      new RegExp(`\\$?${amount}`, 'gi'),
+      new RegExp(`\\$?${amount.toLocaleString()}`, 'gi'),
+      new RegExp(`about\\s+${amount}`, 'gi'),
+      new RegExp(`${amount}\\s*(?:dollars?|usd|bucks?)`, 'gi')
+    ];
+    
+    for (const pattern of amountPatterns) {
+      cleaned = cleaned.replace(pattern, '').trim();
+    }
   }
+  
+  // Remove large numbers that might be amounts (like 3000000)
+  cleaned = cleaned.replace(/\b\d{4,}\b/g, '').trim();
+  
+  // Remove "about" when it's left hanging
+  cleaned = cleaned.replace(/\babout\s*$/i, '').trim();
   
   // Remove transaction prefixes
   const transactionPrefixes = [
@@ -482,13 +515,16 @@ function cleanTransactionDescription(text: string, amount?: number): string {
   }
   
   // Clean up extra words and prepositions
-  for (const prep of ['for', 'on', 'at', 'from']) {
+  for (const prep of ['for', 'on', 'at', 'from', 'about']) {
     const regex = new RegExp(`^${prep}\\s+`, 'i');
     cleaned = cleaned.replace(regex, '');
   }
   
   // Remove dollar signs and currency symbols
   cleaned = cleaned.replace(/[\$€£¥]/g, '').trim();
+  
+  // Remove extra whitespace
+  cleaned = cleaned.replace(/\s+/g, ' ').trim();
   
   // Ensure proper capitalization
   if (cleaned.length > 0) {
@@ -529,5 +565,6 @@ export const EXAMPLE_COMMANDS = [
   "Received $25 cashback",
   "$1200 salary payment received",
   "Purchased lunch $12",
-  "Spend $30 on gas"
+  "Spend $30 on gas",
+  "Bought Sari Roti about 3000000"
 ];
