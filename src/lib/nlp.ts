@@ -167,13 +167,11 @@ function parseNumber(str: string): number | null {
   const value = parseFloat(cleaned);
   
   // Validate: must be positive and finite
-  // Removed the upper limit check to allow very large numbers
+  // Allow any positive finite number, including very large ones
   if (isNaN(value) || !isFinite(value) || value <= 0) {
     return null;
   }
   
-  // For very large numbers, JavaScript might convert to scientific notation
-  // but parseFloat handles this correctly, so we just return the value
   return value;
 }
 
@@ -182,6 +180,12 @@ function parseNumber(str: string): number | null {
  */
 function extractAmountsFromTokens(tokens: Token[]): number[] {
   const amounts: number[] = [];
+  
+  // Create a combined set of all transaction words
+  const allTransactionWords = new Set([
+    ...Array.from(KEYWORDS.transaction.expense),
+    ...Array.from(KEYWORDS.transaction.income)
+  ]);
   
   for (let i = 0; i < tokens.length; i++) {
     const token = tokens[i];
@@ -206,11 +210,19 @@ function extractAmountsFromTokens(tokens: Token[]): number[] {
       // Transaction context: bought 1200, spent 45
       const prevToken = tokens[i - 1];
       if (prevToken && prevToken.type === 'word') {
-        const transactionWords = new Set([
-          ...KEYWORDS.transaction.expense,
-          ...KEYWORDS.transaction.income
-        ]);
-        if (transactionWords.has(prevToken.text)) {
+        if (allTransactionWords.has(prevToken.text)) {
+          amounts.push(token.value);
+          continue;
+        }
+      }
+      
+      // For cases like "TV 40000000000000000" - if it's a standalone large number
+      // and there are transaction-related words in the sentence, treat it as an amount
+      if (token.value >= 1000) {
+        const hasTransactionContext = tokens.some(t => 
+          t.type === 'word' && allTransactionWords.has(t.text)
+        );
+        if (hasTransactionContext) {
           amounts.push(token.value);
           continue;
         }
