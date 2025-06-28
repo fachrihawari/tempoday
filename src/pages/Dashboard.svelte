@@ -238,12 +238,6 @@ const hasMoreTasks = $derived(tasks.length > 5);
             <p class="text-gray-600 mb-6 max-w-md mx-auto">
               Begin by adding tasks, writing notes, or tracking expenses. Use the AI assistant below to get started quickly.
             </p>
-            <Button variant="primary" onclick={goToCalendar}>
-              {#snippet children()}
-                <Icon name="calendar" size="sm" class="mr-2" />
-                Open Calendar
-              {/snippet}
-            </Button>
           </div>
         {/snippet}
       </Card>
