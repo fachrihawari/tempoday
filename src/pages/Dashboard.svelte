@@ -74,6 +74,10 @@ const hasTransactions = $derived(transactions.length > 0);
 
   <!-- Dashboard Content -->
   <div class="flex-1 overflow-y-auto">
+  
+    <!-- AI Assistant Section - Always show -->
+    <AIAssistant />
+    
     <!-- Today's Summary Section - Only show if there's data -->
     {#if isLoading}
       <Card title="Today's Summary" icon="home" iconColor="text-blue-500">
@@ -208,8 +212,6 @@ const hasTransactions = $derived(transactions.length > 0);
       </Card>
     {/if}
 
-    <!-- AI Assistant Section - Always show -->
-    <AIAssistant />
   </div>
 </div>
 
