@@ -333,44 +333,31 @@ function calculateTransactionScore(text: string, type: 'income' | 'expense'): nu
 }
 
 /**
- * Extract monetary amounts from text
+ * Extract monetary amounts from text with improved accuracy
  */
 function extractAmounts(text: string): number[] {
   const amounts: number[] = [];
   
   // Enhanced patterns to handle various money formats
   const patterns = [
-    // Standard dollar formats: $50, $1,234.56
-    /\$\s*(\d{1,3}(?:,\d{3})*(?:\.\d{2})?)/g,
+    // Standard dollar formats: $50, $1,234.56, $300000
+    /\$\s*(\d{1,3}(?:,\d{3})*(?:\.\d{2})?|\d+(?:\.\d{2})?)/g,
     // Dollar amounts with words: 50 dollars, 1234 USD
-    /(\d{1,3}(?:,\d{3})*(?:\.\d{2})?)\s*(?:dollars?|usd|bucks?)/gi,
+    /(\d{1,3}(?:,\d{3})*(?:\.\d{2})?|\d+(?:\.\d{2})?)\s*(?:dollars?|usd|bucks?)/gi,
     // Numbers after transaction words: spent 45, bought 1234
-    /(?:spent|paid|cost|earned|received|got|bought|purchase)\s+.*?(\d{1,3}(?:,\d{3})*(?:\.\d{2})?)/gi,
-    // Numbers with prepositions: 45 for, 1234 on
-    /(\d{1,3}(?:,\d{3})*(?:\.\d{2})?)\s*(?:for|on)\s/gi,
-    // Large numbers without formatting: 3000000, 45000
-    /\b(\d{4,})\b/g,
-    // Numbers after "about": about 3000000
-    /about\s+(\d+)/gi
+    /(?:spent|paid|cost|earned|received|got|bought|purchase)\s+.*?\$?\s*(\d{1,3}(?:,\d{3})*(?:\.\d{2})?|\d+(?:\.\d{2})?)/gi,
+    // Numbers with prepositions: $45 for, $1234 on
+    /\$?\s*(\d{1,3}(?:,\d{3})*(?:\.\d{2})?|\d+(?:\.\d{2})?)\s*(?:for|on)\s/gi
   ];
   
   for (const pattern of patterns) {
     let match;
     while ((match = pattern.exec(text)) !== null) {
       const amountStr = match[1].replace(/,/g, '');
-      let amount = parseFloat(amountStr);
+      const amount = parseFloat(amountStr);
       
-      // Handle large numbers without decimal points (assume they're in local currency units)
-      if (!isNaN(amount) && amount > 0) {
-        // If it's a very large number (>= 100000), assume it might be in a different currency unit
-        // For Indonesian Rupiah, divide by 1000 to get a reasonable dollar equivalent
-        if (amount >= 100000) {
-          amount = amount / 1000; // Convert large numbers to more reasonable amounts
-        }
-        
-        if (amount < 1000000) { // Reasonable upper limit
-          amounts.push(amount);
-        }
+      if (!isNaN(amount) && amount > 0 && amount < 10000000) { // Reasonable upper limit
+        amounts.push(amount);
       }
     }
   }
@@ -473,31 +460,29 @@ function cleanContent(text: string, type: string): string {
 }
 
 /**
- * Clean transaction description
+ * Clean transaction description with improved amount removal
  */
 function cleanTransactionDescription(text: string, amount?: number): string {
   let cleaned = text;
   
   // Remove the amount from description if present
   if (amount) {
-    // Remove various amount formats
+    // Create patterns to match the amount in various formats
     const amountPatterns = [
-      new RegExp(`\\$?${amount}`, 'gi'),
-      new RegExp(`\\$?${amount.toLocaleString()}`, 'gi'),
-      new RegExp(`about\\s+${amount}`, 'gi'),
-      new RegExp(`${amount}\\s*(?:dollars?|usd|bucks?)`, 'gi')
+      // Exact amount with dollar sign: $300000
+      new RegExp(`\\$\\s*${amount}(?!\\.\\d)\\b`, 'gi'),
+      // Exact amount without dollar sign: 300000
+      new RegExp(`\\b${amount}(?!\\.\\d)\\b`, 'gi'),
+      // Amount with commas: $300,000
+      new RegExp(`\\$\\s*${amount.toLocaleString()}`, 'gi'),
+      // Amount with words: 300000 dollars
+      new RegExp(`\\b${amount}\\s*(?:dollars?|usd|bucks?)`, 'gi')
     ];
     
     for (const pattern of amountPatterns) {
       cleaned = cleaned.replace(pattern, '').trim();
     }
   }
-  
-  // Remove large numbers that might be amounts (like 3000000)
-  cleaned = cleaned.replace(/\b\d{4,}\b/g, '').trim();
-  
-  // Remove "about" when it's left hanging
-  cleaned = cleaned.replace(/\babout\s*$/i, '').trim();
   
   // Remove transaction prefixes
   const transactionPrefixes = [
@@ -566,5 +551,5 @@ export const EXAMPLE_COMMANDS = [
   "$1200 salary payment received",
   "Purchased lunch $12",
   "Spend $30 on gas",
-  "Bought Sari Roti about 3000000"
+  "Bought apple TV $300000"
 ];
