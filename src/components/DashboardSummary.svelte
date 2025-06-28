@@ -88,54 +88,49 @@ const recentTransactions = $derived(() => {
 
   {#snippet children()}
     <div class="space-y-6">
-      <!-- Tasks Summary -->
-      <div class="bg-blue-50 rounded-lg p-4 border border-blue-200">
-        <div class="flex items-center justify-between mb-3">
-          <div class="flex items-center gap-2">
-            <Icon name="clipboard" class="text-blue-600" size="sm" />
-            <h3 class="font-medium text-blue-900">Tasks</h3>
+      <!-- Tasks Summary - Only show if there are pending tasks -->
+      {#if tasksLoading || pendingCount > 0}
+        <div class="bg-blue-50 rounded-lg p-4 border border-blue-200">
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center gap-2">
+              <Icon name="clipboard" class="text-blue-600" size="sm" />
+              <h3 class="font-medium text-blue-900">Tasks</h3>
+            </div>
+            {#if tasksLoading}
+              <Icon name="loader" size="sm" class="animate-spin text-blue-600" />
+            {:else if pendingCount > 0}
+              <span class="text-sm text-blue-700 bg-blue-100 px-2 py-1 rounded-full">
+                {pendingCount} pending
+              </span>
+            {/if}
           </div>
+
           {#if tasksLoading}
-            <Icon name="loader" size="sm" class="animate-spin text-blue-600" />
-          {:else if pendingCount > 0}
-            <span class="text-sm text-blue-700 bg-blue-100 px-2 py-1 rounded-full">
-              {pendingCount} pending
-            </span>
+            <Loading size="md" message="Loading tasks..." />
+          {:else}
+            <div class="space-y-2">
+              {#each incompleteTasks as task (task.id)}
+                <div class="flex items-center gap-2 text-sm">
+                  <div class="w-3 h-3 border border-blue-400 rounded"></div>
+                  <span class="text-blue-800 truncate">{task.description}</span>
+                </div>
+              {/each}
+              
+              {#if pendingCount > 3}
+                <p class="text-xs text-blue-600 mt-2">
+                  +{pendingCount - 3} more pending tasks
+                </p>
+              {/if}
+              
+              {#if completedCount > 0}
+                <p class="text-xs text-green-600 mt-2">
+                  ✓ {completedCount} completed
+                </p>
+              {/if}
+            </div>
           {/if}
         </div>
-
-        {#if tasksLoading}
-          <Loading size="md" message="Loading tasks..." />
-        {:else if totalCount === 0}
-          <p class="text-sm text-blue-700">No tasks for today</p>
-        {:else if pendingCount === 0}
-          <div class="flex items-center gap-2">
-            <Icon name="check-circle" class="text-green-500" size="sm" />
-            <p class="text-sm text-green-700 font-medium">All tasks completed! 🎉</p>
-          </div>
-        {:else}
-          <div class="space-y-2">
-            {#each incompleteTasks as task (task.id)}
-              <div class="flex items-center gap-2 text-sm">
-                <div class="w-3 h-3 border border-blue-400 rounded"></div>
-                <span class="text-blue-800 truncate">{task.description}</span>
-              </div>
-            {/each}
-            
-            {#if pendingCount > 3}
-              <p class="text-xs text-blue-600 mt-2">
-                +{pendingCount - 3} more pending tasks
-              </p>
-            {/if}
-            
-            {#if completedCount > 0}
-              <p class="text-xs text-green-600 mt-2">
-                ✓ {completedCount} completed
-              </p>
-            {/if}
-          </div>
-        {/if}
-      </div>
+      {/if}
 
       <!-- Notes Summary -->
       <div class="bg-purple-50 rounded-lg p-4 border border-purple-200">
