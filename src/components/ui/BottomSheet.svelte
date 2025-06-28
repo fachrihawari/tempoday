@@ -181,7 +181,7 @@ $effect(() => {
            max-h-[85vh] sm:max-h-[90vh]
            pb-safe-area-inset-bottom"
     transition:fly="{{ y: 300, duration: 300 }}"
-    style="touch-action: pan-y; overscroll-behavior: contain; padding-bottom: max(env(safe-area-inset-bottom), 80px);"
+    style="touch-action: pan-y; overscroll-behavior: contain; padding-bottom: max(env(safe-area-inset-bottom), 24px);"
     role="dialog"
     aria-modal="true"
     aria-labelledby="sheet-title"
