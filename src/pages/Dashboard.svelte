@@ -2,6 +2,7 @@
 import { formatDate } from '../lib/date';
 import PageHeader from '../components/ui/PageHeader.svelte'
 import AIAssistant from '../components/AIAssistant.svelte'
+import DashboardSummary from '../components/DashboardSummary.svelte'
 </script>
 
 <div class="h-full flex flex-col">
@@ -14,10 +15,10 @@ import AIAssistant from '../components/AIAssistant.svelte'
 
   <!-- Dashboard Content -->
   <div class="flex-1 overflow-y-auto">
+    <!-- Today's Summary Section -->
+    <DashboardSummary />
   
-    <!-- AI Assistant Section - Always show -->
+    <!-- AI Assistant Section -->
     <AIAssistant />
-
-
   </div>
 </div>
