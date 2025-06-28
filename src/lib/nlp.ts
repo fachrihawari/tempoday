@@ -466,38 +466,48 @@ function cleanContent(text: string, type: string): string {
 }
 
 /**
- * Clean transaction description - COMPLETELY REWRITTEN FOR BETTER NUMBER REMOVAL
+ * Clean transaction description - ENHANCED FOR BETTER NUMBER REMOVAL
  */
 function cleanTransactionDescription(text: string, amount?: number): string {
   let cleaned = text;
   
-  // Step 1: Remove ALL numbers that could be the amount
+  // Step 1: Remove ALL possible number representations
   if (amount) {
-    // Convert amount to string and create variations
     const amountStr = amount.toString();
     
-    // Create all possible representations of the number
+    // Create comprehensive list of number variations
     const numberVariations = [
-      amountStr,                                    // 1000000000000
-      amount.toLocaleString('en-US'),              // 1,000,000,000,000
-      `$${amountStr}`,                             // $1000000000000
-      `$${amount.toLocaleString('en-US')}`,        // $1,000,000,000,000
-      `${amountStr} dollars`,                      // 1000000000000 dollars
-      `${amount.toLocaleString('en-US')} dollars`, // 1,000,000,000,000 dollars
+      amountStr,                                    // Raw: 40000000000000000
+      amount.toLocaleString('en-US'),              // Formatted: 40,000,000,000,000,000
+      `$${amountStr}`,                             // With $: $40000000000000000
+      `$${amount.toLocaleString('en-US')}`,        // With $ formatted: $40,000,000,000,000,000
+      `${amountStr} dollars`,                      // With dollars: 40000000000000000 dollars
+      `${amount.toLocaleString('en-US')} dollars`, // Formatted with dollars
+      `${amountStr} usd`,                          // With USD
+      `${amountStr} bucks`,                        // With bucks
     ];
     
-    // Remove all variations of the amount
+    // Remove all number variations using multiple strategies
     for (const variation of numberVariations) {
-      // Escape special regex characters and create word boundary pattern
+      // Strategy 1: Exact word boundary match
       const escapedVariation = variation.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      const regex = new RegExp(`\\b${escapedVariation}\\b`, 'gi');
-      cleaned = cleaned.replace(regex, '');
+      const wordBoundaryRegex = new RegExp(`\\b${escapedVariation}\\b`, 'gi');
+      cleaned = cleaned.replace(wordBoundaryRegex, '');
+      
+      // Strategy 2: Remove with surrounding spaces
+      const spaceRegex = new RegExp(`\\s*${escapedVariation}\\s*`, 'gi');
+      cleaned = cleaned.replace(spaceRegex, ' ');
     }
     
-    // Also remove any standalone large numbers (fallback)
-    if (amountStr.length >= 4) {
-      const standaloneNumberRegex = new RegExp(`\\b${amountStr}\\b`, 'gi');
-      cleaned = cleaned.replace(standaloneNumberRegex, '');
+    // Step 1.5: Additional aggressive number removal for very large numbers
+    if (amountStr.length >= 10) { // For numbers with 10+ digits
+      // Remove any sequence of digits that matches our amount
+      const digitOnlyRegex = new RegExp(`\\b${amountStr}\\b`, 'gi');
+      cleaned = cleaned.replace(digitOnlyRegex, '');
+      
+      // Remove partial matches (in case of formatting issues)
+      const partialRegex = new RegExp(`${amountStr.substring(0, 8)}\\d*`, 'gi');
+      cleaned = cleaned.replace(partialRegex, '');
     }
   }
   
@@ -508,7 +518,7 @@ function cleanTransactionDescription(text: string, amount?: number): string {
   ];
   
   for (const word of actionWords) {
-    const regex = new RegExp(`^${word}\\s+`, 'i');
+    const regex = new RegExp(`^\\s*${word}\\s+`, 'i');
     if (regex.test(cleaned)) {
       cleaned = cleaned.replace(regex, '');
       break;
@@ -518,21 +528,29 @@ function cleanTransactionDescription(text: string, amount?: number): string {
   // Step 3: Remove common prepositions and articles from the beginning
   const wordsToRemove = ['for', 'on', 'at', 'from', 'about', 'of', 'a', 'an', 'the'];
   for (const word of wordsToRemove) {
-    const regex = new RegExp(`^${word}\\s+`, 'i');
+    const regex = new RegExp(`^\\s*${word}\\s+`, 'i');
     cleaned = cleaned.replace(regex, '');
   }
   
-  // Step 4: Clean up remaining artifacts
+  // Step 4: Clean up remaining artifacts and normalize
   cleaned = cleaned.replace(/[\$€£¥]/g, ''); // Remove currency symbols
-  cleaned = cleaned.replace(/\s+/g, ' ').trim(); // Normalize whitespace
+  cleaned = cleaned.replace(/\s+/g, ' '); // Normalize whitespace
   cleaned = cleaned.replace(/^[,.\-\s]+|[,.\-\s]+$/g, ''); // Remove leading/trailing punctuation
+  cleaned = cleaned.trim();
   
-  // Step 5: Ensure proper capitalization
+  // Step 5: Final cleanup - remove any remaining standalone large numbers
+  if (amount && amount.toString().length >= 8) {
+    // Remove any remaining long digit sequences
+    cleaned = cleaned.replace(/\b\d{8,}\b/g, '');
+    cleaned = cleaned.replace(/\s+/g, ' ').trim();
+  }
+  
+  // Step 6: Ensure proper capitalization
   if (cleaned.length > 0) {
     cleaned = cleaned.charAt(0).toUpperCase() + cleaned.slice(1);
   }
   
-  // Step 6: Provide fallback description if nothing meaningful remains
+  // Step 7: Provide fallback description if nothing meaningful remains
   if (!cleaned.trim() || cleaned.length < 2) {
     cleaned = 'Transaction';
   }
@@ -569,5 +587,7 @@ export const EXAMPLE_COMMANDS = [
   "Spend $30 on gas",
   "Bought apple TV $300000",
   "Bought iPhone $1200",
-  "Bought Apple TV 1000000000000"
+  "Bought Apple TV 1000000000000",
+  "TV 40000000000000000",
+  "Bought TV 40000000000000000"
 ];
