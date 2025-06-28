@@ -87,8 +87,8 @@ export function parseNaturalLanguage(input: string): ParsedCommand {
   // Step 4: Determine type based on scores and context
   const result = determineType(tokens, amounts, scores);
   
-  // Step 5: Clean and format the content
-  result.content = cleanContent(text, result.type, amounts[0]);
+  // Step 5: Clean and format the content using tokens
+  result.content = cleanContentFromTokens(tokens, result.type, amounts[0]);
   
   return result;
 }
@@ -338,59 +338,74 @@ function determineType(
 }
 
 /**
- * CONTENT CLEANING - Smart removal without regex hell
+ * IMPROVED CONTENT CLEANING - Using tokens for precision
  */
-function cleanContent(originalText: string, type: string, amount?: number): string {
-  let cleaned = originalText.toLowerCase();
+function cleanContentFromTokens(tokens: Token[], type: string, amount?: number): string {
+  const filteredTokens: Token[] = [];
   
-  // Step 1: Remove action words for transactions
-  if (type === 'transaction') {
-    const actionWords = ['bought', 'buy', 'purchased', 'spent', 'paid', 'earned', 'received'];
-    for (const word of actionWords) {
-      if (cleaned.startsWith(word + ' ')) {
-        cleaned = cleaned.substring(word.length + 1);
-        break;
+  // Step 1: Remove action words for transactions (only first word)
+  let startIndex = 0;
+  if (type === 'transaction' && tokens.length > 0) {
+    const firstToken = tokens[0];
+    if (firstToken.type === 'word') {
+      const actionWords = new Set(['bought', 'buy', 'purchased', 'spent', 'paid', 'earned', 'received']);
+      if (actionWords.has(firstToken.text)) {
+        startIndex = 1; // Skip the first action word
       }
     }
   }
   
-  // Step 2: Remove amount-related content
-  if (amount) {
-    const amountStr = amount.toString();
+  // Step 2: Filter out amount-related tokens
+  for (let i = startIndex; i < tokens.length; i++) {
+    const token = tokens[i];
     
-    // Remove various representations of the amount
-    const toRemove = [
-      `$${amountStr}`,
-      amountStr,
-      `${amountStr} dollars`,
-      `${amountStr} usd`,
-      `${amountStr} bucks`
-    ];
+    // Skip currency tokens that match our amount
+    if (token.type === 'currency' && token.value === amount) {
+      continue;
+    }
     
-    for (const remove of toRemove) {
-      // Simple string replacement (more reliable than regex)
-      while (cleaned.includes(remove.toLowerCase())) {
-        cleaned = cleaned.replace(remove.toLowerCase(), ' ');
+    // Skip number tokens that match our amount
+    if (token.type === 'number' && token.value === amount) {
+      // Also skip the next token if it's a currency word
+      const nextToken = tokens[i + 1];
+      if (nextToken && nextToken.type === 'word') {
+        const currencyWords = ['dollars', 'dollar', 'usd', 'bucks', 'buck'];
+        if (currencyWords.includes(nextToken.text)) {
+          i++; // Skip the next token too
+        }
+      }
+      continue;
+    }
+    
+    // Skip standalone currency symbols
+    if (token.type === 'punctuation' && token.text === '$') {
+      continue;
+    }
+    
+    // Keep all other tokens
+    filteredTokens.push(token);
+  }
+  
+  // Step 3: Remove common prefixes
+  let finalTokens = filteredTokens;
+  if (finalTokens.length > 0) {
+    const firstToken = finalTokens[0];
+    if (firstToken.type === 'word') {
+      const prefixes = new Set(['for', 'on', 'at', 'from', 'about', 'of', 'a', 'an', 'the']);
+      if (prefixes.has(firstToken.text)) {
+        finalTokens = finalTokens.slice(1);
       }
     }
-    
-    // Remove standalone currency symbols
-    cleaned = cleaned.replace(/\$/g, ' ');
   }
   
-  // Step 3: Clean up spaces and common words
-  cleaned = cleaned.replace(/\s+/g, ' ').trim();
+  // Step 4: Reconstruct the text
+  let cleaned = finalTokens
+    .filter(token => token.type === 'word')
+    .map(token => token.text)
+    .join(' ')
+    .trim();
   
-  // Remove common prefixes
-  const prefixes = ['for', 'on', 'at', 'from', 'about', 'of', 'a', 'an', 'the'];
-  for (const prefix of prefixes) {
-    if (cleaned.startsWith(prefix + ' ')) {
-      cleaned = cleaned.substring(prefix.length + 1);
-    }
-  }
-  
-  // Step 4: Capitalize and validate
-  cleaned = cleaned.trim();
+  // Step 5: Capitalize and validate
   if (cleaned.length > 0) {
     cleaned = cleaned.charAt(0).toUpperCase() + cleaned.slice(1);
   }
