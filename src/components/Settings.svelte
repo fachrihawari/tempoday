@@ -56,7 +56,7 @@ function getLocaleForCurrency(currencyCode: string): string {
 }
 </script>
 
-<div class="space-y-6">
+<div class="space-y-4">
   {#if error}
     <Alert
       type="error"
@@ -68,57 +68,43 @@ function getLocaleForCurrency(currencyCode: string): string {
   {#if isLoading}
     <Loading size="lg" message="Loading settings..." />
   {:else}
-    <div class="space-y-6">
-      <!-- Currency Settings -->
-      <div class="space-y-4">
-        <div class="flex items-start gap-4">
-          <div class="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center flex-shrink-0 mt-1">
-            <Icon name="dollar" class="text-green-600" size="sm" />
-          </div>
-          <div class="flex-1">
-            <h3 class="font-semibold text-gray-900 mb-1">Currency Preference</h3>
-            <p class="text-sm text-gray-600 mb-4">Choose your preferred currency for financial tracking and reporting</p>
-            
-            <div class="space-y-3">
-              <select
-                value={settings.currency}
-                onchange={(e) => updateCurrency((e.target as HTMLSelectElement).value)}
-                disabled={isSaving}
-                class={`w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white text-base transition-all duration-200 ${isSaving ? 'opacity-50 cursor-not-allowed' : 'hover:border-gray-400'}`}
-              >
-                {#each currencies as currency (currency.code)}
-                  <option value={currency.code}>
-                    {currency.symbol} {currency.code} - {currency.name}
-                  </option>
-                {/each}
-              </select>
-              
-              {#if isSaving}
-                <div class="flex items-center gap-2 text-sm text-green-600 bg-green-50 px-3 py-2 rounded-lg">
-                  <Icon name="loader" size="sm" class="animate-spin" />
-                  <span>Saving changes...</span>
-                </div>
-              {/if}
-            </div>
-          </div>
+    <!-- Currency Selection -->
+    <div class="space-y-3">
+      <select
+        value={settings.currency}
+        onchange={(e) => updateCurrency((e.target as HTMLSelectElement).value)}
+        disabled={isSaving}
+        class={`w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white text-base transition-all duration-200 ${isSaving ? 'opacity-50 cursor-not-allowed' : 'hover:border-gray-300'}`}
+      >
+        {#each currencies as currency (currency.code)}
+          <option value={currency.code}>
+            {currency.symbol} {currency.code} - {currency.name}
+          </option>
+        {/each}
+      </select>
+      
+      {#if isSaving}
+        <div class="flex items-center gap-2 text-sm text-green-600 bg-green-50 px-3 py-2 rounded-lg border border-green-200">
+          <Icon name="loader" size="sm" class="animate-spin" />
+          <span>Saving changes...</span>
         </div>
-      </div>
+      {/if}
+    </div>
 
-      <!-- Current Settings Display -->
-      <div class="bg-gradient-to-r from-gray-50 to-blue-50 rounded-xl p-4 border border-gray-200">
-        <h4 class="font-medium text-gray-900 mb-3 flex items-center gap-2">
-          <Icon name="check-circle" class="text-green-500" size="sm" />
-          Current Configuration
-        </h4>
-        <div class="grid grid-cols-2 gap-4">
-          <div class="bg-white rounded-lg p-3 border border-gray-200">
-            <div class="text-xs text-gray-500 uppercase tracking-wide mb-1">Currency</div>
-            <div class="font-semibold text-gray-900">{settings.currencySymbol} {settings.currency}</div>
-          </div>
-          <div class="bg-white rounded-lg p-3 border border-gray-200">
-            <div class="text-xs text-gray-500 uppercase tracking-wide mb-1">Locale</div>
-            <div class="font-semibold text-gray-900">{settings.locale}</div>
-          </div>
+    <!-- Current Settings Display -->
+    <div class="bg-gradient-to-r from-gray-50 to-green-50 rounded-xl p-4 border border-gray-200">
+      <h4 class="font-medium text-gray-900 mb-3 flex items-center gap-2">
+        <Icon name="check-circle" class="text-green-500" size="sm" />
+        Current Settings
+      </h4>
+      <div class="grid grid-cols-2 gap-3">
+        <div class="bg-white rounded-lg p-3 border border-gray-200">
+          <div class="text-xs text-gray-500 uppercase tracking-wide mb-1">Currency</div>
+          <div class="font-semibold text-gray-900">{settings.currencySymbol} {settings.currency}</div>
+        </div>
+        <div class="bg-white rounded-lg p-3 border border-gray-200">
+          <div class="text-xs text-gray-500 uppercase tracking-wide mb-1">Locale</div>
+          <div class="font-semibold text-gray-900">{settings.locale}</div>
         </div>
       </div>
     </div>
