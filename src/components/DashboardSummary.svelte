@@ -2,7 +2,6 @@
 import { onMount } from 'svelte'
 import { formatDateKey } from '../lib/date';
 import { formatCurrency } from '../lib/currency';
-import { appState } from '../stores/app.svelte';
 import { reactiveNotes } from '../stores/notes.svelte';
 import { reactiveTasks } from '../stores/tasks.svelte';
 import { reactiveTransactions } from '../stores/transactions.svelte';
