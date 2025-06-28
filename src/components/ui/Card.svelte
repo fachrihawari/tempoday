@@ -1,4 +1,4 @@
-<!-- Reusable Card Component -->
+<!-- Enhanced Card Component with Collapsible Option -->
 <script lang="ts">
 import Icon, { type IconName } from './Icon.svelte';
 
@@ -10,6 +10,9 @@ interface Props {
   class?: string;
   children: any;
   headerAction?: any;
+  collapsible?: boolean;
+  defaultExpanded?: boolean;
+  onToggle?: (expanded: boolean) => void;
 }
 
 let {
@@ -20,29 +23,66 @@ let {
   class: className = '',
   children,
   headerAction,
+  collapsible = false,
+  defaultExpanded = true,
+  onToggle,
 }: Props = $props();
+
+let isExpanded = $state(defaultExpanded);
 
 const paddings = {
   sm: 'p-3',
   md: 'p-4',
   lg: 'p-6',
 };
+
+function toggleExpanded() {
+  if (!collapsible) return;
+  
+  isExpanded = !isExpanded;
+  onToggle?.(isExpanded);
+}
 </script>
 
-<section class="bg-white border-b border-gray-200 {paddings[padding]} {className}">
+<section class="bg-white border-b border-gray-200 {className}">
   {#if title}
-    <div class="flex items-center justify-between mb-4">
-      <h2 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
+    <div class="flex items-center justify-between {paddings[padding]} {collapsible ? 'pb-0' : ''}">
+      <button
+        onclick={toggleExpanded}
+        disabled={!collapsible}
+        class="flex items-center gap-2 {collapsible ? 'hover:bg-gray-50 -m-2 p-2 rounded-lg transition-colors cursor-pointer' : 'cursor-default'} flex-1"
+      >
         {#if icon}
           <Icon name={icon} class={iconColor} />
         {/if}
-        {title}
-      </h2>
-      {#if headerAction}
-        {@render headerAction()}
+        <h2 class="text-lg font-semibold text-gray-900">{title}</h2>
+        
+        {#if collapsible}
+          <Icon 
+            name={isExpanded ? "close" : "plus"} 
+            class="text-gray-500 transition-transform duration-200 {isExpanded ? 'rotate-45' : ''} ml-auto" 
+            size="sm" 
+          />
+        {/if}
+      </button>
+      
+      {#if headerAction && !collapsible}
+        <div class="ml-4">
+          {@render headerAction()}
+        </div>
       {/if}
     </div>
+    
+    {#if headerAction && collapsible && isExpanded}
+      <div class="px-4 pb-2">
+        {@render headerAction()}
+      </div>
+    {/if}
   {/if}
   
-  {@render children()}
+  {#if !collapsible || isExpanded}
+    <div class="{title ? (collapsible ? 'px-4 pb-4' : '') : paddings[padding]}">
+      {@render children()}
+    </div>
+  {/if}
 </section>
