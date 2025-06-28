@@ -11,16 +11,18 @@
     initializeRouter();
   });
 
+
+  const path = $derived(activePath())
 </script>
 
 <div class="h-screen flex flex-col relative">
   <!-- Main Content Area -->
   <div class="flex-1 overflow-y-auto pb-20">
-    {#if activePath() === '/'}
+    {#if path === '/'}
       <Dashboard />
-    {:else if activePath() === '/calendar'}
+    {:else if path === '/calendar'}
       <Calendar />
-    {:else if activePath() === '/settings'}
+    {:else if path === '/settings'}
       <Settings />
     {:else}
       <Dashboard />
