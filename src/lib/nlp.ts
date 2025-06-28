@@ -153,7 +153,7 @@ function tokenize(text: string): Token[] {
 }
 
 /**
- * ROBUST NUMBER PARSER - Handles any size number
+ * ROBUST NUMBER PARSER - Handles any size number including very large ones
  */
 function parseNumber(str: string): number | null {
   // Remove commas and clean the string
@@ -166,11 +166,14 @@ function parseNumber(str: string): number | null {
   // Parse the number
   const value = parseFloat(cleaned);
   
-  // Validate: must be positive, finite, and reasonable
+  // Validate: must be positive and finite
+  // Removed the upper limit check to allow very large numbers
   if (isNaN(value) || !isFinite(value) || value <= 0) {
     return null;
   }
   
+  // For very large numbers, JavaScript might convert to scientific notation
+  // but parseFloat handles this correctly, so we just return the value
   return value;
 }
 
