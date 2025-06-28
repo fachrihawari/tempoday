@@ -244,4 +244,3 @@ Press Ctrl+Enter to process`}
     </div>
   {/snippet}
 </Card>
-</script>
