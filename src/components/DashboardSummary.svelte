@@ -124,35 +124,6 @@ const recentTransactions = $derived.by(() => {
         </div>
       {/if}
 
-      <!-- Notes Summary -->
-      <div class="bg-purple-50 rounded-lg p-4 border border-purple-200">
-        <div class="flex items-center justify-between mb-3">
-          <div class="flex items-center gap-2">
-            <Icon name="edit" class="text-purple-600" size="sm" />
-            <h3 class="font-medium text-purple-900">Daily Note</h3>
-          </div>
-          {#if noteLoading}
-            <Icon name="loader" size="sm" class="animate-spin text-purple-600" />
-          {:else if hasNote}
-            <span class="text-xs text-purple-700 bg-purple-100 px-2 py-1 rounded-full">
-              Written
-            </span>
-          {/if}
-        </div>
-
-        {#if noteLoading}
-          <Loading size="md" message="Loading note..." />
-        {:else if !hasNote}
-          <p class="text-sm text-purple-700">No note for today</p>
-        {:else}
-          <div class="bg-white rounded-md p-3 border border-purple-200">
-            <p class="text-sm text-purple-800 leading-relaxed">
-              {notePreview}
-            </p>
-          </div>
-        {/if}
-      </div>
-
       <!-- Transactions Summary -->
       <div class="bg-green-50 rounded-lg p-4 border border-green-200">
         <div class="flex items-center justify-between mb-3">
