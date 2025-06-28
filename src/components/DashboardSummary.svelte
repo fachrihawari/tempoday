@@ -21,7 +21,8 @@ let {
   totalIncome, 
   totalExpenses, 
   netBalance,
-  totalCount: transactionCount 
+  totalCount: transactionCount,
+  expenseTransactions
 } = $derived(reactiveTransactions);
 let { settings } = $derived(settingsStore);
 
@@ -57,9 +58,14 @@ const pendingCount = $derived.by(() => {
   return tasks.filter(task => !task.completed).length;
 });
 
-// Get recent transactions for preview
-const recentTransactions = $derived.by(() => {
-  return transactions.slice(-3).reverse();
+// Get recent expenses for preview (last 3 expenses)
+const recentExpenses = $derived.by(() => {
+  return expenseTransactions.slice(-3).reverse();
+});
+
+// Get expense count
+const expenseCount = $derived.by(() => {
+  return expenseTransactions.length;
 });
 </script>
 
@@ -124,67 +130,56 @@ const recentTransactions = $derived.by(() => {
         </div>
       {/if}
 
-      <!-- Transactions Summary -->
-      <div class="bg-green-50 rounded-lg p-4 border border-green-200">
-        <div class="flex items-center justify-between mb-3">
-          <div class="flex items-center gap-2">
-            <Icon name="dollar" class="text-green-600" size="sm" />
-            <h3 class="font-medium text-green-900">Finances</h3>
-          </div>
-          {#if transactionsLoading}
-            <Icon name="loader" size="sm" class="animate-spin text-green-600" />
-          {:else if transactionCount > 0}
-            <span class="text-sm text-green-700 bg-green-100 px-2 py-1 rounded-full">
-              {transactionCount} transactions
-            </span>
-          {/if}
-        </div>
-
-        {#if transactionsLoading}
-          <Loading size="md" message="Loading transactions..." />
-        {:else if transactionCount === 0}
-          <p class="text-sm text-green-700">No transactions for today</p>
-        {:else}
-          <div class="space-y-3">
-            <!-- Financial Summary -->
-            <div class="bg-white rounded-md p-3 border border-green-200">
-              <div class="grid grid-cols-3 gap-3 text-center">
-                <div>
-                  <p class="text-xs text-green-600">Income</p>
-                  <p class="text-sm font-medium text-green-800">{formatAmount(totalIncome)}</p>
-                </div>
-                <div>
-                  <p class="text-xs text-green-600">Expenses</p>
-                  <p class="text-sm font-medium text-red-600">{formatAmount(totalExpenses)}</p>
-                </div>
-                <div>
-                  <p class="text-xs text-green-600">Net</p>
-                  <p class="text-sm font-medium {netBalance >= 0 ? 'text-green-700' : 'text-red-600'}">
-                    {formatAmount(netBalance)}
-                  </p>
-                </div>
-              </div>
+      <!-- Recent Expenses Summary - Only show if there are expenses -->
+      {#if transactionsLoading || expenseCount > 0}
+        <div class="bg-red-50 rounded-lg p-4 border border-red-200">
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center gap-2">
+              <Icon name="trending-down" class="text-red-600" size="sm" />
+              <h3 class="font-medium text-red-900">Recent Expenses</h3>
             </div>
-
-            <!-- Recent Transactions -->
-            {#if recentTransactions.length > 0}
-              <div class="space-y-1">
-                {#each recentTransactions as transaction (transaction.id)}
-                  <div class="flex items-center justify-between text-sm">
-                    <div class="flex items-center gap-2">
-                      <div class="w-2 h-2 rounded-full {transaction.type === 'income' ? 'bg-green-500' : 'bg-red-500'}"></div>
-                      <span class="text-green-800 truncate">{transaction.description}</span>
-                    </div>
-                    <span class="text-xs font-medium {transaction.type === 'income' ? 'text-green-600' : 'text-red-600'}">
-                      {transaction.type === 'income' ? '+' : '-'}{formatAmount(transaction.amount)}
-                    </span>
-                  </div>
-                {/each}
-              </div>
+            {#if transactionsLoading}
+              <Icon name="loader" size="sm" class="animate-spin text-red-600" />
+            {:else if expenseCount > 0}
+              <span class="text-sm text-red-700 bg-red-100 px-2 py-1 rounded-full">
+                {formatAmount(totalExpenses)} spent
+              </span>
             {/if}
           </div>
-        {/if}
-      </div>
+
+          {#if transactionsLoading}
+            <Loading size="md" message="Loading expenses..." />
+          {:else if expenseCount === 0}
+            <p class="text-sm text-red-700">No expenses for today</p>
+          {:else}
+            <div class="space-y-2">
+              {#each recentExpenses as expense (expense.id)}
+                <div class="flex items-center justify-between text-sm bg-white rounded-md p-2 border border-red-100">
+                  <div class="flex items-center gap-2">
+                    <div class="w-2 h-2 rounded-full bg-red-500"></div>
+                    <span class="text-red-800 truncate">{expense.description}</span>
+                  </div>
+                  <span class="text-sm font-medium text-red-600">
+                    -{formatAmount(expense.amount)}
+                  </span>
+                </div>
+              {/each}
+              
+              {#if expenseCount > 3}
+                <p class="text-xs text-red-600 mt-2">
+                  +{expenseCount - 3} more expenses
+                </p>
+              {/if}
+              
+              {#if totalIncome > 0}
+                <p class="text-xs text-green-600 mt-2">
+                  ✓ {formatAmount(totalIncome)} income today
+                </p>
+              {/if}
+            </div>
+          {/if}
+        </div>
+      {/if}
     </div>
   {/snippet}
 </Card>
