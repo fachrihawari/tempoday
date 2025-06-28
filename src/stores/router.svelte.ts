@@ -1,5 +1,4 @@
 let currentPath = $state('/');
-
 let isInitialized = false;
 
 // Export a function that returns the current path
@@ -19,7 +18,16 @@ export function navigate(newPath: string) {
   // Only update if path is different
   if (currentPath !== normalizedPath) {
     currentPath = normalizedPath;
-    window.history.pushState({}, '', normalizedPath);
+    
+    // Try to update browser history, but don't fail if it doesn't work (iframe restrictions)
+    try {
+      if (typeof window !== 'undefined' && window.history && window.history.pushState) {
+        window.history.pushState({}, '', normalizedPath);
+      }
+    } catch (error) {
+      // Silently handle iframe restrictions
+      console.debug('History API not available or restricted:', error);
+    }
   }
 }
 
@@ -29,20 +37,50 @@ export function initializeRouter() {
     return;
   }
   
-  // Set initial path from current URL
-  currentPath = window.location.pathname || '/';
+  // Set initial path from current URL, with fallback to '/'
+  try {
+    currentPath = (typeof window !== 'undefined' && window.location) 
+      ? (window.location.pathname || '/') 
+      : '/';
+  } catch (error) {
+    // Fallback for iframe restrictions
+    currentPath = '/';
+    console.debug('Location API not available or restricted:', error);
+  }
   
-  // Handle browser back/forward buttons
+  // Handle browser back/forward buttons if available
   const handlePopState = () => {
-    currentPath = window.location.pathname || '/';
+    try {
+      if (typeof window !== 'undefined' && window.location) {
+        currentPath = window.location.pathname || '/';
+      }
+    } catch (error) {
+      // Silently handle iframe restrictions
+      console.debug('PopState handling restricted:', error);
+    }
   };
   
-  window.addEventListener('popstate', handlePopState);
+  try {
+    if (typeof window !== 'undefined' && window.addEventListener) {
+      window.addEventListener('popstate', handlePopState);
+    }
+  } catch (error) {
+    // Silently handle iframe restrictions
+    console.debug('PopState listener not available:', error);
+  }
+  
   isInitialized = true;
   
   // Return cleanup function
   return () => {
-    window.removeEventListener('popstate', handlePopState);
+    try {
+      if (typeof window !== 'undefined' && window.removeEventListener) {
+        window.removeEventListener('popstate', handlePopState);
+      }
+    } catch (error) {
+      // Silently handle cleanup restrictions
+      console.debug('PopState cleanup restricted:', error);
+    }
     isInitialized = false;
   };
 }
