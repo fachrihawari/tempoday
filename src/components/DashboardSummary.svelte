@@ -56,17 +56,17 @@ const notePreview = $derived.by(() => {
 });
 
 // Get incomplete tasks for preview
-const incompleteTasks = $derived(() => {
+const incompleteTasks = $derived.by(() => {
   return tasks.filter(task => !task.completed).slice(0, 3);
 });
 
 // Get pending tasks count
-const pendingCount = $derived(() => {
+const pendingCount = $derived.by(() => {
   return tasks.filter(task => !task.completed).length;
 });
 
 // Get recent transactions for preview
-const recentTransactions = $derived(() => {
+const recentTransactions = $derived.by(() => {
   return transactions.slice(-3).reverse();
 });
 </script>
