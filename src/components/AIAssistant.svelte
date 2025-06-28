@@ -166,7 +166,7 @@ const categorizedExamples = {
     <!-- ChatGPT-style Input Container -->
     <div class="relative">
       <!-- Main Input Area -->
-      <div class="relative bg-white border border-gray-300 rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 focus-within:border-purple-500 focus-within:shadow-lg focus-within:shadow-purple-100">
+      <div class="relative flex items-center bg-white border border-gray-300 rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 focus-within:border-purple-500 focus-within:shadow-lg focus-within:shadow-purple-100">
         <!-- Textarea -->
         <textarea
           bind:this={textareaElement}
