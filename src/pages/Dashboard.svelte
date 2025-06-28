@@ -183,28 +183,6 @@ const hasAnyData = $derived(totalCount > 0 || transactions.length > 0 || hasNote
               {/if}
             </div>
           </div>
-
-          <!-- Quick Actions -->
-          <div class="mt-6 space-y-3">
-            <Button variant="tasks" onclick={goToCalendar} class="w-full">
-              {#snippet children()}
-                <Icon name="clipboard" size="sm" class="mr-2" />
-                Add Task
-              {/snippet}
-            </Button>
-            <Button variant="notes" onclick={goToCalendar} class="w-full">
-              {#snippet children()}
-                <Icon name="edit" size="sm" class="mr-2" />
-                Write Note
-              {/snippet}
-            </Button>
-            <Button variant="financials" onclick={goToCalendar} class="w-full">
-              {#snippet children()}
-                <Icon name="dollar" size="sm" class="mr-2" />
-                Add Transaction
-              {/snippet}
-            </Button>
-          </div>
         {:else}
           <!-- Empty State -->
           <div class="text-center py-8">
