@@ -14,7 +14,7 @@ import { reactiveRouter } from '../stores/router.svelte';
 
 // Reactive values from stores
 let { tasks, isLoading: tasksLoading, completedCount, totalCount } = $derived(reactiveTasks);
-let { content: noteContent, isLoading: noteLoading, hasNote } = $derived(reactiveNotes);
+let { note, isLoading: noteLoading, hasNote, content } = $derived(reactiveNotes);
 let { 
   transactions, 
   isLoading: transactionsLoading, 
@@ -49,10 +49,10 @@ function navigateToCalendar() {
 
 // Get preview of note content (first 100 characters)
 const notePreview = $derived(() => {
-  if (!noteContent) return '';
-  return noteContent.length > 100 
-    ? noteContent.substring(0, 100) + '...' 
-    : noteContent;
+  if (!content) return '';
+  return content.length > 100 
+    ? content.substring(0, 100) + '...' 
+    : content;
 });
 
 // Get incomplete tasks for preview
