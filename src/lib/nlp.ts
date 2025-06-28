@@ -466,34 +466,46 @@ function cleanContent(text: string, type: string): string {
 }
 
 /**
- * Clean transaction description - ENHANCED FOR LARGE NUMBERS
+ * Clean transaction description - COMPLETELY REWRITTEN FOR BETTER NUMBER REMOVAL
  */
 function cleanTransactionDescription(text: string, amount?: number): string {
   let cleaned = text;
   
-  // Remove the amount from description if present
+  // Step 1: Remove ALL numbers that could be the amount
   if (amount) {
-    // Create patterns to remove the amount (with or without commas)
+    // Convert amount to string and create variations
     const amountStr = amount.toString();
-    const amountWithCommas = amount.toLocaleString('en-US');
     
-    // Remove various amount formats
-    const amountPatterns = [
-      new RegExp(`\\$${amountStr}\\b`, 'gi'),
-      new RegExp(`\\$${amountWithCommas}\\b`, 'gi'),
-      new RegExp(`\\b${amountStr}\\s*(?:dollars?|usd|bucks?)\\b`, 'gi'),
-      new RegExp(`\\b${amountWithCommas}\\s*(?:dollars?|usd|bucks?)\\b`, 'gi'),
-      new RegExp(`\\b${amountStr}\\b`, 'gi'),
-      new RegExp(`\\b${amountWithCommas}\\b`, 'gi')
+    // Create all possible representations of the number
+    const numberVariations = [
+      amountStr,                                    // 1000000000000
+      amount.toLocaleString('en-US'),              // 1,000,000,000,000
+      `$${amountStr}`,                             // $1000000000000
+      `$${amount.toLocaleString('en-US')}`,        // $1,000,000,000,000
+      `${amountStr} dollars`,                      // 1000000000000 dollars
+      `${amount.toLocaleString('en-US')} dollars`, // 1,000,000,000,000 dollars
     ];
     
-    for (const pattern of amountPatterns) {
-      cleaned = cleaned.replace(pattern, '');
+    // Remove all variations of the amount
+    for (const variation of numberVariations) {
+      // Escape special regex characters and create word boundary pattern
+      const escapedVariation = variation.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const regex = new RegExp(`\\b${escapedVariation}\\b`, 'gi');
+      cleaned = cleaned.replace(regex, '');
+    }
+    
+    // Also remove any standalone large numbers (fallback)
+    if (amountStr.length >= 4) {
+      const standaloneNumberRegex = new RegExp(`\\b${amountStr}\\b`, 'gi');
+      cleaned = cleaned.replace(standaloneNumberRegex, '');
     }
   }
   
-  // Remove transaction action words from the beginning
-  const actionWords = ['bought', 'buy', 'purchased', 'purchase', 'spent', 'spend', 'paid', 'pay', 'cost', 'earned', 'received', 'got', 'made', 'sold'];
+  // Step 2: Remove transaction action words from the beginning
+  const actionWords = [
+    'bought', 'buy', 'purchased', 'purchase', 'spent', 'spend', 
+    'paid', 'pay', 'cost', 'earned', 'received', 'got', 'made', 'sold'
+  ];
   
   for (const word of actionWords) {
     const regex = new RegExp(`^${word}\\s+`, 'i');
@@ -503,23 +515,24 @@ function cleanTransactionDescription(text: string, amount?: number): string {
     }
   }
   
-  // Remove common prepositions from the beginning
-  const prepositions = ['for', 'on', 'at', 'from', 'about', 'of'];
-  for (const prep of prepositions) {
-    const regex = new RegExp(`^${prep}\\s+`, 'i');
+  // Step 3: Remove common prepositions and articles from the beginning
+  const wordsToRemove = ['for', 'on', 'at', 'from', 'about', 'of', 'a', 'an', 'the'];
+  for (const word of wordsToRemove) {
+    const regex = new RegExp(`^${word}\\s+`, 'i');
     cleaned = cleaned.replace(regex, '');
   }
   
-  // Clean up extra whitespace and symbols
+  // Step 4: Clean up remaining artifacts
   cleaned = cleaned.replace(/[\$€£¥]/g, ''); // Remove currency symbols
   cleaned = cleaned.replace(/\s+/g, ' ').trim(); // Normalize whitespace
+  cleaned = cleaned.replace(/^[,.\-\s]+|[,.\-\s]+$/g, ''); // Remove leading/trailing punctuation
   
-  // Ensure proper capitalization
+  // Step 5: Ensure proper capitalization
   if (cleaned.length > 0) {
     cleaned = cleaned.charAt(0).toUpperCase() + cleaned.slice(1);
   }
   
-  // Provide fallback description
+  // Step 6: Provide fallback description if nothing meaningful remains
   if (!cleaned.trim() || cleaned.length < 2) {
     cleaned = 'Transaction';
   }
