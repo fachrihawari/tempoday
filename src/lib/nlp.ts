@@ -466,52 +466,12 @@ function cleanContent(text: string, type: string): string {
 }
 
 /**
- * Clean transaction description - ENHANCED FOR BETTER NUMBER REMOVAL
+ * Clean transaction description - COMPLETELY REWRITTEN FOR PRECISION
  */
 function cleanTransactionDescription(text: string, amount?: number): string {
   let cleaned = text;
   
-  // Step 1: Remove ALL possible number representations
-  if (amount) {
-    const amountStr = amount.toString();
-    
-    // Create comprehensive list of number variations
-    const numberVariations = [
-      amountStr,                                    // Raw: 40000000000000000
-      amount.toLocaleString('en-US'),              // Formatted: 40,000,000,000,000,000
-      `$${amountStr}`,                             // With $: $40000000000000000
-      `$${amount.toLocaleString('en-US')}`,        // With $ formatted: $40,000,000,000,000,000
-      `${amountStr} dollars`,                      // With dollars: 40000000000000000 dollars
-      `${amount.toLocaleString('en-US')} dollars`, // Formatted with dollars
-      `${amountStr} usd`,                          // With USD
-      `${amountStr} bucks`,                        // With bucks
-    ];
-    
-    // Remove all number variations using multiple strategies
-    for (const variation of numberVariations) {
-      // Strategy 1: Exact word boundary match
-      const escapedVariation = variation.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      const wordBoundaryRegex = new RegExp(`\\b${escapedVariation}\\b`, 'gi');
-      cleaned = cleaned.replace(wordBoundaryRegex, '');
-      
-      // Strategy 2: Remove with surrounding spaces
-      const spaceRegex = new RegExp(`\\s*${escapedVariation}\\s*`, 'gi');
-      cleaned = cleaned.replace(spaceRegex, ' ');
-    }
-    
-    // Step 1.5: Additional aggressive number removal for very large numbers
-    if (amountStr.length >= 10) { // For numbers with 10+ digits
-      // Remove any sequence of digits that matches our amount
-      const digitOnlyRegex = new RegExp(`\\b${amountStr}\\b`, 'gi');
-      cleaned = cleaned.replace(digitOnlyRegex, '');
-      
-      // Remove partial matches (in case of formatting issues)
-      const partialRegex = new RegExp(`${amountStr.substring(0, 8)}\\d*`, 'gi');
-      cleaned = cleaned.replace(partialRegex, '');
-    }
-  }
-  
-  // Step 2: Remove transaction action words from the beginning
+  // Step 1: Remove transaction action words from the beginning FIRST
   const actionWords = [
     'bought', 'buy', 'purchased', 'purchase', 'spent', 'spend', 
     'paid', 'pay', 'cost', 'earned', 'received', 'got', 'made', 'sold'
@@ -525,32 +485,77 @@ function cleanTransactionDescription(text: string, amount?: number): string {
     }
   }
   
-  // Step 3: Remove common prepositions and articles from the beginning
+  // Step 2: Remove ALL number-related content if amount is provided
+  if (amount) {
+    const amountStr = amount.toString();
+    
+    // Create a comprehensive list of all possible number representations
+    const numberPatterns = [
+      // Exact number as string
+      amountStr,
+      // With dollar sign
+      `$${amountStr}`,
+      // With commas (for display)
+      amount.toLocaleString('en-US'),
+      `$${amount.toLocaleString('en-US')}`,
+      // With currency words
+      `${amountStr} dollars`,
+      `${amountStr} usd`,
+      `${amountStr} bucks`,
+      // Formatted versions with currency words
+      `${amount.toLocaleString('en-US')} dollars`,
+      `${amount.toLocaleString('en-US')} usd`,
+      `${amount.toLocaleString('en-US')} bucks`
+    ];
+    
+    // Remove each pattern using word boundaries for precision
+    for (const pattern of numberPatterns) {
+      const escapedPattern = pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      
+      // Use word boundaries to ensure we match complete numbers only
+      const wordBoundaryRegex = new RegExp(`\\b${escapedPattern}\\b`, 'gi');
+      cleaned = cleaned.replace(wordBoundaryRegex, '');
+      
+      // Also remove with optional surrounding spaces
+      const spaceRegex = new RegExp(`\\s*${escapedPattern}\\s*`, 'gi');
+      cleaned = cleaned.replace(spaceRegex, ' ');
+    }
+    
+    // Step 2.5: For very large numbers, also remove any standalone digit sequences
+    // that match our amount (to catch edge cases)
+    if (amountStr.length >= 8) {
+      // Remove the exact digit sequence with word boundaries
+      const digitRegex = new RegExp(`\\b${amountStr}\\b`, 'g');
+      cleaned = cleaned.replace(digitRegex, '');
+    }
+  }
+  
+  // Step 3: Remove any remaining currency symbols and normalize spaces
+  cleaned = cleaned.replace(/[\$€£¥]/g, ''); // Remove currency symbols
+  cleaned = cleaned.replace(/\s+/g, ' '); // Normalize multiple spaces to single space
+  cleaned = cleaned.trim(); // Remove leading/trailing spaces
+  
+  // Step 4: Remove common prepositions and articles from the beginning
   const wordsToRemove = ['for', 'on', 'at', 'from', 'about', 'of', 'a', 'an', 'the'];
   for (const word of wordsToRemove) {
     const regex = new RegExp(`^\\s*${word}\\s+`, 'i');
     cleaned = cleaned.replace(regex, '');
   }
   
-  // Step 4: Clean up remaining artifacts and normalize
-  cleaned = cleaned.replace(/[\$€£¥]/g, ''); // Remove currency symbols
-  cleaned = cleaned.replace(/\s+/g, ' '); // Normalize whitespace
-  cleaned = cleaned.replace(/^[,.\-\s]+|[,.\-\s]+$/g, ''); // Remove leading/trailing punctuation
-  cleaned = cleaned.trim();
+  // Step 5: Final cleanup - remove any remaining isolated digits or number fragments
+  // This catches cases where partial number removal left fragments like "00" or "000"
+  cleaned = cleaned.replace(/\b\d+\b/g, ''); // Remove any standalone numbers
+  cleaned = cleaned.replace(/\s+/g, ' ').trim(); // Normalize spaces again
   
-  // Step 5: Final cleanup - remove any remaining standalone large numbers
-  if (amount && amount.toString().length >= 8) {
-    // Remove any remaining long digit sequences
-    cleaned = cleaned.replace(/\b\d{8,}\b/g, '');
-    cleaned = cleaned.replace(/\s+/g, ' ').trim();
-  }
+  // Step 6: Remove leading/trailing punctuation that might be left over
+  cleaned = cleaned.replace(/^[,.\-\s]+|[,.\-\s]+$/g, '');
   
-  // Step 6: Ensure proper capitalization
+  // Step 7: Ensure proper capitalization
   if (cleaned.length > 0) {
     cleaned = cleaned.charAt(0).toUpperCase() + cleaned.slice(1);
   }
   
-  // Step 7: Provide fallback description if nothing meaningful remains
+  // Step 8: Provide fallback description if nothing meaningful remains
   if (!cleaned.trim() || cleaned.length < 2) {
     cleaned = 'Transaction';
   }
