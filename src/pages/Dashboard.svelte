@@ -1,5 +1,6 @@
 <script lang="ts">
 import { formatDate } from '../lib/date';
+import AIAssistant from '../components/AIAssistant.svelte'
 </script>
 
 <div class="h-full flex flex-col">
