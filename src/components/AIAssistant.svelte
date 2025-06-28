@@ -1,23 +1,30 @@
 <script lang="ts">
+import { formatCurrency } from '../lib/currency';
 import { formatDateKey } from '../lib/date';
-import { parseNaturalLanguage, EXAMPLE_COMMANDS, type ParsedCommand } from '../lib/nlp';
+import {
+  EXAMPLE_COMMANDS,
+  type ParsedCommand,
+  parseNaturalLanguage,
+} from '../lib/nlp';
 import { appState } from '../stores/app.svelte';
 import { reactiveNotes } from '../stores/notes.svelte';
+import { settingsStore } from '../stores/settings.svelte';
 import { reactiveTasks } from '../stores/tasks.svelte';
 import { reactiveTransactions } from '../stores/transactions.svelte';
-import { settingsStore } from '../stores/settings.svelte';
-import { formatCurrency } from '../lib/currency';
 import Alert from './ui/Alert.svelte';
+import BottomSheet from './ui/BottomSheet.svelte';
 import Button from './ui/Button.svelte';
 import Card from './ui/Card.svelte';
 import Icon from './ui/Icon.svelte';
-import BottomSheet from './ui/BottomSheet.svelte';
 
 let userInput = $state('');
 let isProcessing = $state(false);
 let lastParsedCommand = $state<ParsedCommand | null>(null);
 let showDetailedHelp = $state(false);
-let processingResult = $state<{ type: 'success' | 'error'; message: string } | null>(null);
+let processingResult = $state<{
+  type: 'success' | 'error';
+  message: string;
+} | null>(null);
 let textareaElement: HTMLTextAreaElement = $state()!;
 
 // Get current date for operations
@@ -35,69 +42,69 @@ function formatAmount(amount: number): string {
 
 async function processCommand() {
   if (!userInput.trim()) return;
-  
+
   isProcessing = true;
   processingResult = null;
-  
+
   try {
     // Parse the natural language input
     const parsed = parseNaturalLanguage(userInput);
     lastParsedCommand = parsed;
-    
+
     // Execute the appropriate action based on the parsed command
     switch (parsed.type) {
       case 'task':
         await reactiveTasks.createTask({
           description: parsed.content,
-          date: currentDate
+          date: currentDate,
         });
         processingResult = {
           type: 'success',
-          message: `✅ Task created: "${parsed.content}"`
+          message: `✅ Task created: "${parsed.content}"`,
         };
         break;
-        
+
       case 'note':
         await reactiveNotes.saveNote({
           content: parsed.content,
-          date: currentDate
+          date: currentDate,
         });
         processingResult = {
           type: 'success',
-          message: `📝 Note saved: "${parsed.content.substring(0, 50)}${parsed.content.length > 50 ? '...' : ''}"`
+          message: `📝 Note saved: "${parsed.content.substring(0, 50)}${parsed.content.length > 50 ? '...' : ''}"`,
         };
         break;
-        
+
       case 'transaction':
         if (parsed.amount && parsed.transactionType) {
           await reactiveTransactions.createTransaction({
             description: parsed.content,
             amount: parsed.amount,
             type: parsed.transactionType,
-            date: currentDate
+            date: currentDate,
           });
           const symbol = parsed.transactionType === 'income' ? '+' : '-';
           processingResult = {
             type: 'success',
-            message: `💰 ${parsed.transactionType === 'income' ? 'Income' : 'Expense'} added: ${symbol}${formatAmount(parsed.amount)} for "${parsed.content}"`
+            message: `💰 ${parsed.transactionType === 'income' ? 'Income' : 'Expense'} added: ${symbol}${formatAmount(parsed.amount)} for "${parsed.content}"`,
           };
         } else {
           throw new Error('Could not extract amount or transaction type');
         }
         break;
-        
+
       default:
         throw new Error('Could not understand the command');
     }
-    
+
     // Clear input on success
     userInput = '';
-    
   } catch (error) {
     console.error('Error processing command:', error);
     processingResult = {
       type: 'error',
-      message: error instanceof Error ? error.message : 'Failed to process command'
+      message:
+        error instanceof Error ? error.message : 'Failed to process command',
     };
   } finally {
     isProcessing = false;
@@ -106,23 +113,29 @@ async function processCommand() {
 
 function handleKeydown(event: KeyboardEvent) {
   // Submit on Enter (without any modifier keys)
-  if (event.key === 'Enter' && !event.shiftKey && !event.ctrlKey && !event.metaKey) {
+  if (
+    event.key === 'Enter' &&
+    !event.shiftKey &&
+    !event.ctrlKey &&
+    !event.metaKey
+  ) {
     event.preventDefault();
     processCommand();
     return;
   }
-  
+
   // Allow Shift+Enter for new lines
   if (event.key === 'Enter' && event.shiftKey) {
     // Let the default behavior happen (new line)
     return;
   }
-  
+
   // Auto-resize textarea
   if (textareaElement) {
     setTimeout(() => {
       textareaElement.style.height = 'auto';
-      textareaElement.style.height = Math.min(textareaElement.scrollHeight, 120) + 'px';
+      textareaElement.style.height =
+        Math.min(textareaElement.scrollHeight, 120) + 'px';
     }, 0);
   }
 }
@@ -131,7 +144,8 @@ function handleInput() {
   // Auto-resize textarea on input
   if (textareaElement) {
     textareaElement.style.height = 'auto';
-    textareaElement.style.height = Math.min(textareaElement.scrollHeight, 120) + 'px';
+    textareaElement.style.height =
+      Math.min(textareaElement.scrollHeight, 120) + 'px';
   }
 }
 
@@ -153,7 +167,7 @@ function clearResult() {
 const categorizedExamples = {
   tasks: EXAMPLE_COMMANDS.filter((_, i) => i < 6),
   notes: EXAMPLE_COMMANDS.filter((_, i) => i >= 6 && i < 12),
-  transactions: EXAMPLE_COMMANDS.filter((_, i) => i >= 12)
+  transactions: EXAMPLE_COMMANDS.filter((_, i) => i >= 12),
 };
 </script>
 

@@ -1,28 +1,38 @@
 <script lang="ts">
-import { onMount } from 'svelte'
-import { formatDateKey } from '../lib/date';
+import { onMount } from 'svelte';
 import { formatCurrency } from '../lib/currency';
+import { formatDateKey } from '../lib/date';
 import { reactiveNotes } from '../stores/notes.svelte';
+import { reactiveRouter } from '../stores/router.svelte';
+import { settingsStore } from '../stores/settings.svelte';
 import { reactiveTasks } from '../stores/tasks.svelte';
 import { reactiveTransactions } from '../stores/transactions.svelte';
-import { settingsStore } from '../stores/settings.svelte';
+import Button from './ui/Button.svelte';
 import Card from './ui/Card.svelte';
 import Icon from './ui/Icon.svelte';
 import Loading from './ui/Loading.svelte';
-import Button from './ui/Button.svelte';
-import { reactiveRouter } from '../stores/router.svelte';
 
 // Reactive values from stores
-let { tasks, isLoading: tasksLoading, completedCount, totalCount } = $derived(reactiveTasks);
-let { note, isLoading: noteLoading, hasNote, content } = $derived(reactiveNotes);
-let { 
-  transactions, 
-  isLoading: transactionsLoading, 
-  totalIncome, 
-  totalExpenses, 
+let {
+  tasks,
+  isLoading: tasksLoading,
+  completedCount,
+  totalCount,
+} = $derived(reactiveTasks);
+let {
+  note,
+  isLoading: noteLoading,
+  hasNote,
+  content,
+} = $derived(reactiveNotes);
+let {
+  transactions,
+  isLoading: transactionsLoading,
+  totalIncome,
+  totalExpenses,
   netBalance,
   totalCount: transactionCount,
-  expenseTransactions
+  expenseTransactions,
 } = $derived(reactiveTransactions);
 let { settings } = $derived(settingsStore);
 
@@ -35,8 +45,8 @@ onMount(() => {
   reactiveNotes.loadNote(dateKey);
   reactiveTransactions.loadTransactions(dateKey);
   settingsStore.loadSettings();
-})
-  
+});
+
 // Helper function to format currency with current settings
 function formatAmount(amount: number): string {
   const currency = settings?.currency || 'USD';
@@ -50,12 +60,12 @@ function navigateToCalendar() {
 
 // Get incomplete tasks for preview
 const incompleteTasks = $derived.by(() => {
-  return tasks.filter(task => !task.completed).slice(0, 3);
+  return tasks.filter((task) => !task.completed).slice(0, 3);
 });
 
 // Get pending tasks count
 const pendingCount = $derived.by(() => {
-  return tasks.filter(task => !task.completed).length;
+  return tasks.filter((task) => !task.completed).length;
 });
 
 // Get recent expenses for preview (last 3 expenses)
@@ -74,7 +84,7 @@ const shouldShowSummary = $derived.by(() => {
   if (tasksLoading || transactionsLoading) {
     return true;
   }
-  
+
   // Show if there are pending tasks or expenses
   return pendingCount > 0 || expenseCount > 0;
 });

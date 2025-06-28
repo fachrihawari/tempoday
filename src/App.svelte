@@ -1,17 +1,17 @@
 <script lang="ts">
-  import { onMount } from "svelte";
-  import { reactiveRouter } from "./stores/router.svelte";
-  import Calendar from "./pages/Calendar.svelte";
-  import Dashboard from "./pages/Dashboard.svelte";
-  import Settings from "./pages/Settings.svelte";
-  import BottomNavigation from "./components/ui/BottomNavigation.svelte";
+import { onMount } from 'svelte';
+import BottomNavigation from './components/ui/BottomNavigation.svelte';
+import Calendar from './pages/Calendar.svelte';
+import Dashboard from './pages/Dashboard.svelte';
+import Settings from './pages/Settings.svelte';
+import { reactiveRouter } from './stores/router.svelte';
 
-  const router = $derived(reactiveRouter);
+const router = $derived(reactiveRouter);
 
-  // Initialize router on mount
-  onMount(() => {
-    router.initialize();
-  });
+// Initialize router on mount
+onMount(() => {
+  router.initialize();
+});
 </script>
 
 <div class="h-screen flex flex-col relative">

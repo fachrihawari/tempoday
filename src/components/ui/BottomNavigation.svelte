@@ -1,26 +1,26 @@
 <script lang="ts">
-  import { reactiveRouter } from "../../stores/router.svelte";
-  import Icon from "./Icon.svelte";
+import { reactiveRouter } from '../../stores/router.svelte';
+import Icon from './Icon.svelte';
 
-  const navItems = [
-    {
-      path: "/",
-      label: "Home",
-      icon: "home" as const,
-    },
-    {
-      path: "/calendar",
-      label: "Calendar",
-      icon: "calendar" as const,
-    },
-    {
-      path: "/settings",
-      label: "Settings",
-      icon: "settings" as const,
-    },
-  ];
+const navItems = [
+  {
+    path: '/',
+    label: 'Home',
+    icon: 'home' as const,
+  },
+  {
+    path: '/calendar',
+    label: 'Calendar',
+    icon: 'calendar' as const,
+  },
+  {
+    path: '/settings',
+    label: 'Settings',
+    icon: 'settings' as const,
+  },
+];
 
-  const router = $derived(reactiveRouter);
+const router = $derived(reactiveRouter);
 </script>
 
 <nav

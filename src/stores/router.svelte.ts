@@ -13,14 +13,14 @@ class ReactiveRouter {
       console.warn('Invalid path provided to navigate:', newPath);
       return;
     }
-    
+
     // Normalize path (ensure it starts with /)
     const normalizedPath = newPath.startsWith('/') ? newPath : `/${newPath}`;
-    
+
     // Only update internal state - NO URL manipulation in WebContainer
     this.#currentPath = normalizedPath;
     console.log('Navigated to:', normalizedPath); // Debug log
-    
+
     window.history.pushState({}, '', normalizedPath);
   }
 
@@ -35,9 +35,9 @@ class ReactiveRouter {
     // Just start with default route
     this.#currentPath = window.location.pathname || '/';
     this.#isInitialized = true;
-    
+
     console.log('Router initialized with path:', this.#currentPath);
-    
+
     // Return a cleanup function
     return () => {
       console.log('Router cleanup called');

@@ -1,8 +1,8 @@
 <script lang="ts">
+import AIAssistant from '../components/AIAssistant.svelte';
+import DashboardSummary from '../components/DashboardSummary.svelte';
+import PageHeader from '../components/ui/PageHeader.svelte';
 import { formatDate } from '../lib/date';
-import PageHeader from '../components/ui/PageHeader.svelte'
-import AIAssistant from '../components/AIAssistant.svelte'
-import DashboardSummary from '../components/DashboardSummary.svelte'
 </script>
 
 <div class="h-full flex flex-col">

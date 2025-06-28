@@ -4,7 +4,17 @@ import Icon from './Icon.svelte';
 interface Props {
   title: string;
   subtitle?: string;
-  icon?: 'home' | 'calendar' | 'settings' | 'check' | 'trash' | 'plus' | 'close' | 'dollar' | 'clipboard' | 'edit';
+  icon?:
+    | 'home'
+    | 'calendar'
+    | 'settings'
+    | 'check'
+    | 'trash'
+    | 'plus'
+    | 'close'
+    | 'dollar'
+    | 'clipboard'
+    | 'edit';
   iconColor?: string;
   children?: any;
 }

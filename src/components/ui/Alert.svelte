@@ -30,25 +30,25 @@ const typeConfig: Record<
     classes: 'bg-blue-50 text-blue-800 border-blue-200',
     icon: 'info-circle' as IconName,
     iconColor: 'text-blue-600',
-    defaultTitle: 'Info'
+    defaultTitle: 'Info',
   },
   success: {
     classes: 'bg-green-50 text-green-800 border-green-200',
     icon: 'check-circle' as IconName,
     iconColor: 'text-green-600',
-    defaultTitle: 'Success'
+    defaultTitle: 'Success',
   },
   warning: {
     classes: 'bg-yellow-50 text-yellow-800 border-yellow-200',
     icon: 'exclamation-triangle' as IconName,
     iconColor: 'text-yellow-600',
-    defaultTitle: 'Warning'
+    defaultTitle: 'Warning',
   },
   error: {
     classes: 'bg-red-50 text-red-800 border-red-200',
     icon: 'alert-circle' as IconName,
     iconColor: 'text-red-600',
-    defaultTitle: 'Error'
+    defaultTitle: 'Error',
   },
 };
 

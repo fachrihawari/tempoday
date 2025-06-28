@@ -1,8 +1,8 @@
 <script lang="ts">
 import Settings from '../components/Settings.svelte';
-import PageHeader from '../components/ui/PageHeader.svelte';
-import Icon from '../components/ui/Icon.svelte';
 import Card from '../components/ui/Card.svelte';
+import Icon from '../components/ui/Icon.svelte';
+import PageHeader from '../components/ui/PageHeader.svelte';
 </script>
 
 <div class="h-full flex flex-col">

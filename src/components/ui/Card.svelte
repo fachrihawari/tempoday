@@ -39,7 +39,7 @@ const paddings = {
 
 function toggleExpanded() {
   if (!collapsible) return;
-  
+
   isExpanded = !isExpanded;
   onToggle?.(isExpanded);
 }
