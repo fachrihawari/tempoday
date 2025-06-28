@@ -1,12 +1,9 @@
 <script lang="ts">
 import { settingsStore } from '../stores/settings.svelte';
 import Alert from './ui/Alert.svelte';
-import BottomSheet from './ui/BottomSheet.svelte';
 import Button from './ui/Button.svelte';
 import Icon from './ui/Icon.svelte';
 import Loading from './ui/Loading.svelte';
-
-let showSettings = $state(false);
 
 // Reactive values from the settings store
 let { settings, isLoading, isSaving, error } = $derived(settingsStore);
@@ -60,77 +57,66 @@ function getLocaleForCurrency(currencyCode: string): string {
 }
 </script>
 
-<!-- Settings Button -->
-<Button variant="ghost" onclick={() => (showSettings = true)} class="!p-2">
-  {#snippet children()}
-    <Icon name="settings" />
-  {/snippet}
-</Button>
+<div class="space-y-6">
+  {#if error}
+    <Alert
+      type="error"
+      description={error}
+      onDismiss={() => settingsStore.clearError()}
+    />
+  {/if}
 
-<!-- Settings Modal -->
-<BottomSheet
-  bind:open={showSettings}
-  title="Settings"
-  onClose={() => (showSettings = false)}
->
-  {#snippet children()}
-    {#if error}
-      <Alert
-        type="error"
-        description={error}
-        onDismiss={() => settingsStore.clearError()}
-        class="mb-4"
-      />
-    {/if}
-
-    {#if isLoading}
-      <Loading size="lg" message="Loading settings..." />
-    {:else}
-      <div class="space-y-6">
-        <div class="space-y-3">
-          <div class="flex items-center gap-2">
-            <Icon name="dollar" class="text-gray-500" />
-            <label for="currency-select" class="font-medium text-gray-900"
-              >Currency</label
-            >
+  {#if isLoading}
+    <Loading size="lg" message="Loading settings..." />
+  {:else}
+    <div class="space-y-6">
+      <!-- Currency Settings -->
+      <div class="space-y-4">
+        <div class="flex items-center gap-3">
+          <Icon name="dollar" class="text-gray-500" />
+          <div>
+            <h3 class="font-medium text-gray-900">Currency</h3>
+            <p class="text-sm text-gray-600">Choose your preferred currency for financial tracking</p>
           </div>
+        </div>
 
+        <div class="ml-8">
           <select
-            id="currency-select"
             value={settings.currency}
-            onchange={(e) =>
-              updateCurrency((e.target as HTMLSelectElement).value)}
+            onchange={(e) => updateCurrency((e.target as HTMLSelectElement).value)}
             disabled={isSaving}
-            class={`w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-base ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
+            class={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-base ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
             {#each currencies as currency (currency.code)}
               <option value={currency.code}>
-                {currency.symbol}
-                {currency.code} - {currency.name}
+                {currency.symbol} {currency.code} - {currency.name}
               </option>
             {/each}
           </select>
+          
+          {#if isSaving}
+            <div class="flex items-center mt-2 text-sm text-gray-600">
+              <Icon name="loader" size="sm" class="mr-2 animate-spin" />
+              Saving changes...
+            </div>
+          {/if}
         </div>
       </div>
-    {/if}
 
-    <!-- Footer -->
-    <div class="mt-4">
-      <Button
-        variant="primary"
-        onclick={() => (showSettings = false)}
-        fullWidth
-      >
-        {#snippet children()}
-          {#if isSaving}
-            <Icon name="loader" size="sm" class="mr-2 animate-spin" />
-            Saving...
-            {:else}
-            <Icon name="check" size="sm" class="mr-2" />
-            Done
-          {/if}
-        {/snippet}
-      </Button>
+      <!-- Current Settings Display -->
+      <div class="bg-gray-50 rounded-lg p-4 space-y-3">
+        <h4 class="font-medium text-gray-900">Current Settings</h4>
+        <div class="space-y-2 text-sm">
+          <div class="flex justify-between">
+            <span class="text-gray-600">Currency:</span>
+            <span class="font-medium">{settings.currencySymbol} {settings.currency}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600">Locale:</span>
+            <span class="font-medium">{settings.locale}</span>
+          </div>
+        </div>
+      </div>
     </div>
-  {/snippet}
-</BottomSheet>
+  {/if}
+</div>
