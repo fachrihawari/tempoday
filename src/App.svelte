@@ -11,11 +11,6 @@
     initializeRouter();
   });
 
-
-  $effect(() => {
-    console.log(activePath())
-  })
-  
 </script>
 
 <div class="h-screen flex flex-col relative">
