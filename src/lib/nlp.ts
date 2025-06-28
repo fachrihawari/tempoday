@@ -203,10 +203,10 @@ function extractAmountsFromTokens(tokens: Token[]): number[] {
       // Transaction context: bought 1200, spent 45
       const prevToken = tokens[i - 1];
       if (prevToken && prevToken.type === 'word') {
-        const transactionWords = [
+        const transactionWords = new Set([
           ...KEYWORDS.transaction.expense,
           ...KEYWORDS.transaction.income
-        ];
+        ]);
         if (transactionWords.has(prevToken.text)) {
           amounts.push(token.value);
           continue;
