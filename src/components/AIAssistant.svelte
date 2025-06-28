@@ -200,18 +200,6 @@ const categorizedExamples = {
           </button>
         </div>
       </div>
-
-      <!-- Keyboard Shortcut Hint -->
-      <div class="flex items-center justify-between mt-2 px-1">
-        {#if userInput.trim()}
-          <button
-            onclick={() => userInput = ''}
-            class="text-xs text-gray-500 hover:text-gray-700 transition-colors"
-          >
-            Clear
-          </button>
-        {/if}
-      </div>
     </div>
 
     <!-- AI Preview (ChatGPT-style) -->
