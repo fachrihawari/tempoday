@@ -16,7 +16,9 @@ export type IconName =
   | 'exclamation-triangle'
   | 'times-circle'
   | 'check-circle'
-  | 'loader';
+  | 'loader'
+  | 'home'
+  | 'calendar';
 export type IconSize = 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl';
 
 interface Props {
@@ -57,6 +59,8 @@ const icons = {
     <circle cx="12" cy="12" r="10" stroke="#bfdbfe" stroke-width="2" />
     <path stroke="#3b82f6" stroke-width="2" stroke-linecap="round" d="M12 2a10 10 0 0 1 8.66 5" />
   `,
+  home: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>`,
+  calendar: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>`,
 };
 </script>
 
