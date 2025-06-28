@@ -9,7 +9,6 @@ import Alert from './ui/Alert.svelte';
 import Button from './ui/Button.svelte';
 import Card from './ui/Card.svelte';
 import Icon from './ui/Icon.svelte';
-import Textarea from './ui/Textarea.svelte';
 import BottomSheet from './ui/BottomSheet.svelte';
 
 let userInput = $state('');
@@ -17,6 +16,7 @@ let isProcessing = $state(false);
 let lastParsedCommand = $state<ParsedCommand | null>(null);
 let showDetailedHelp = $state(false);
 let processingResult = $state<{ type: 'success' | 'error'; message: string } | null>(null);
+let textareaElement: HTMLTextAreaElement = $state()!;
 
 // Get current date for operations
 const currentDate = $derived(formatDateKey(appState.selectedDate));
@@ -97,11 +97,32 @@ function handleKeydown(event: KeyboardEvent) {
     event.preventDefault();
     processCommand();
   }
+  
+  // Auto-resize textarea
+  if (textareaElement) {
+    setTimeout(() => {
+      textareaElement.style.height = 'auto';
+      textareaElement.style.height = Math.min(textareaElement.scrollHeight, 120) + 'px';
+    }, 0);
+  }
+}
+
+function handleInput() {
+  // Auto-resize textarea on input
+  if (textareaElement) {
+    textareaElement.style.height = 'auto';
+    textareaElement.style.height = Math.min(textareaElement.scrollHeight, 120) + 'px';
+  }
 }
 
 function insertExample(example: string) {
   userInput = example;
   showDetailedHelp = false;
+  // Focus and resize textarea
+  if (textareaElement) {
+    textareaElement.focus();
+    handleInput();
+  }
 }
 
 function clearResult() {
@@ -126,7 +147,7 @@ const categorizedExamples = {
     >
       {#snippet children()}
         <Icon name="info-circle" size="sm" class="mr-1" />
-        Help & Examples
+        Help
       {/snippet}
     </Button>
   {/snippet}
@@ -142,80 +163,100 @@ const categorizedExamples = {
       />
     {/if}
 
-    <!-- Input Section -->
-    <div class="space-y-4">
-      <Textarea
-        bind:value={userInput}
-        onkeydown={handleKeydown}
-        placeholder={`Tell me what you want to do... 
-Examples:
-• 'Call dentist to schedule appointment'
-• 'Spent $45 on groceries'  
-• 'Had a great meeting with the team today'
+    <!-- ChatGPT-style Input Container -->
+    <div class="relative">
+      <!-- Main Input Area -->
+      <div class="relative bg-white border border-gray-300 rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 focus-within:border-purple-500 focus-within:shadow-lg focus-within:shadow-purple-100">
+        <!-- Textarea -->
+        <textarea
+          bind:this={textareaElement}
+          bind:value={userInput}
+          onkeydown={handleKeydown}
+          oninput={handleInput}
+          placeholder="Message TempoDay AI..."
+          class="w-full px-4 py-3 pr-12 bg-transparent border-0 resize-none focus:outline-none text-gray-900 placeholder-gray-500 text-base leading-6 max-h-[120px] min-h-[48px]"
+          rows="1"
+          style="field-sizing: content;"
+        ></textarea>
 
-Press Ctrl+Enter to process`}
-        label="What would you like to add?"
-        theme="notes"
-        rows={4}
-        autoResize={true}
-      />
-
-      <div class="flex gap-3">
-        <Button
-          variant="notes"
-          onclick={processCommand}
-          disabled={!userInput.trim() || isProcessing}
-          class="flex-1"
-        >
-          {#snippet children()}
-            {#if isProcessing}
-              <Icon name="loader" size="sm" class="mr-2 animate-spin" />
-              Processing...
-            {:else}
-              <Icon name="plus" size="sm" class="mr-2" />
-              Process Command
-            {/if}
-          {/snippet}
-        </Button>
-        
-        {#if userInput.trim()}
-          <Button
-            variant="ghost"
-            onclick={() => userInput = ''}
-            class="px-4"
+        <!-- Send Button -->
+        <div class="absolute right-2 bottom-2">
+          <button
+            onclick={processCommand}
+            disabled={!userInput.trim() || isProcessing}
+            class="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 
+              {userInput.trim() && !isProcessing 
+                ? 'bg-purple-500 hover:bg-purple-600 text-white shadow-sm hover:shadow-md' 
+                : 'bg-gray-100 text-gray-400 cursor-not-allowed'}"
           >
-            {#snippet children()}
-              Clear
-            {/snippet}
-          </Button>
+            {#if isProcessing}
+              <Icon name="loader" size="sm" class="animate-spin" />
+            {:else}
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m22 2-7 20-4-9-9-4Z"/>
+                <path d="M22 2 11 13"/>
+              </svg>
+            {/if}
+          </button>
+        </div>
+      </div>
+
+      <!-- Keyboard Shortcut Hint -->
+      <div class="flex items-center justify-between mt-2 px-1">
+        <span class="text-xs text-gray-500">
+          Press <kbd class="px-1.5 py-0.5 text-xs font-mono bg-gray-100 border border-gray-300 rounded">Ctrl</kbd> + <kbd class="px-1.5 py-0.5 text-xs font-mono bg-gray-100 border border-gray-300 rounded">Enter</kbd> to send
+        </span>
+        {#if userInput.trim()}
+          <button
+            onclick={() => userInput = ''}
+            class="text-xs text-gray-500 hover:text-gray-700 transition-colors"
+          >
+            Clear
+          </button>
         {/if}
       </div>
     </div>
 
-    <!-- Preview Section -->
+    <!-- AI Preview (ChatGPT-style) -->
     {#if userInput.trim() && !isProcessing}
       {@const preview = parseNaturalLanguage(userInput)}
-      <div class="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
-        <h4 class="text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
-          <Icon name="info-circle" size="sm" class="text-gray-500" />
-          Preview (Confidence: {Math.round(preview.confidence * 100)}%)
-        </h4>
-        <div class="flex items-center gap-2 text-sm">
-          <span class="px-2 py-1 rounded text-xs font-medium
-            {preview.type === 'task' ? 'bg-blue-100 text-blue-700' : 
-             preview.type === 'note' ? 'bg-purple-100 text-purple-700' : 
-             'bg-green-100 text-green-700'}">
-            {preview.type === 'task' ? '📋 Task' : 
-             preview.type === 'note' ? '📝 Note' : 
-             preview.type === 'transaction' ? `💰 ${preview.transactionType === 'income' ? 'Income' : 'Expense'}` : 
-             '❓ Unknown'}
-          </span>
-          <span class="text-gray-600">
-            {preview.content}
-            {#if preview.amount}
-              <span class="font-medium text-green-600"> (${preview.amount})</span>
-            {/if}
-          </span>
+      <div class="mt-4 p-4 bg-gradient-to-r from-gray-50 to-purple-50 rounded-xl border border-gray-200">
+        <div class="flex items-start gap-3">
+          <!-- AI Avatar -->
+          <div class="w-8 h-8 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
+            <Icon name="edit" size="sm" class="text-white" />
+          </div>
+          
+          <!-- AI Response -->
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 mb-2">
+              <span class="text-sm font-medium text-gray-900">TempoDay AI</span>
+              <span class="px-2 py-0.5 text-xs font-medium rounded-full bg-purple-100 text-purple-700">
+                {Math.round(preview.confidence * 100)}% confident
+              </span>
+            </div>
+            
+            <div class="bg-white rounded-lg p-3 shadow-sm border border-gray-200">
+              <div class="flex items-center gap-2 mb-2">
+                <span class="px-2 py-1 rounded-md text-xs font-medium
+                  {preview.type === 'task' ? 'bg-blue-100 text-blue-700' : 
+                   preview.type === 'note' ? 'bg-purple-100 text-purple-700' : 
+                   'bg-green-100 text-green-700'}">
+                  {preview.type === 'task' ? '📋 Task' : 
+                   preview.type === 'note' ? '📝 Note' : 
+                   preview.type === 'transaction' ? `💰 ${preview.transactionType === 'income' ? 'Income' : 'Expense'}` : 
+                   '❓ Unknown'}
+                </span>
+              </div>
+              
+              <p class="text-sm text-gray-800 leading-relaxed">
+                I'll create: <strong>"{preview.content}"</strong>
+                {#if preview.amount}
+                  <span class="text-green-600 font-medium"> for ${preview.amount}</span>
+                {/if}
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     {/if}
@@ -318,28 +359,6 @@ Press Ctrl+Enter to process`}
                 <span><strong>Preview:</strong> Watch the confidence score to see how well the AI understands</span>
               </li>
             </ul>
-          </div>
-
-          <!-- Keywords Reference -->
-          <div class="bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg p-4 border border-gray-200">
-            <h4 class="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-              <Icon name="check-circle" size="sm" class="text-gray-600" />
-              🎯 Keyword Reference
-            </h4>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-              <div>
-                <h5 class="font-medium text-blue-700 mb-1">Task Keywords</h5>
-                <p class="text-gray-600">call, buy, schedule, finish, email, pick up, book, complete</p>
-              </div>
-              <div>
-                <h5 class="font-medium text-purple-700 mb-1">Note Keywords</h5>
-                <p class="text-gray-600">feeling, grateful, learned, today, had, went, thought, reflected</p>
-              </div>
-              <div>
-                <h5 class="font-medium text-green-700 mb-1">Money Keywords</h5>
-                <p class="text-gray-600">spent, paid, earned, bought, received, cost, bill, salary</p>
-              </div>
-            </div>
           </div>
 
           <!-- Close Button -->
