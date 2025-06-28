@@ -15,10 +15,9 @@ import DashboardSummary from '../components/DashboardSummary.svelte'
 
   <!-- Dashboard Content -->
   <div class="flex-1 overflow-y-auto">
-    <!-- Today's Summary Section -->
-    <DashboardSummary />
-  
     <!-- AI Assistant Section -->
     <AIAssistant />
+    <!-- Today's Summary Section -->
+    <DashboardSummary />
   </div>
 </div>
