@@ -13,7 +13,6 @@
 
 
   $effect(() => {
-
     console.log(activePath())
   })
   
