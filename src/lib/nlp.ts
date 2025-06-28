@@ -333,19 +333,21 @@ function calculateTransactionScore(text: string, type: 'income' | 'expense'): nu
 }
 
 /**
- * Extract monetary amounts from text - COMPLETELY REWRITTEN
+ * Extract monetary amounts from text - FIXED FOR LARGE NUMBERS
  */
 function extractAmounts(text: string): number[] {
   const amounts: number[] = [];
   
-  // Simple and robust patterns that preserve the full number
+  // Enhanced patterns that handle very large numbers
   const patterns = [
-    // $300000, $1200, $45.50
-    /\$(\d+(?:\.\d{1,2})?)/g,
-    // 300000 dollars, 1200 USD, 45 bucks
-    /(\d+(?:\.\d{1,2})?)\s*(?:dollars?|usd|bucks?)\b/gi,
-    // After transaction words: bought 1200, spent 45
-    /\b(?:bought|spent|paid|cost|earned|received)\s+[^\d]*?(\d+(?:\.\d{1,2})?)/gi
+    // $1000000000000, $1200, $45.50 (with optional commas)
+    /\$(\d{1,3}(?:,?\d{3})*(?:\.\d{1,2})?)/g,
+    // 1000000000000 dollars, 1200 USD, 45 bucks (with optional commas)
+    /(\d{1,3}(?:,?\d{3})*(?:\.\d{1,2})?)\s*(?:dollars?|usd|bucks?)\b/gi,
+    // After transaction words: bought 1000000000000, spent 45
+    /\b(?:bought|spent|paid|cost|earned|received)\s+[^\d]*?(\d{1,3}(?:,?\d{3})*(?:\.\d{1,2})?)/gi,
+    // Standalone large numbers that could be amounts
+    /\b(\d{4,}(?:\.\d{1,2})?)\b/g
   ];
   
   for (const pattern of patterns) {
@@ -354,11 +356,12 @@ function extractAmounts(text: string): number[] {
     pattern.lastIndex = 0;
     
     while ((match = pattern.exec(text)) !== null) {
-      const amountStr = match[1];
+      const amountStr = match[1].replace(/,/g, ''); // Remove commas
       const amount = parseFloat(amountStr);
       
-      // Validate the amount
-      if (!isNaN(amount) && amount > 0 && amount <= 10000000) {
+      // Validate the amount - only check if it's a valid positive number
+      // Remove arbitrary upper limit to allow very large numbers
+      if (!isNaN(amount) && amount > 0 && isFinite(amount)) {
         amounts.push(amount);
       }
     }
@@ -463,20 +466,30 @@ function cleanContent(text: string, type: string): string {
 }
 
 /**
- * Clean transaction description - COMPLETELY REWRITTEN
+ * Clean transaction description - ENHANCED FOR LARGE NUMBERS
  */
 function cleanTransactionDescription(text: string, amount?: number): string {
   let cleaned = text;
   
   // Remove the amount from description if present
   if (amount) {
-    // Create simple patterns to remove the amount
+    // Create patterns to remove the amount (with or without commas)
     const amountStr = amount.toString();
+    const amountWithCommas = amount.toLocaleString('en-US');
     
-    // Remove $amount or amount
-    cleaned = cleaned.replace(new RegExp(`\\$${amountStr}\\b`, 'gi'), '');
-    cleaned = cleaned.replace(new RegExp(`\\b${amountStr}\\s*(?:dollars?|usd|bucks?)\\b`, 'gi'), '');
-    cleaned = cleaned.replace(new RegExp(`\\b${amountStr}\\b`, 'gi'), '');
+    // Remove various amount formats
+    const amountPatterns = [
+      new RegExp(`\\$${amountStr}\\b`, 'gi'),
+      new RegExp(`\\$${amountWithCommas}\\b`, 'gi'),
+      new RegExp(`\\b${amountStr}\\s*(?:dollars?|usd|bucks?)\\b`, 'gi'),
+      new RegExp(`\\b${amountWithCommas}\\s*(?:dollars?|usd|bucks?)\\b`, 'gi'),
+      new RegExp(`\\b${amountStr}\\b`, 'gi'),
+      new RegExp(`\\b${amountWithCommas}\\b`, 'gi')
+    ];
+    
+    for (const pattern of amountPatterns) {
+      cleaned = cleaned.replace(pattern, '');
+    }
   }
   
   // Remove transaction action words from the beginning
@@ -542,5 +555,6 @@ export const EXAMPLE_COMMANDS = [
   "Purchased lunch $12",
   "Spend $30 on gas",
   "Bought apple TV $300000",
-  "Bought iPhone $1200"
+  "Bought iPhone $1200",
+  "Bought Apple TV 1000000000000"
 ];
