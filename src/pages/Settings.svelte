@@ -96,7 +96,7 @@ import PageHeader from '../components/ui/PageHeader.svelte';
       </div>
       
       <div class="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
-        <div class="w-16 h-16 bg-gradient-to-br from-blue-500 via-purple-500 to-green-500 rounded-2xl flex items-center justify-center shadow-lg">
+        <div class="w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg">
           <img src='/logo.png' />
         </div>
         <div class="flex-1">
