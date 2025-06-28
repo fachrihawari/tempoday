@@ -1,5 +1,6 @@
 <script lang="ts">
 import { formatDate } from '../lib/date';
+import PageHeader from '../components/ui/PageHeader.svelte'
 import AIAssistant from '../components/AIAssistant.svelte'
 </script>
 
