@@ -60,6 +60,11 @@ const incompleteTasks = $derived(() => {
   return tasks.filter(task => !task.completed).slice(0, 3);
 });
 
+// Get pending tasks count
+const pendingCount = $derived(() => {
+  return tasks.filter(task => !task.completed).length;
+});
+
 // Get recent transactions for preview
 const recentTransactions = $derived(() => {
   return transactions.slice(-3).reverse();
@@ -92,9 +97,9 @@ const recentTransactions = $derived(() => {
           </div>
           {#if tasksLoading}
             <Icon name="loader" size="sm" class="animate-spin text-blue-600" />
-          {:else if completedCount > 0}
+          {:else if pendingCount > 0}
             <span class="text-sm text-blue-700 bg-blue-100 px-2 py-1 rounded-full">
-              {completedCount}/{totalCount}
+              {pendingCount} pending
             </span>
           {/if}
         </div>
@@ -103,8 +108,11 @@ const recentTransactions = $derived(() => {
           <Loading size="md" message="Loading tasks..." />
         {:else if totalCount === 0}
           <p class="text-sm text-blue-700">No tasks for today</p>
-        {:else if completedCount === 0}
-          <p class="text-sm text-blue-700">No completed tasks yet</p>
+        {:else if pendingCount === 0}
+          <div class="flex items-center gap-2">
+            <Icon name="check-circle" class="text-green-500" size="sm" />
+            <p class="text-sm text-green-700 font-medium">All tasks completed! 🎉</p>
+          </div>
         {:else}
           <div class="space-y-2">
             {#each incompleteTasks as task (task.id)}
@@ -114,15 +122,17 @@ const recentTransactions = $derived(() => {
               </div>
             {/each}
             
-            {#if tasks.filter(t => !t.completed).length > 3}
+            {#if pendingCount > 3}
               <p class="text-xs text-blue-600 mt-2">
-                +{tasks.filter(t => !t.completed).length - 3} more tasks
+                +{pendingCount - 3} more pending tasks
               </p>
             {/if}
             
-            <p class="text-xs text-blue-600 mt-2">
-              ✓ {completedCount} completed
-            </p>
+            {#if completedCount > 0}
+              <p class="text-xs text-green-600 mt-2">
+                ✓ {completedCount} completed
+              </p>
+            {/if}
           </div>
         {/if}
       </div>
