@@ -47,14 +47,6 @@ function navigateToCalendar() {
   router.navigate('/calendar');
 }
 
-// Get preview of note content (first 100 characters)
-const notePreview = $derived.by(() => {
-  if (!content) return '';
-  return content.length > 100 
-    ? content.substring(0, 100) + '...' 
-    : content;
-});
-
 // Get incomplete tasks for preview
 const incompleteTasks = $derived.by(() => {
   return tasks.filter(task => !task.completed).slice(0, 3);
