@@ -68,19 +68,22 @@ const TRANSACTION_KEYWORDS = {
     'bonus', 'tip', 'tips', 'refund', 'cashback',
     'sold', 'income', 'payment', 'freelance',
     'commission', 'dividend', 'interest', 'profit',
-    'gift', 'won', 'prize', 'reward', 'rebate'
+    'gift', 'won', 'prize', 'reward', 'rebate',
+    'made', 'revenue', 'earnings', 'paycheck'
   ],
   expense: [
-    'spent', 'bought', 'purchased', 'paid', 'cost',
-    'expense', 'bill', 'fee', 'charge', 'subscription',
-    'rent', 'mortgage', 'insurance', 'tax', 'taxes',
+    'spent', 'spend', 'bought', 'buy', 'purchased', 'purchase',
+    'paid', 'pay', 'cost', 'costs', 'expense', 'expenses',
+    'bill', 'bills', 'fee', 'fees', 'charge', 'charges',
+    'subscription', 'rent', 'mortgage', 'insurance', 'tax', 'taxes',
     'gas', 'fuel', 'food', 'groceries', 'restaurant',
     'coffee', 'lunch', 'dinner', 'breakfast', 'snack',
     'shopping', 'clothes', 'clothing', 'shoes',
     'entertainment', 'movie', 'concert', 'show',
     'uber', 'taxi', 'transport', 'parking', 'toll',
     'medical', 'doctor', 'pharmacy', 'medicine',
-    'utilities', 'electricity', 'water', 'internet'
+    'utilities', 'electricity', 'water', 'internet',
+    'ordered', 'order', 'delivery', 'takeout'
   ]
 };
 
@@ -113,15 +116,27 @@ export function parseNaturalLanguage(input: string): ParsedCommand {
   const incomeScore = calculateTransactionScore(text, 'income');
   const expenseScore = calculateTransactionScore(text, 'expense');
   
-  // Transaction detection (prioritized when amount is present)
-  if (hasAmount && (incomeScore > 0.2 || expenseScore > 0.2)) {
+  // Transaction detection (prioritized when amount is present OR strong transaction keywords)
+  const maxTransactionScore = Math.max(incomeScore, expenseScore);
+  
+  if (hasAmount || maxTransactionScore > 0.4) {
     const transactionType = incomeScore > expenseScore ? 'income' : 'expense';
-    const confidence = Math.max(incomeScore, expenseScore) + (hasAmount ? 0.3 : 0);
+    let confidence = Math.max(incomeScore, expenseScore);
+    
+    // Boost confidence if amount is present
+    if (hasAmount) {
+      confidence += 0.3;
+    }
+    
+    // If we have strong transaction keywords but no amount, still treat as transaction
+    if (!hasAmount && maxTransactionScore > 0.4) {
+      confidence = maxTransactionScore;
+    }
     
     return {
       type: 'transaction',
       content: cleanTransactionDescription(text, amounts[0]),
-      amount: amounts[0],
+      amount: amounts[0] || 0,
       transactionType,
       confidence: Math.min(confidence, 1)
     };
@@ -209,6 +224,11 @@ function calculateTaskScore(text: string): number {
     score -= 0.2;
   }
   
+  // Penalty for transaction keywords (avoid conflicts)
+  if (hasTransactionKeywords(text)) {
+    score -= 0.3;
+  }
+  
   return Math.max(0, Math.min(score, 1));
 }
 
@@ -257,6 +277,11 @@ function calculateNoteScore(text: string): number {
     score -= 0.3;
   }
   
+  // Penalty for transaction keywords (avoid conflicts)
+  if (hasTransactionKeywords(text)) {
+    score -= 0.3;
+  }
+  
   return Math.max(0, Math.min(score, 1));
 }
 
@@ -268,8 +293,13 @@ function calculateTransactionScore(text: string, type: 'income' | 'expense'): nu
   
   let score = 0;
   
-  // Check for transaction keywords
-  const hasKeyword = keywords.some(keyword => text.includes(keyword));
+  // Check for transaction keywords with exact word matching
+  const hasKeyword = keywords.some(keyword => {
+    // Use word boundaries to avoid partial matches
+    const regex = new RegExp(`\\b${keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+    return regex.test(text);
+  });
+  
   if (hasKeyword) {
     score += 0.6;
   }
@@ -277,10 +307,26 @@ function calculateTransactionScore(text: string, type: 'income' | 'expense'): nu
   // Boost if keyword appears early in the sentence
   const words = text.split(/\s+/);
   const earlyKeyword = keywords.some(keyword => 
-    words.slice(0, 3).some(word => word.includes(keyword))
+    words.slice(0, 3).some(word => word.toLowerCase().includes(keyword.toLowerCase()))
   );
   if (earlyKeyword) {
     score += 0.2;
+  }
+  
+  // Additional boost for common transaction patterns
+  if (type === 'expense') {
+    // Common expense patterns
+    if (text.match(/\b(bought|purchased|paid for|spent on)\b/i)) {
+      score += 0.3;
+    }
+    if (text.match(/\$([\d,]+\.?\d*)/)) {
+      score += 0.2;
+    }
+  } else if (type === 'income') {
+    // Common income patterns
+    if (text.match(/\b(earned|received|got paid|made)\b/i)) {
+      score += 0.3;
+    }
   }
   
   return Math.min(score, 1);
@@ -295,8 +341,9 @@ function extractAmounts(text: string): number[] {
   // Match various money formats: $50, 50.99, $1,234.56, etc.
   const patterns = [
     /\$\s*(\d{1,3}(?:,\d{3})*(?:\.\d{2})?)/g,
-    /(\d{1,3}(?:,\d{3})*(?:\.\d{2})?)\s*(?:dollars?|usd|bucks?)/g,
-    /(?:spent|paid|cost|earned|received|got)\s+.*?(\d{1,3}(?:,\d{3})*(?:\.\d{2})?)/g
+    /(\d{1,3}(?:,\d{3})*(?:\.\d{2})?)\s*(?:dollars?|usd|bucks?)/gi,
+    /(?:spent|paid|cost|earned|received|got|bought|purchase)\s+.*?(\d{1,3}(?:,\d{3})*(?:\.\d{2})?)/gi,
+    /(\d{1,3}(?:,\d{3})*(?:\.\d{2})?)\s*(?:for|on)\s/gi
   ];
   
   for (const pattern of patterns) {
@@ -311,6 +358,21 @@ function extractAmounts(text: string): number[] {
   }
   
   return [...new Set(amounts)];
+}
+
+/**
+ * Check if text has transaction keywords
+ */
+function hasTransactionKeywords(text: string): boolean {
+  const allTransactionKeywords = [
+    ...TRANSACTION_KEYWORDS.income,
+    ...TRANSACTION_KEYWORDS.expense
+  ];
+  
+  return allTransactionKeywords.some(keyword => {
+    const regex = new RegExp(`\\b${keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+    return regex.test(text);
+  });
 }
 
 /**
@@ -395,30 +457,38 @@ function cleanContent(text: string, type: string): string {
 /**
  * Clean transaction description
  */
-function cleanTransactionDescription(text: string, amount: number): string {
+function cleanTransactionDescription(text: string, amount?: number): string {
   let cleaned = text;
   
-  // Remove the amount from description
-  const amountStr = amount.toString();
-  cleaned = cleaned.replace(new RegExp(`\\$?${amountStr}`, 'gi'), '').trim();
+  // Remove the amount from description if present
+  if (amount) {
+    const amountStr = amount.toString();
+    cleaned = cleaned.replace(new RegExp(`\\$?${amountStr}`, 'gi'), '').trim();
+  }
   
   // Remove transaction prefixes
   const transactionPrefixes = [
-    ...TRANSACTION_KEYWORDS.income.slice(0, 10),
-    ...TRANSACTION_KEYWORDS.expense.slice(0, 10)
+    'spent', 'spend', 'bought', 'buy', 'purchased', 'purchase',
+    'paid', 'pay', 'cost', 'earned', 'received', 'got paid',
+    'sold', 'made', 'ordered', 'order'
   ];
   
   for (const prefix of transactionPrefixes) {
-    if (cleaned.startsWith(prefix)) {
-      cleaned = cleaned.substring(prefix.length).trim();
+    const regex = new RegExp(`^${prefix}\\s+`, 'i');
+    if (regex.test(cleaned)) {
+      cleaned = cleaned.replace(regex, '').trim();
       break;
     }
   }
   
-  // Clean up extra words
-  for (const prep of PREPOSITIONS) {
-    cleaned = cleaned.replace(new RegExp(`^${prep}`, 'i'), '');
+  // Clean up extra words and prepositions
+  for (const prep of ['for', 'on', 'at', 'from']) {
+    const regex = new RegExp(`^${prep}\\s+`, 'i');
+    cleaned = cleaned.replace(regex, '');
   }
+  
+  // Remove dollar signs and currency symbols
+  cleaned = cleaned.replace(/[\$€£¥]/g, '').trim();
   
   // Ensure proper capitalization
   if (cleaned.length > 0) {
@@ -453,9 +523,11 @@ export const EXAMPLE_COMMANDS = [
   
   // Transactions
   "Spent $45 on groceries",
+  "Bought coffee for $4.50",
   "Paid $120 for electricity bill",
   "Earned $500 from freelance project",
   "Received $25 cashback",
-  "Bought coffee for $4.50",
-  "$1200 salary payment received"
+  "$1200 salary payment received",
+  "Purchased lunch $12",
+  "Spend $30 on gas"
 ];
