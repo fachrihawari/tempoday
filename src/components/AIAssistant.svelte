@@ -159,13 +159,13 @@ function clearResult() {
       <Textarea
         bind:value={userInput}
         onkeydown={handleKeydown}
-        placeholder="Tell me what you want to do... 
+        placeholder={`Tell me what you want to do... 
 Examples:
 • 'Call dentist to schedule appointment'
 • 'Spent $45 on groceries'  
 • 'Had a great meeting with the team today'
 
-Press Ctrl+Enter to process"
+Press Ctrl+Enter to process`}
         label="What would you like to add?"
         theme="notes"
         rows={4}
