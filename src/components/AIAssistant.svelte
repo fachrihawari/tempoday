@@ -182,7 +182,7 @@ const categorizedExamples = {
           onkeydown={handleKeydown}
           oninput={handleInput}
           placeholder="Message TempoDay Assistant... (Press Enter to send, Shift+Enter for new line)"
-          class="w-full px-4 py-3 pr-12 bg-transparent border-0 resize-none focus:outline-none text-gray-900 placeholder-gray-500 text-base leading-6 max-h-[120px] min-h-[48px]"
+          class="w-full px-4 py-3 pr-12 bg-transparent border-0 resize-none focus:outline-none text-gray-900 placeholder-gray-500 text-base leading-6 max-h-[120px]"
           rows="1"
           style="field-sizing: content;"
         ></textarea>
