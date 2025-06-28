@@ -12,9 +12,9 @@
   });
 </script>
 
-<div class="h-screen flex flex-col">
+<div class="h-screen flex flex-col relative">
   <!-- Main Content Area -->
-  <div class="flex-1 overflow-y-auto pb-16">
+  <div class="flex-1 overflow-y-auto pb-20">
     {#if activePath() === '/'}
       <Dashboard />
     {:else if activePath() === '/calendar'}

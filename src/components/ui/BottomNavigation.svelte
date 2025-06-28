@@ -25,9 +25,9 @@ function handleNavigation(path: string) {
 }
 </script>
 
-<nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50">
+<nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 safe-area-bottom">
   <div class="max-w-md mx-auto">
-    <div class="flex justify-around items-center py-2">
+    <div class="flex justify-around items-center py-2 pb-safe-area-inset-bottom">
       {#each navItems as item (item.path)}
         <button
           onclick={() => handleNavigation(item.path)}
@@ -49,3 +49,17 @@ function handleNavigation(path: string) {
     </div>
   </div>
 </nav>
+
+<style>
+  /* Ensure proper safe area handling on iOS */
+  @supports (padding-bottom: env(safe-area-inset-bottom)) {
+    .pb-safe-area-inset-bottom {
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+  }
+  
+  /* Add safe area class for bottom navigation */
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+</style>

@@ -124,6 +124,9 @@ $effect(() => {
   if (open) {
     // Prevent body scroll when bottom sheet is open
     document.body.style.overflow = 'hidden';
+    document.body.style.position = 'fixed';
+    document.body.style.width = '100%';
+    document.body.style.top = '0';
 
     // Auto-focus first input when opened
     setTimeout(() => {
@@ -137,9 +140,15 @@ $effect(() => {
 
     return () => {
       document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+      document.body.style.top = '';
     };
   } else {
     document.body.style.overflow = '';
+    document.body.style.position = '';
+    document.body.style.width = '';
+    document.body.style.top = '';
   }
 });
 
@@ -155,7 +164,7 @@ $effect(() => {
 {#if open}
   <!-- Backdrop -->
   <div 
-    class="fixed inset-0 bg-black/50 z-50 touch-none"
+    class="fixed inset-0 bg-black/50 z-[100] touch-none"
     transition:fade="{{ duration: 200 }}"
     onclick={close}
     onkeydown={(e) => e.key === 'Escape' && close()}
@@ -167,16 +176,18 @@ $effect(() => {
   <!-- Bottom Sheet -->
   <div 
     bind:this={sheetElement}
-    class="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-2xl z-50 max-h-[90vh] flex flex-col touch-pan-y overscroll-contain"
+    class="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-2xl z-[101] flex flex-col touch-pan-y overscroll-contain
+           max-h-[85vh] sm:max-h-[90vh]
+           pb-safe-area-inset-bottom"
     transition:fly="{{ y: 300, duration: 300 }}"
-    style="touch-action: pan-y; overscroll-behavior: contain;"
+    style="touch-action: pan-y; overscroll-behavior: contain; padding-bottom: max(env(safe-area-inset-bottom), 80px);"
     role="dialog"
     aria-modal="true"
     aria-labelledby="sheet-title"
   >
     <!-- Drag Handle -->
     <div 
-      class="flex justify-center pt-3 pb-2 cursor-grab active:cursor-grabbing"
+      class="flex justify-center pt-3 pb-2 cursor-grab active:cursor-grabbing flex-shrink-0"
       bind:this={dragHandle}
       ontouchstart={handleTouchStart}
       ontouchmove={handleTouchMove}
@@ -196,7 +207,7 @@ $effect(() => {
     </div>
 
     <!-- Header -->
-    <div class="flex items-center justify-between px-6 pb-4 border-b border-gray-200">
+    <div class="flex items-center justify-between px-6 pb-4 border-b border-gray-200 flex-shrink-0">
       <h2 id="sheet-title" class="text-xl font-semibold text-gray-900">
         {title}
       </h2>
@@ -210,8 +221,24 @@ $effect(() => {
     </div>
 
     <!-- Content -->
-    <div class="flex-1 overflow-y-auto px-6 py-4">
+    <div class="flex-1 overflow-y-auto px-6 py-4 min-h-0">
       {@render children()}
     </div>
   </div>
 {/if}
+
+<style>
+  /* Ensure proper safe area handling on iOS */
+  @supports (padding-bottom: env(safe-area-inset-bottom)) {
+    .pb-safe-area-inset-bottom {
+      padding-bottom: max(env(safe-area-inset-bottom), 80px);
+    }
+  }
+  
+  /* Fallback for browsers that don't support env() */
+  @supports not (padding-bottom: env(safe-area-inset-bottom)) {
+    .pb-safe-area-inset-bottom {
+      padding-bottom: 80px;
+    }
+  }
+</style>
