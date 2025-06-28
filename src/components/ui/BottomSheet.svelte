@@ -1,6 +1,7 @@
 <script lang="ts">
 import { onMount } from 'svelte';
 import { fade, fly } from 'svelte/transition';
+import Button from './Button.svelte';
 import Icon from './Icon.svelte';
 
 interface Props {
@@ -211,13 +212,16 @@ $effect(() => {
       <h2 id="sheet-title" class="text-xl font-semibold text-gray-900">
         {title}
       </h2>
-      <button
+      <Button
+        variant="ghost"
+        size="sm"
         onclick={close}
-        class="p-2 rounded-full hover:bg-gray-100 transition-colors"
-        aria-label="Close"
+        class="!p-2 rounded-full hover:!bg-gray-100"
       >
-        <Icon name="close" class="w-5 h-5 text-gray-500" />
-      </button>
+        {#snippet children()}
+          <Icon name="close" class="w-5 h-5 text-gray-500" />
+        {/snippet}
+      </Button>
     </div>
 
     <!-- Content -->

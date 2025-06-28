@@ -221,27 +221,30 @@ function handleScroll() {
       style="scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;"
     >
       {#each dateRange as date (date.toISOString())}
-        <button
+        <Button
+          variant="ghost"
           onclick={() => selectDate(date)}
-          class="flex-shrink-0 w-16 h-20 flex flex-col items-center justify-center rounded-lg transition-all duration-200 scroll-snap-align-center
+          class="flex-shrink-0 w-16 h-20 flex flex-col items-center justify-center rounded-lg transition-all duration-200 scroll-snap-align-center !p-2
             {isSameDate(date, appState.selectedDate)
-            ? 'bg-blue-500 text-white shadow-lg scale-105'
+            ? '!bg-blue-500 !text-white shadow-lg scale-105'
             : isToday(date)
-              ? 'bg-blue-100 text-blue-700 border-2 border-blue-300'
-              : 'bg-gray-50 text-gray-700 hover:bg-gray-100'}"
+              ? '!bg-blue-100 !text-blue-700 border-2 border-blue-300'
+              : '!bg-gray-50 !text-gray-700 hover:!bg-gray-100'}"
         >
-          <span class="text-xs font-medium uppercase">
-            {formatDayOfWeek(date)}
-          </span>
-          <span class="text-lg font-bold mt-1">
-            {date.getDate()}
-          </span>
-          {#if date.getDate() === 1}
-            <span class="text-xs text-gray-500 mt-1">
-              {date.toLocaleDateString("en-US", { month: "short" })}
+          {#snippet children()}
+            <span class="text-xs font-medium uppercase">
+              {formatDayOfWeek(date)}
             </span>
-          {/if}
-        </button>
+            <span class="text-lg font-bold mt-1">
+              {date.getDate()}
+            </span>
+            {#if date.getDate() === 1}
+              <span class="text-xs text-gray-500 mt-1">
+                {date.toLocaleDateString("en-US", { month: "short" })}
+              </span>
+            {/if}
+          {/snippet}
+        </Button>
       {/each}
     </div>
   </div>
