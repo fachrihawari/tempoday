@@ -1,18 +1,10 @@
 <!-- Reusable Card Component -->
 <script lang="ts">
-import Icon from './Icon.svelte';
+import Icon, { type IconName } from './Icon.svelte';
 
 interface Props {
   title?: string;
-  icon?:
-    | 'check'
-    | 'trash'
-    | 'settings'
-    | 'plus'
-    | 'close'
-    | 'dollar'
-    | 'clipboard'
-    | 'edit';
+  icon?: IconName;
   iconColor?: string;
   padding?: 'sm' | 'md' | 'lg';
   class?: string;
