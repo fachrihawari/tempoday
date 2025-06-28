@@ -12,6 +12,7 @@ export interface ParsedCommand {
 // Token types for better parsing
 interface Token {
   text: string;
+  originalText: string; // Keep original casing
   type: 'word' | 'number' | 'currency' | 'punctuation';
   value?: number;
   position: number;
@@ -69,32 +70,32 @@ const KEYWORDS = {
  * MAIN PARSER FUNCTION - No more regex hell!
  */
 export function parseNaturalLanguage(input: string): ParsedCommand {
-  const text = input.toLowerCase().trim();
+  const text = input.trim();
   
   if (!text) {
     return { type: 'unknown', content: '', confidence: 0 };
   }
 
-  // Step 1: Tokenize the input
+  // Step 1: Tokenize the input (preserving original casing)
   const tokens = tokenize(text);
   
   // Step 2: Extract amounts using proper tokenization
   const amounts = extractAmountsFromTokens(tokens);
   
-  // Step 3: Calculate semantic scores
+  // Step 3: Calculate semantic scores (using lowercase for comparison)
   const scores = calculateSemanticScores(tokens);
   
   // Step 4: Determine type based on scores and context
   const result = determineType(tokens, amounts, scores);
   
-  // Step 5: Clean and format the content using tokens
+  // Step 5: Clean and format the content using original casing
   result.content = cleanContentFromTokens(tokens, result.type, amounts[0]);
   
   return result;
 }
 
 /**
- * TOKENIZER - Convert text into structured tokens
+ * TOKENIZER - Convert text into structured tokens with original casing preserved
  */
 function tokenize(text: string): Token[] {
   const tokens: Token[] = [];
@@ -102,6 +103,7 @@ function tokenize(text: string): Token[] {
   
   for (let i = 0; i < words.length; i++) {
     const word = words[i];
+    const lowerWord = word.toLowerCase();
     
     // Handle currency with numbers: $1200, $45.50
     if (word.startsWith('$')) {
@@ -110,7 +112,8 @@ function tokenize(text: string): Token[] {
       
       if (value !== null) {
         tokens.push({
-          text: word,
+          text: lowerWord,
+          originalText: word,
           type: 'currency',
           value: value,
           position: i
@@ -123,7 +126,8 @@ function tokenize(text: string): Token[] {
     const numberValue = parseNumber(word);
     if (numberValue !== null) {
       tokens.push({
-        text: word,
+        text: lowerWord,
+        originalText: word,
         type: 'number',
         value: numberValue,
         position: i
@@ -134,16 +138,21 @@ function tokenize(text: string): Token[] {
     // Handle punctuation
     if (/^[^\w\s]+$/.test(word)) {
       tokens.push({
-        text: word,
+        text: lowerWord,
+        originalText: word,
         type: 'punctuation',
         position: i
       });
       continue;
     }
     
-    // Regular words
+    // Regular words - preserve original casing
+    const cleanedLower = lowerWord.replace(/[^\w]/g, '');
+    const cleanedOriginal = word.replace(/[^\w]/g, '');
+    
     tokens.push({
-      text: word.replace(/[^\w]/g, ''), // Clean punctuation
+      text: cleanedLower, // For keyword matching
+      originalText: cleanedOriginal, // For display
       type: 'word',
       position: i
     });
@@ -235,7 +244,7 @@ function extractAmountsFromTokens(tokens: Token[]): number[] {
 }
 
 /**
- * SEMANTIC SCORING - Analyze meaning without regex
+ * SEMANTIC SCORING - Analyze meaning without regex (using lowercase text for matching)
  */
 function calculateSemanticScores(tokens: Token[]): {
   task: number;
@@ -250,7 +259,7 @@ function calculateSemanticScores(tokens: Token[]): {
     expenseTransaction: 0
   };
   
-  const words = tokens.filter(t => t.type === 'word').map(t => t.text);
+  const words = tokens.filter(t => t.type === 'word').map(t => t.text); // Use lowercase for matching
   const firstWord = words[0];
   
   // Task scoring
@@ -353,7 +362,7 @@ function determineType(
 }
 
 /**
- * IMPROVED CONTENT CLEANING - Using tokens for precision
+ * IMPROVED CONTENT CLEANING - Using tokens for precision with original casing preserved
  */
 function cleanContentFromTokens(tokens: Token[], type: string, amount?: number): string {
   const filteredTokens: Token[] = [];
@@ -364,7 +373,7 @@ function cleanContentFromTokens(tokens: Token[], type: string, amount?: number):
     const firstToken = tokens[0];
     if (firstToken.type === 'word') {
       const actionWords = new Set(['bought', 'buy', 'purchased', 'spent', 'paid', 'earned', 'received']);
-      if (actionWords.has(firstToken.text)) {
+      if (actionWords.has(firstToken.text)) { // Use lowercase for matching
         startIndex = 1; // Skip the first action word
       }
     }
@@ -393,7 +402,7 @@ function cleanContentFromTokens(tokens: Token[], type: string, amount?: number):
     }
     
     // Skip standalone currency symbols
-    if (token.type === 'punctuation' && token.text === '$') {
+    if (token.type === 'punctuation' && token.originalText === '$') {
       continue;
     }
     
@@ -407,22 +416,27 @@ function cleanContentFromTokens(tokens: Token[], type: string, amount?: number):
     const firstToken = finalTokens[0];
     if (firstToken.type === 'word') {
       const prefixes = new Set(['for', 'on', 'at', 'from', 'about', 'of', 'a', 'an', 'the']);
-      if (prefixes.has(firstToken.text)) {
+      if (prefixes.has(firstToken.text)) { // Use lowercase for matching
         finalTokens = finalTokens.slice(1);
       }
     }
   }
   
-  // Step 4: Reconstruct the text
+  // Step 4: Reconstruct the text using ORIGINAL casing
   let cleaned = finalTokens
     .filter(token => token.type === 'word')
-    .map(token => token.text)
+    .map(token => token.originalText) // Use original casing!
     .join(' ')
     .trim();
   
-  // Step 5: Capitalize and validate
+  // Step 5: Only capitalize first letter if the word isn't already capitalized
   if (cleaned.length > 0) {
-    cleaned = cleaned.charAt(0).toUpperCase() + cleaned.slice(1);
+    const firstChar = cleaned.charAt(0);
+    if (firstChar === firstChar.toLowerCase()) {
+      // Only capitalize if it's currently lowercase
+      cleaned = firstChar.toUpperCase() + cleaned.slice(1);
+    }
+    // If it's already capitalized (like "iPhone"), leave it as is
   }
   
   // Fallback
