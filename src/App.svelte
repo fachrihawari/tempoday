@@ -1,7 +1,33 @@
 <script lang="ts">
-import Home from './pages/Home.svelte';
+import { onMount } from 'svelte';
+import BottomNavigation from './components/ui/BottomNavigation.svelte';
+import Calendar from './pages/Calendar.svelte';
+import Dashboard from './pages/Dashboard.svelte';
+import Settings from './pages/Settings.svelte';
+import { reactiveRouter } from './stores/router.svelte';
+
+const router = $derived(reactiveRouter);
+
+// Initialize router on mount
+onMount(() => {
+  router.initialize();
+});
 </script>
 
-<div class="h-screen overflow-y-auto">
-  <Home />
+<div class="h-screen flex flex-col relative">
+  <!-- Main Content Area -->
+  <div class="flex-1 overflow-y-auto pb-16">
+    {#if router.activePath === "/"}
+      <Dashboard />
+    {:else if router.activePath === "/calendar"}
+      <Calendar />
+    {:else if router.activePath === "/settings"}
+      <Settings />
+    {:else}
+      <Dashboard />
+    {/if}
+  </div>
+
+  <!-- Bottom Navigation -->
+  <BottomNavigation />
 </div>
