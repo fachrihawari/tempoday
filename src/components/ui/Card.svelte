@@ -51,7 +51,7 @@ function toggleExpanded() {
       <button
         onclick={toggleExpanded}
         disabled={!collapsible}
-        class="flex items-center gap-2 {collapsible ? '-m-2 p-2 rounded-lg transition-colors cursor-pointer' : 'cursor-default'} flex-1"
+        class="flex items-center gap-2 {collapsible ? 'rounded-lg transition-colors cursor-pointer' : 'cursor-default'} flex-1"
       >
         {#if icon}
           <Icon name={icon} class={iconColor} />
