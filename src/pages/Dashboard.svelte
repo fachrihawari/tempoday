@@ -179,26 +179,5 @@ function goToCalendar() {
         </div>
       {/snippet}
     </Card>
-
-    <!-- Quick Actions -->
-    <Card title="Quick Actions" class="space-y-3">
-      {#snippet children()}
-        <div class="grid grid-cols-1 gap-3">
-          <Button variant="primary" onclick={goToCalendar} fullWidth>
-            {#snippet children()}
-              <Icon name="calendar" size="sm" class="mr-2" />
-              Open Calendar
-            {/snippet}
-          </Button>
-          
-          <Button variant="outline" onclick={() => navigate('/settings')} fullWidth>
-            {#snippet children()}
-              <Icon name="settings" size="sm" class="mr-2" />
-              Settings
-            {/snippet}
-          </Button>
-        </div>
-      {/snippet}
-    </Card>
   </div>
 </div>
