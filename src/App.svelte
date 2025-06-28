@@ -16,7 +16,7 @@
 
 <div class="h-screen flex flex-col relative">
   <!-- Main Content Area -->
-  <div class="flex-1 overflow-y-auto pb-20">
+  <div class="flex-1 overflow-y-auto pb-16">
     {#if router.activePath === "/"}
       <Dashboard />
     {:else if router.activePath === "/calendar"}
