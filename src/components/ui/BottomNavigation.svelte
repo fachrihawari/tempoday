@@ -20,9 +20,8 @@ const navItems = [
   },
 ];
 
-function handleNavigation(path: string) {
-  navigate(path);
-}
+  const path = $derived(activePath())
+
 </script>
 
 <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 safe-area-bottom">
@@ -30,9 +29,9 @@ function handleNavigation(path: string) {
     <div class="flex justify-around items-center py-2 pb-safe-area-inset-bottom">
       {#each navItems as item (item.path)}
         <button
-          onclick={() => handleNavigation(item.path)}
+          onclick={() => navigate(item.path)}
           class="flex flex-col items-center justify-center p-2 min-w-0 flex-1 transition-colors duration-200
-            {activePath() === item.path 
+            {path === item.path 
               ? 'text-blue-600' 
               : 'text-gray-500 hover:text-gray-700'}"
         >
