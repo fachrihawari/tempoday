@@ -165,7 +165,7 @@ $effect(() => {
 {#if open}
   <!-- Backdrop -->
   <div 
-    class="fixed inset-0 bg-black/50 z-[100] touch-none"
+    class="fixed inset-0 bg-black/50 z-[100] touch-none h-16"
     transition:fade="{{ duration: 200 }}"
     onclick={close}
     onkeydown={(e) => e.key === 'Escape' && close()}
