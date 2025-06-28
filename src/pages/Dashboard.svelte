@@ -115,28 +115,6 @@ function goToCalendar() {
             </div>
           </div>
         </div>
-
-        <!-- Quick Actions -->
-        <div class="flex gap-2">
-          <Button variant="tasks" onclick={goToCalendar} class="flex-1">
-            {#snippet children()}
-              <Icon name="clipboard" size="sm" class="mr-2" />
-              Manage Tasks
-            {/snippet}
-          </Button>
-          <Button variant="notes" onclick={goToCalendar} class="flex-1">
-            {#snippet children()}
-              <Icon name="edit" size="sm" class="mr-2" />
-              View Notes
-            {/snippet}
-          </Button>
-          <Button variant="financials" onclick={goToCalendar} class="flex-1">
-            {#snippet children()}
-              <Icon name="dollar" size="sm" class="mr-2" />
-              Finances
-            {/snippet}
-          </Button>
-        </div>
       {/snippet}
     </Card>
 
