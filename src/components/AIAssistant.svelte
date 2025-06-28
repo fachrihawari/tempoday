@@ -137,7 +137,7 @@ const categorizedExamples = {
 };
 </script>
 
-<Card title="AI Assistant" icon="edit" iconColor="text-purple-500">
+<Card title="TempoDay Assistant" icon="edit" iconColor="text-purple-500">
   {#snippet headerAction()}
     <Button
       variant="ghost"
@@ -173,7 +173,7 @@ const categorizedExamples = {
           bind:value={userInput}
           onkeydown={handleKeydown}
           oninput={handleInput}
-          placeholder="Message TempoDay AI..."
+          placeholder="Message TempoDay Assistant..."
           class="w-full px-4 py-3 pr-12 bg-transparent border-0 resize-none focus:outline-none text-gray-900 placeholder-gray-500 text-base leading-6 max-h-[120px] min-h-[48px]"
           rows="1"
           style="field-sizing: content;"
@@ -215,7 +215,7 @@ const categorizedExamples = {
           <!-- AI Response -->
           <div class="flex-1 min-w-0">
             <div class="flex items-center gap-2 mb-2">
-              <span class="text-sm font-medium text-gray-900">TempoDay AI</span>
+              <span class="text-sm font-medium text-gray-900">TempoDay Assistant</span>
               <span class="px-2 py-0.5 text-xs font-medium rounded-full bg-purple-100 text-purple-700">
                 {Math.round(preview.confidence * 100)}% confident
               </span>
@@ -247,13 +247,13 @@ const categorizedExamples = {
     {/if}
 
     <!-- Detailed Help Bottom Sheet -->
-    <BottomSheet bind:open={showDetailedHelp} title="AI Assistant Guide">
+    <BottomSheet bind:open={showDetailedHelp} title="TempoDay Assistant Guide">
       {#snippet children()}
         <div class="space-y-6">
           <!-- Introduction -->
           <div class="text-center p-4 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg border border-purple-200">
             <Icon name="edit" size="2xl" class="text-purple-600 mx-auto mb-2" />
-            <h3 class="text-lg font-semibold text-gray-900 mb-2">Natural Language AI Assistant</h3>
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">Natural Language TempoDay Assistant</h3>
             <p class="text-sm text-gray-600">
               Simply type what you want to do in plain English, and I'll automatically categorize and add it to the right section.
             </p>
