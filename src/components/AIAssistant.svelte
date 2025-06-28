@@ -93,9 +93,17 @@ async function processCommand() {
 }
 
 function handleKeydown(event: KeyboardEvent) {
-  if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
+  // Submit on Enter (without any modifier keys)
+  if (event.key === 'Enter' && !event.shiftKey && !event.ctrlKey && !event.metaKey) {
     event.preventDefault();
     processCommand();
+    return;
+  }
+  
+  // Allow Shift+Enter for new lines
+  if (event.key === 'Enter' && event.shiftKey) {
+    // Let the default behavior happen (new line)
+    return;
   }
   
   // Auto-resize textarea
@@ -173,7 +181,7 @@ const categorizedExamples = {
           bind:value={userInput}
           onkeydown={handleKeydown}
           oninput={handleInput}
-          placeholder="Message TempoDay Assistant..."
+          placeholder="Message TempoDay Assistant... (Press Enter to send, Shift+Enter for new line)"
           class="w-full px-4 py-3 pr-12 bg-transparent border-0 resize-none focus:outline-none text-gray-900 placeholder-gray-500 text-base leading-6 max-h-[120px] min-h-[48px]"
           rows="1"
           style="field-sizing: content;"
@@ -337,7 +345,7 @@ const categorizedExamples = {
               </li>
               <li class="flex items-start gap-2">
                 <span class="text-gray-500 font-bold">•</span>
-                <span><strong>Shortcuts:</strong> Press Ctrl+Enter (or Cmd+Enter on Mac) to quickly process</span>
+                <span><strong>Quick Submit:</strong> Press Enter to send, Shift+Enter for new lines</span>
               </li>
               <li class="flex items-start gap-2">
                 <span class="text-gray-500 font-bold">•</span>
