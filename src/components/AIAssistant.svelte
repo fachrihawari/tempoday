@@ -155,56 +155,6 @@ const categorizedExamples = {
   notes: EXAMPLE_COMMANDS.filter((_, i) => i >= 6 && i < 12),
   transactions: EXAMPLE_COMMANDS.filter((_, i) => i >= 12)
 };
-
-// Get confidence level description
-function getConfidenceDescription(confidence: number): { text: string; color: string } {
-  if (confidence >= 0.8) return { text: 'Very High', color: 'text-green-700 bg-green-100' };
-  if (confidence >= 0.6) return { text: 'High', color: 'text-blue-700 bg-blue-100' };
-  if (confidence >= 0.4) return { text: 'Medium', color: 'text-yellow-700 bg-yellow-100' };
-  return { text: 'Low', color: 'text-red-700 bg-red-100' };
-}
-
-// Get type-specific styling
-function getTypeStyle(type: string) {
-  switch (type) {
-    case 'task':
-      return {
-        icon: '📋',
-        label: 'Task',
-        bgColor: 'bg-blue-50',
-        borderColor: 'border-blue-200',
-        textColor: 'text-blue-800',
-        badgeColor: 'bg-blue-100 text-blue-700'
-      };
-    case 'note':
-      return {
-        icon: '📝',
-        label: 'Note',
-        bgColor: 'bg-purple-50',
-        borderColor: 'border-purple-200',
-        textColor: 'text-purple-800',
-        badgeColor: 'bg-purple-100 text-purple-700'
-      };
-    case 'transaction':
-      return {
-        icon: '💰',
-        label: 'Transaction',
-        bgColor: 'bg-green-50',
-        borderColor: 'border-green-200',
-        textColor: 'text-green-800',
-        badgeColor: 'bg-green-100 text-green-700'
-      };
-    default:
-      return {
-        icon: '❓',
-        label: 'Unknown',
-        bgColor: 'bg-gray-50',
-        borderColor: 'border-gray-200',
-        textColor: 'text-gray-800',
-        badgeColor: 'bg-gray-100 text-gray-700'
-      };
-  }
-}
 </script>
 
 <Card title="TempoDay Assistant" icon="edit" iconColor="text-purple-500">
@@ -272,78 +222,34 @@ function getTypeStyle(type: string) {
       </div>
     </div>
 
-    <!-- Enhanced AI Preview -->
+    <!-- Simple AI Preview -->
     {#if userInput.trim() && !isProcessing}
       {@const preview = parseNaturalLanguage(userInput)}
-      {@const typeStyle = getTypeStyle(preview.type)}
-      {@const confidenceInfo = getConfidenceDescription(preview.confidence)}
-      
-      <div class="mt-4 p-4 bg-gradient-to-r from-gray-50 to-purple-50 rounded-xl border border-gray-200">
-        <div class="flex items-start gap-3">
-          <!-- AI Avatar -->
-          <div class="w-8 h-8 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
-            <Icon name="edit" size="sm" class="text-white" />
-          </div>
-          
-          <!-- AI Response -->
-          <div class="flex-1 min-w-0">
-            <div class="flex items-center gap-2 mb-3">
-              <span class="text-sm font-medium text-gray-900">TempoDay Assistant</span>
-              <span class="px-2 py-0.5 text-xs font-medium rounded-full {confidenceInfo.color}">
-                {Math.round(preview.confidence * 100)}% confident ({confidenceInfo.text})
-              </span>
-            </div>
-            
-            <!-- Enhanced Preview Card -->
-            <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
-              <!-- Type Badge and Icon -->
-              <div class="flex items-center gap-2 mb-3">
-                <span class="text-lg">{typeStyle.icon}</span>
-                <span class="px-3 py-1 rounded-full text-xs font-medium {typeStyle.badgeColor}">
-                  {typeStyle.label}
-                  {#if preview.type === 'transaction' && preview.transactionType}
-                    • {preview.transactionType === 'income' ? 'Income' : 'Expense'}
-                  {/if}
-                </span>
-              </div>
-              
-              <!-- Content Preview -->
-              <div class="space-y-2">
-                <div class="flex items-start gap-2">
-                  <span class="text-sm text-gray-600 font-medium min-w-0 flex-shrink-0">Content:</span>
-                  <span class="text-sm text-gray-900 font-medium break-words">"{preview.content}"</span>
-                </div>
-                
-                {#if preview.amount}
-                  <div class="flex items-center gap-2">
-                    <span class="text-sm text-gray-600 font-medium">Amount:</span>
-                    <span class="text-sm font-bold {preview.transactionType === 'income' ? 'text-green-600' : 'text-red-600'}">
-                      {preview.transactionType === 'income' ? '+' : '-'}{formatAmount(preview.amount)}
-                    </span>
-                  </div>
-                {/if}
-              </div>
-              
-              <!-- Action Preview -->
-              <div class="mt-3 pt-3 border-t border-gray-100">
-                <div class="flex items-center gap-2 text-xs text-gray-600">
-                  <Icon name="check" size="sm" class="text-green-500" />
-                  <span>
-                    {#if preview.type === 'task'}
-                      Will add to your task list for today
-                    {:else if preview.type === 'note'}
-                      Will save to your daily note
-                    {:else if preview.type === 'transaction'}
-                      Will record as {preview.transactionType} in your finances
-                    {:else}
-                      Will process as best match
-                    {/if}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
+      <div class="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
+        <div class="flex items-center gap-2 text-sm">
+          <span class="px-2 py-1 rounded text-xs font-medium
+            {preview.type === 'task' ? 'bg-blue-100 text-blue-700' : 
+             preview.type === 'note' ? 'bg-purple-100 text-purple-700' : 
+             preview.type === 'transaction' ? 'bg-green-100 text-green-700' : 
+             'bg-gray-100 text-gray-700'}">
+            {preview.type === 'task' ? '📋 Task' : 
+             preview.type === 'note' ? '📝 Note' : 
+             preview.type === 'transaction' ? `💰 ${preview.transactionType === 'income' ? 'Income' : 'Expense'}` : 
+             '❓ Unknown'}
+          </span>
+          <span class="text-gray-600">
+            {Math.round(preview.confidence * 100)}% confident
+          </span>
         </div>
+        
+        <p class="text-sm text-gray-800 mt-2">
+          <strong>"{preview.content}"</strong>
+          {#if preview.amount}
+            <span class="text-green-600 font-medium ml-1">
+              {preview.transactionType === 'income' ? '+' : '-'}{formatAmount(preview.amount)}
+            </span>
+          {/if}
+        </p>
       </div>
     {/if}
 
