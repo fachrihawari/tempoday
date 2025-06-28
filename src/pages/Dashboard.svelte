@@ -48,9 +48,11 @@ function goToCalendar() {
   router.navigate('/calendar');
 }
 
-// Derived values for summary
+// Derived values for conditional rendering
 const isLoading = $derived(tasksLoading || transactionsLoading || notesLoading);
 const hasAnyData = $derived(totalCount > 0 || transactions.length > 0 || hasNote);
+const hasTasks = $derived(totalCount > 0);
+const hasTransactions = $derived(transactions.length > 0);
 </script>
 
 <div class="h-full flex flex-col">
@@ -72,28 +74,32 @@ const hasAnyData = $derived(totalCount > 0 || transactions.length > 0 || hasNote
 
   <!-- Dashboard Content -->
   <div class="flex-1 overflow-y-auto">
-    <!-- Today's Summary Section -->
-    <Card title="Today's Summary" icon="home" iconColor="text-blue-500">
-      {#snippet children()}
-        {#if isLoading}
+    <!-- Today's Summary Section - Only show if there's data -->
+    {#if isLoading}
+      <Card title="Today's Summary" icon="home" iconColor="text-blue-500">
+        {#snippet children()}
           <Loading size="lg" message="Loading today's summary..." />
-        {:else if hasAnyData}
+        {/snippet}
+      </Card>
+    {:else if hasAnyData}
+      <Card title="Today's Summary" icon="home" iconColor="text-blue-500">
+        {#snippet children()}
           <div class="space-y-4">
-            <!-- Tasks Summary -->
-            <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border border-blue-200">
-              <div class="flex items-center justify-between mb-3">
-                <div class="flex items-center gap-2">
-                  <div class="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
-                    <Icon name="clipboard" size="sm" class="text-white" />
+            <!-- Tasks Summary - Only show if there are tasks -->
+            {#if hasTasks}
+              <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border border-blue-200">
+                <div class="flex items-center justify-between mb-3">
+                  <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+                      <Icon name="clipboard" size="sm" class="text-white" />
+                    </div>
+                    <h3 class="font-semibold text-blue-900">Tasks</h3>
                   </div>
-                  <h3 class="font-semibold text-blue-900">Tasks</h3>
+                  <span class="text-xs text-blue-600 bg-blue-200 px-2 py-1 rounded-full font-medium">
+                    {completedCount}/{totalCount}
+                  </span>
                 </div>
-                <span class="text-xs text-blue-600 bg-blue-200 px-2 py-1 rounded-full font-medium">
-                  {completedCount}/{totalCount}
-                </span>
-              </div>
-              
-              {#if totalCount > 0}
+                
                 <div class="space-y-2">
                   <div class="flex justify-between text-sm">
                     <span class="text-blue-700">Completed:</span>
@@ -113,26 +119,24 @@ const hasAnyData = $derived(totalCount > 0 || transactions.length > 0 || hasNote
                     {Math.round((completedCount / totalCount) * 100)}% complete
                   </p>
                 </div>
-              {:else}
-                <p class="text-sm text-blue-600">No tasks for today</p>
-              {/if}
-            </div>
-
-            <!-- Notes Summary -->
-            <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 border border-purple-200">
-              <div class="flex items-center justify-between mb-3">
-                <div class="flex items-center gap-2">
-                  <div class="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center">
-                    <Icon name="edit" size="sm" class="text-white" />
-                  </div>
-                  <h3 class="font-semibold text-purple-900">Daily Note</h3>
-                </div>
-                <span class="text-xs {hasNote ? 'text-purple-600 bg-purple-200' : 'text-gray-500 bg-gray-200'} px-2 py-1 rounded-full font-medium">
-                  {hasNote ? 'Written' : 'Empty'}
-                </span>
               </div>
-              
-              {#if hasNote}
+            {/if}
+
+            <!-- Notes Summary - Only show if there's a note -->
+            {#if hasNote}
+              <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 border border-purple-200">
+                <div class="flex items-center justify-between mb-3">
+                  <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center">
+                      <Icon name="edit" size="sm" class="text-white" />
+                    </div>
+                    <h3 class="font-semibold text-purple-900">Daily Note</h3>
+                  </div>
+                  <span class="text-xs text-purple-600 bg-purple-200 px-2 py-1 rounded-full font-medium">
+                    Written
+                  </span>
+                </div>
+                
                 <div class="bg-white rounded-lg p-3 border border-purple-200">
                   <p class="text-sm text-gray-700 line-clamp-3 leading-relaxed">
                     {noteContent.length > 100 ? noteContent.substring(0, 100) + '...' : noteContent}
@@ -141,26 +145,24 @@ const hasAnyData = $derived(totalCount > 0 || transactions.length > 0 || hasNote
                 <p class="text-xs text-purple-600 mt-2">
                   {noteContent.length} characters
                 </p>
-              {:else}
-                <p class="text-sm text-purple-600">No note written today</p>
-              {/if}
-            </div>
-
-            <!-- Finance Summary -->
-            <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 border border-green-200">
-              <div class="flex items-center justify-between mb-3">
-                <div class="flex items-center gap-2">
-                  <div class="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
-                    <Icon name="dollar" size="sm" class="text-white" />
-                  </div>
-                  <h3 class="font-semibold text-green-900">Finances</h3>
-                </div>
-                <span class="text-xs text-green-600 bg-green-200 px-2 py-1 rounded-full font-medium">
-                  {transactions.length} transactions
-                </span>
               </div>
-              
-              {#if transactions.length > 0}
+            {/if}
+
+            <!-- Finance Summary - Only show if there are transactions -->
+            {#if hasTransactions}
+              <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 border border-green-200">
+                <div class="flex items-center justify-between mb-3">
+                  <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
+                      <Icon name="dollar" size="sm" class="text-white" />
+                    </div>
+                    <h3 class="font-semibold text-green-900">Finances</h3>
+                  </div>
+                  <span class="text-xs text-green-600 bg-green-200 px-2 py-1 rounded-full font-medium">
+                    {transactions.length} transaction{transactions.length !== 1 ? 's' : ''}
+                  </span>
+                </div>
+                
                 <div class="space-y-2">
                   <div class="flex justify-between text-sm">
                     <span class="text-green-700">Income:</span>
@@ -178,20 +180,22 @@ const hasAnyData = $derived(totalCount > 0 || transactions.length > 0 || hasNote
                     </span>
                   </div>
                 </div>
-              {:else}
-                <p class="text-sm text-green-600">No transactions today</p>
-              {/if}
-            </div>
+              </div>
+            {/if}
           </div>
-        {:else}
-          <!-- Empty State -->
+        {/snippet}
+      </Card>
+    {:else}
+      <!-- Empty State - Only show when no data exists -->
+      <Card title="Welcome to TempoDay!" icon="home" iconColor="text-blue-500">
+        {#snippet children()}
           <div class="text-center py-8">
             <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
               <Icon name="home" size="xl" class="text-white" />
             </div>
-            <h3 class="text-lg font-semibold text-gray-900 mb-2">Welcome to TempoDay!</h3>
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">Start Your Day</h3>
             <p class="text-gray-600 mb-6 max-w-md mx-auto">
-              Start your day by adding tasks, writing notes, or tracking expenses. Use the AI assistant below to get started quickly.
+              Begin by adding tasks, writing notes, or tracking expenses. Use the AI assistant below to get started quickly.
             </p>
             <Button variant="primary" onclick={goToCalendar}>
               {#snippet children()}
@@ -200,11 +204,11 @@ const hasAnyData = $derived(totalCount > 0 || transactions.length > 0 || hasNote
               {/snippet}
             </Button>
           </div>
-        {/if}
-      {/snippet}
-    </Card>
+        {/snippet}
+      </Card>
+    {/if}
 
-    <!-- AI Assistant Section - Moved to Bottom -->
+    <!-- AI Assistant Section - Always show -->
     <AIAssistant />
   </div>
 </div>
