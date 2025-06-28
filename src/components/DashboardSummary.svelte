@@ -92,7 +92,7 @@ const recentTransactions = $derived(() => {
           </div>
           {#if tasksLoading}
             <Icon name="loader" size="sm" class="animate-spin text-blue-600" />
-          {:else if totalCount > 0}
+          {:else if totalCount > 0 && completedCount > 0}
             <span class="text-sm text-blue-700 bg-blue-100 px-2 py-1 rounded-full">
               {completedCount}/{totalCount}
             </span>
