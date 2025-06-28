@@ -245,7 +245,7 @@ const categorizedExamples = {
         <p class="text-sm text-gray-800 mt-2">
           <strong>"{preview.content}"</strong>
           {#if preview.amount}
-            <span class="text-green-600 font-medium ml-1">
+            <span class="font-medium ml-1 {preview.transactionType === 'income' ? 'text-green-600' : 'text-red-600'}">
               {preview.transactionType === 'income' ? '+' : '-'}{formatAmount(preview.amount)}
             </span>
           {/if}
