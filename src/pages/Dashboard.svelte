@@ -78,7 +78,7 @@ const hasAnyData = $derived(totalCount > 0 || transactions.length > 0 || hasNote
         {#if isLoading}
           <Loading size="lg" message="Loading today's summary..." />
         {:else if hasAnyData}
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="space-y-4">
             <!-- Tasks Summary -->
             <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border border-blue-200">
               <div class="flex items-center justify-between mb-3">
@@ -185,20 +185,20 @@ const hasAnyData = $derived(totalCount > 0 || transactions.length > 0 || hasNote
           </div>
 
           <!-- Quick Actions -->
-          <div class="mt-6 flex flex-wrap gap-3">
-            <Button variant="tasks" onclick={goToCalendar} class="flex-1 min-w-0">
+          <div class="mt-6 space-y-3">
+            <Button variant="tasks" onclick={goToCalendar} class="w-full">
               {#snippet children()}
                 <Icon name="clipboard" size="sm" class="mr-2" />
                 Add Task
               {/snippet}
             </Button>
-            <Button variant="notes" onclick={goToCalendar} class="flex-1 min-w-0">
+            <Button variant="notes" onclick={goToCalendar} class="w-full">
               {#snippet children()}
                 <Icon name="edit" size="sm" class="mr-2" />
                 Write Note
               {/snippet}
             </Button>
-            <Button variant="financials" onclick={goToCalendar} class="flex-1 min-w-0">
+            <Button variant="financials" onclick={goToCalendar} class="w-full">
               {#snippet children()}
                 <Icon name="dollar" size="sm" class="mr-2" />
                 Add Transaction
