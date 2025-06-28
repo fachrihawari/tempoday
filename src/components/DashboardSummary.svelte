@@ -92,7 +92,7 @@ const recentTransactions = $derived(() => {
           </div>
           {#if tasksLoading}
             <Icon name="loader" size="sm" class="animate-spin text-blue-600" />
-          {:else if totalCount > 0 && completedCount > 0}
+          {:else if completedCount > 0}
             <span class="text-sm text-blue-700 bg-blue-100 px-2 py-1 rounded-full">
               {completedCount}/{totalCount}
             </span>
@@ -103,6 +103,8 @@ const recentTransactions = $derived(() => {
           <Loading size="md" message="Loading tasks..." />
         {:else if totalCount === 0}
           <p class="text-sm text-blue-700">No tasks for today</p>
+        {:else if completedCount === 0}
+          <p class="text-sm text-blue-700">No completed tasks yet</p>
         {:else}
           <div class="space-y-2">
             {#each incompleteTasks as task (task.id)}
@@ -118,11 +120,9 @@ const recentTransactions = $derived(() => {
               </p>
             {/if}
             
-            {#if completedCount > 0}
-              <p class="text-xs text-blue-600 mt-2">
-                ✓ {completedCount} completed
-              </p>
-            {/if}
+            <p class="text-xs text-blue-600 mt-2">
+              ✓ {completedCount} completed
+            </p>
           </div>
         {/if}
       </div>
