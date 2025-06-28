@@ -52,7 +52,7 @@ function toggleExpanded() {
       <button
         onclick={toggleExpanded}
         disabled={!collapsible}
-        class="flex items-center gap-2 {collapsible ? 'hover:bg-gray-50 -mx-2 px-2 py-1 rounded-lg transition-all duration-200 cursor-pointer' : 'cursor-default'} flex-1"
+        class="flex items-center gap-2 {collapsible ? 'py-1 rounded-lg transition-all duration-200 cursor-pointer' : 'cursor-default'} flex-1"
       >
         {#if icon}
           <Icon name={icon} class={iconColor} />
