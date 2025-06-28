@@ -116,4 +116,3 @@ import Icon from '../components/ui/Icon.svelte';
     </div>
   </div>
 </div>
-</script>
