@@ -47,7 +47,7 @@ function toggleExpanded() {
 <section class="bg-white border-b border-gray-200 {className}">
   {#if title}
     <!-- Header Section -->
-    <div class="flex items-center justify-between {paddings[padding]} {collapsible && isExpanded ? 'pb-4' : collapsible ? 'pb-4' : ''}">
+    <div class="flex items-center justify-between {paddings[padding]} {collapsible ? 'pb-4' : ''}">
       <button
         onclick={toggleExpanded}
         disabled={!collapsible}
