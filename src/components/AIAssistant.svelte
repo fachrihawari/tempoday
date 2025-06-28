@@ -203,9 +203,6 @@ const categorizedExamples = {
 
       <!-- Keyboard Shortcut Hint -->
       <div class="flex items-center justify-between mt-2 px-1">
-        <span class="text-xs text-gray-500">
-          Press <kbd class="px-1.5 py-0.5 text-xs font-mono bg-gray-100 border border-gray-300 rounded">Ctrl</kbd> + <kbd class="px-1.5 py-0.5 text-xs font-mono bg-gray-100 border border-gray-300 rounded">Enter</kbd> to send
-        </span>
         {#if userInput.trim()}
           <button
             onclick={() => userInput = ''}
