@@ -29,14 +29,14 @@ let { settings } = $derived(settingsStore);
 const router = $derived(reactiveRouter);
 
 // Watch for date changes and load data
-$effect(() => {
-  const dateKey = formatDateKey(appState.selectedDate);
+onMount(() => {
+  const dateKey = formatDateKey(new Date());
   reactiveTasks.loadTasks(dateKey);
   reactiveNotes.loadNote(dateKey);
   reactiveTransactions.loadTransactions(dateKey);
   settingsStore.loadSettings();
-});
-
+})
+  
 // Helper function to format currency with current settings
 function formatAmount(amount: number): string {
   const currency = settings?.currency || 'USD';
