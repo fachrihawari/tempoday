@@ -25,12 +25,7 @@ export function navigate(newPath: string) {
 
 // Simple initialization that doesn't depend on browser APIs
 export function initializeRouter() {
-  console.log('Router initialized with path:', currentPath);
-  
-  // Just ensure we start with a valid path
-  if (!currentPath || currentPath === '') {
-    currentPath = '/';
-  }
+  currentPath = window.location.pathname || '/';
   
   // Return a no-op cleanup function
   return () => {
