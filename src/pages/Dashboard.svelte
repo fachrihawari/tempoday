@@ -53,6 +53,10 @@ const isLoading = $derived(tasksLoading || transactionsLoading || notesLoading);
 const hasAnyData = $derived(totalCount > 0 || transactions.length > 0 || hasNote);
 const hasTasks = $derived(totalCount > 0);
 const hasTransactions = $derived(transactions.length > 0);
+
+// Get limited tasks for summary (show max 5)
+const summaryTasks = $derived(tasks.slice(0, 5));
+const hasMoreTasks = $derived(tasks.length > 5);
 </script>
 
 <div class="h-full flex flex-col">
@@ -104,16 +108,9 @@ const hasTransactions = $derived(transactions.length > 0);
                   </span>
                 </div>
                 
-                <div class="space-y-2">
-                  <div class="flex justify-between text-sm">
-                    <span class="text-blue-700">Completed:</span>
-                    <span class="font-medium text-blue-900">{completedCount}</span>
-                  </div>
-                  <div class="flex justify-between text-sm">
-                    <span class="text-blue-700">Remaining:</span>
-                    <span class="font-medium text-blue-900">{totalCount - completedCount}</span>
-                  </div>
-                  <div class="w-full bg-blue-200 rounded-full h-2 mt-3">
+                <!-- Progress Bar -->
+                <div class="mb-4">
+                  <div class="w-full bg-blue-200 rounded-full h-2">
                     <div 
                       class="bg-blue-500 h-2 rounded-full transition-all duration-300" 
                       style="width: {totalCount > 0 ? (completedCount / totalCount) * 100 : 0}%"
@@ -122,6 +119,46 @@ const hasTransactions = $derived(transactions.length > 0);
                   <p class="text-xs text-blue-600 text-center mt-2">
                     {Math.round((completedCount / totalCount) * 100)}% complete
                   </p>
+                </div>
+
+                <!-- Task Items List -->
+                <div class="space-y-2">
+                  {#each summaryTasks as task (task.id)}
+                    <div class="flex items-center gap-3 p-2 bg-white rounded-lg border border-blue-200">
+                      <button
+                        onclick={() => reactiveTasks.toggleTask(task.id)}
+                        disabled={reactiveTasks.isToggling[task.id]}
+                        class="flex-shrink-0 w-4 h-4 rounded border-2 flex items-center justify-center transition-colors
+                        {task.completed
+                          ? 'bg-blue-500 border-blue-500 text-white'
+                          : 'border-blue-300 hover:border-blue-400'}
+                        {reactiveTasks.isToggling[task.id]
+                          ? 'opacity-50 cursor-not-allowed'
+                          : ''}"
+                      >
+                        {#if reactiveTasks.isToggling[task.id]}
+                          <Icon name="loader" size="sm" class="w-3 h-3 animate-spin" />
+                        {:else if task.completed}
+                          <Icon name="check" size="sm" class="w-3 h-3" />
+                        {/if}
+                      </button>
+
+                      <span class="flex-1 text-sm {task.completed ? 'line-through text-blue-600' : 'text-blue-900'} leading-relaxed">
+                        {task.description}
+                      </span>
+                    </div>
+                  {/each}
+
+                  {#if hasMoreTasks}
+                    <div class="text-center pt-2">
+                      <Button variant="ghost" onclick={goToCalendar} class="text-blue-600 hover:text-blue-700 text-sm">
+                        {#snippet children()}
+                          <Icon name="plus" size="sm" class="mr-1" />
+                          View {tasks.length - 5} more tasks
+                        {/snippet}
+                      </Button>
+                    </div>
+                  {/if}
                 </div>
               </div>
             {/if}
