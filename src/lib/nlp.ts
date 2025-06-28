@@ -333,42 +333,59 @@ function calculateTransactionScore(text: string, type: 'income' | 'expense'): nu
 }
 
 /**
- * Extract monetary amounts from text - FIXED FOR LARGE NUMBERS
+ * Extract monetary amounts from text - COMPLETELY REWRITTEN FOR ACCURACY
  */
 function extractAmounts(text: string): number[] {
   const amounts: number[] = [];
   
-  // Enhanced patterns that handle very large numbers
+  // CRITICAL FIX: Use more precise patterns and process them in order of specificity
   const patterns = [
-    // $1000000000000, $1200, $45.50 (with optional commas)
-    /\$(\d{1,3}(?:,?\d{3})*(?:\.\d{1,2})?)/g,
-    // 1000000000000 dollars, 1200 USD, 45 bucks (with optional commas)
-    /(\d{1,3}(?:,?\d{3})*(?:\.\d{1,2})?)\s*(?:dollars?|usd|bucks?)\b/gi,
-    // After transaction words: bought 1000000000000, spent 45
-    /\b(?:bought|spent|paid|cost|earned|received)\s+[^\d]*?(\d{1,3}(?:,?\d{3})*(?:\.\d{1,2})?)/gi,
-    // Standalone large numbers that could be amounts
-    /\b(\d{4,}(?:\.\d{1,2})?)\b/g
+    // Pattern 1: Dollar sign followed by number (highest priority)
+    // $1200, $45.50, $1,234.56, $1000000000000
+    {
+      regex: /\$(\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?|\d+(?:\.\d{1,2})?)/g,
+      priority: 1
+    },
+    
+    // Pattern 2: Number followed by currency words
+    // 1200 dollars, 45 USD, 1000000000000 bucks
+    {
+      regex: /(\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?|\d+(?:\.\d{1,2})?)\s*(?:dollars?|usd|bucks?)\b/gi,
+      priority: 2
+    },
+    
+    // Pattern 3: Transaction words followed by amount
+    // bought 1200, spent 45, paid 1000000000000
+    {
+      regex: /\b(?:bought|spent|paid|cost|earned|received)\s+[^\d]*?(\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?|\d+(?:\.\d{1,2})?)/gi,
+      priority: 3
+    }
   ];
   
+  // Process patterns in order of priority
   for (const pattern of patterns) {
-    let match;
-    // Reset regex lastIndex to avoid issues with global flag
-    pattern.lastIndex = 0;
+    pattern.regex.lastIndex = 0; // Reset regex
     
-    while ((match = pattern.exec(text)) !== null) {
+    let match;
+    while ((match = pattern.regex.exec(text)) !== null) {
       const amountStr = match[1].replace(/,/g, ''); // Remove commas
       const amount = parseFloat(amountStr);
       
-      // Validate the amount - only check if it's a valid positive number
-      // Remove arbitrary upper limit to allow very large numbers
+      // Validate the amount
       if (!isNaN(amount) && amount > 0 && isFinite(amount)) {
         amounts.push(amount);
       }
     }
+    
+    // If we found amounts with higher priority pattern, stop here
+    if (amounts.length > 0) {
+      break;
+    }
   }
   
-  // Remove duplicates and return
-  return [...new Set(amounts)];
+  // Remove duplicates and return the first (most relevant) amount
+  const uniqueAmounts = [...new Set(amounts)];
+  return uniqueAmounts.slice(0, 1); // Return only the first amount found
 }
 
 /**
