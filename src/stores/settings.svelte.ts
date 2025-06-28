@@ -7,6 +7,8 @@ export const defaultSettings: TempoDaySettings = {
   currency: 'USD',
   currencySymbol: '$',
   locale: 'en-US',
+  language: 'en',
+  region: 'US',
 };
 
 /**
@@ -43,7 +45,8 @@ class SettingsStore {
       const settingsRecord = await db.settings.toCollection().first();
 
       if (settingsRecord) {
-        this.settings = settingsRecord.data;
+        // Merge with defaults to ensure all properties exist
+        this.settings = { ...defaultSettings, ...settingsRecord.data };
       } else {
         // No settings exist, create default settings
         await this.createDefaultSettings();

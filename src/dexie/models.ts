@@ -34,6 +34,9 @@ export interface TempoDaySettings {
   currency: string;
   currencySymbol: string;
   locale: string;
+  // Language settings
+  language: string;
+  region: string;
 }
 
 export interface Settings {
