@@ -92,7 +92,7 @@ const expenseCount = $derived.by(() => {
           <div class="flex items-center justify-between mb-3">
             <div class="flex items-center gap-2">
               <Icon name="clipboard" class="text-blue-600" size="sm" />
-              <h3 class="font-medium text-blue-900">Tasks</h3>
+              <h3 class="font-medium text-blue-900">Pending Tasks</h3>
             </div>
             {#if tasksLoading}
               <Icon name="loader" size="sm" class="animate-spin text-blue-600" />
