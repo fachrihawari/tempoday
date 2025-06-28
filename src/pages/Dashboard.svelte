@@ -121,19 +121,19 @@ const hasMoreTasks = $derived(tasks.length > 5);
                   </p>
                 </div>
 
-                <!-- Task Items List -->
+                <!-- Task Items List - Using consistent design with TasksSection -->
                 <div class="space-y-2">
                   {#each summaryTasks as task (task.id)}
-                    <div class="flex items-center gap-3 p-2 bg-white rounded-lg border border-blue-200">
+                    <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-blue-50 group bg-white border border-blue-200">
                       <button
                         onclick={() => reactiveTasks.toggleTask(task.id)}
                         disabled={reactiveTasks.isToggling[task.id]}
-                        class="flex-shrink-0 w-4 h-4 rounded border-2 flex items-center justify-center transition-colors
+                        class="flex-shrink-0 w-5 h-5 rounded border-2 flex items-center justify-center transition-colors
                         {task.completed
-                          ? 'bg-blue-500 border-blue-500 text-white'
-                          : 'border-blue-300 hover:border-blue-400'}
+                          ? 'bg-green-500 border-green-500 text-white'
+                          : 'border-gray-300 hover:border-green-400'}
                         {reactiveTasks.isToggling[task.id]
-                          ? 'opacity-50 cursor-not-allowed'
+                          ? 'opacity-50 cursor-not-allowed bg-white border-white hover:border-white hover:bg-white'
                           : ''}"
                       >
                         {#if reactiveTasks.isToggling[task.id]}
@@ -143,7 +143,7 @@ const hasMoreTasks = $derived(tasks.length > 5);
                         {/if}
                       </button>
 
-                      <span class="flex-1 text-sm {task.completed ? 'line-through text-blue-600' : 'text-blue-900'} leading-relaxed">
+                      <span class="flex-1 text-sm {task.completed ? 'line-through text-gray-500' : 'text-gray-900'} leading-relaxed">
                         {task.description}
                       </span>
                     </div>
