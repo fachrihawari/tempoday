@@ -48,7 +48,7 @@ function navigateToCalendar() {
 }
 
 // Get preview of note content (first 100 characters)
-const notePreview = $derived(() => {
+const notePreview = $derived.by(() => {
   if (!content) return '';
   return content.length > 100 
     ? content.substring(0, 100) + '...' 
