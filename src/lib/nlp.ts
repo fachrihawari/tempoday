@@ -333,35 +333,38 @@ function calculateTransactionScore(text: string, type: 'income' | 'expense'): nu
 }
 
 /**
- * Extract monetary amounts from text with improved accuracy
+ * Extract monetary amounts from text - COMPLETELY REWRITTEN
  */
 function extractAmounts(text: string): number[] {
   const amounts: number[] = [];
   
-  // Enhanced patterns to handle various money formats
+  // Simple and robust patterns that preserve the full number
   const patterns = [
-    // Standard dollar formats: $50, $1,234.56, $300000
-    /\$\s*(\d{1,3}(?:,\d{3})*(?:\.\d{2})?|\d+(?:\.\d{2})?)/g,
-    // Dollar amounts with words: 50 dollars, 1234 USD
-    /(\d{1,3}(?:,\d{3})*(?:\.\d{2})?|\d+(?:\.\d{2})?)\s*(?:dollars?|usd|bucks?)/gi,
-    // Numbers after transaction words: spent 45, bought 1234
-    /(?:spent|paid|cost|earned|received|got|bought|purchase)\s+.*?\$?\s*(\d{1,3}(?:,\d{3})*(?:\.\d{2})?|\d+(?:\.\d{2})?)/gi,
-    // Numbers with prepositions: $45 for, $1234 on
-    /\$?\s*(\d{1,3}(?:,\d{3})*(?:\.\d{2})?|\d+(?:\.\d{2})?)\s*(?:for|on)\s/gi
+    // $300000, $1200, $45.50
+    /\$(\d+(?:\.\d{1,2})?)/g,
+    // 300000 dollars, 1200 USD, 45 bucks
+    /(\d+(?:\.\d{1,2})?)\s*(?:dollars?|usd|bucks?)\b/gi,
+    // After transaction words: bought 1200, spent 45
+    /\b(?:bought|spent|paid|cost|earned|received)\s+[^\d]*?(\d+(?:\.\d{1,2})?)/gi
   ];
   
   for (const pattern of patterns) {
     let match;
+    // Reset regex lastIndex to avoid issues with global flag
+    pattern.lastIndex = 0;
+    
     while ((match = pattern.exec(text)) !== null) {
-      const amountStr = match[1].replace(/,/g, '');
+      const amountStr = match[1];
       const amount = parseFloat(amountStr);
       
-      if (!isNaN(amount) && amount > 0 && amount < 10000000) { // Reasonable upper limit
+      // Validate the amount
+      if (!isNaN(amount) && amount > 0 && amount <= 10000000) {
         amounts.push(amount);
       }
     }
   }
   
+  // Remove duplicates and return
   return [...new Set(amounts)];
 }
 
@@ -460,56 +463,43 @@ function cleanContent(text: string, type: string): string {
 }
 
 /**
- * Clean transaction description with improved amount removal
+ * Clean transaction description - COMPLETELY REWRITTEN
  */
 function cleanTransactionDescription(text: string, amount?: number): string {
   let cleaned = text;
   
   // Remove the amount from description if present
   if (amount) {
-    // Create patterns to match the amount in various formats
-    const amountPatterns = [
-      // Exact amount with dollar sign: $300000
-      new RegExp(`\\$\\s*${amount}(?!\\.\\d)\\b`, 'gi'),
-      // Exact amount without dollar sign: 300000
-      new RegExp(`\\b${amount}(?!\\.\\d)\\b`, 'gi'),
-      // Amount with commas: $300,000
-      new RegExp(`\\$\\s*${amount.toLocaleString()}`, 'gi'),
-      // Amount with words: 300000 dollars
-      new RegExp(`\\b${amount}\\s*(?:dollars?|usd|bucks?)`, 'gi')
-    ];
+    // Create simple patterns to remove the amount
+    const amountStr = amount.toString();
     
-    for (const pattern of amountPatterns) {
-      cleaned = cleaned.replace(pattern, '').trim();
-    }
+    // Remove $amount or amount
+    cleaned = cleaned.replace(new RegExp(`\\$${amountStr}\\b`, 'gi'), '');
+    cleaned = cleaned.replace(new RegExp(`\\b${amountStr}\\s*(?:dollars?|usd|bucks?)\\b`, 'gi'), '');
+    cleaned = cleaned.replace(new RegExp(`\\b${amountStr}\\b`, 'gi'), '');
   }
   
-  // Remove transaction prefixes
-  const transactionPrefixes = [
-    'spent', 'spend', 'bought', 'buy', 'purchased', 'purchase',
-    'paid', 'pay', 'cost', 'earned', 'received', 'got paid',
-    'sold', 'made', 'ordered', 'order'
-  ];
+  // Remove transaction action words from the beginning
+  const actionWords = ['bought', 'buy', 'purchased', 'purchase', 'spent', 'spend', 'paid', 'pay', 'cost', 'earned', 'received', 'got', 'made', 'sold'];
   
-  for (const prefix of transactionPrefixes) {
-    const regex = new RegExp(`^${prefix}\\s+`, 'i');
+  for (const word of actionWords) {
+    const regex = new RegExp(`^${word}\\s+`, 'i');
     if (regex.test(cleaned)) {
-      cleaned = cleaned.replace(regex, '').trim();
+      cleaned = cleaned.replace(regex, '');
       break;
     }
   }
   
-  // Clean up extra words and prepositions
-  for (const prep of ['for', 'on', 'at', 'from', 'about']) {
+  // Remove common prepositions from the beginning
+  const prepositions = ['for', 'on', 'at', 'from', 'about', 'of'];
+  for (const prep of prepositions) {
     const regex = new RegExp(`^${prep}\\s+`, 'i');
     cleaned = cleaned.replace(regex, '');
   }
   
-  // Remove dollar signs and currency symbols
-  cleaned = cleaned.replace(/[\$€£¥]/g, '').trim();
-  
-  // Remove extra whitespace
-  cleaned = cleaned.replace(/\s+/g, ' ').trim();
+  // Clean up extra whitespace and symbols
+  cleaned = cleaned.replace(/[\$€£¥]/g, ''); // Remove currency symbols
+  cleaned = cleaned.replace(/\s+/g, ' ').trim(); // Normalize whitespace
   
   // Ensure proper capitalization
   if (cleaned.length > 0) {
@@ -551,5 +541,6 @@ export const EXAMPLE_COMMANDS = [
   "$1200 salary payment received",
   "Purchased lunch $12",
   "Spend $30 on gas",
-  "Bought apple TV $300000"
+  "Bought apple TV $300000",
+  "Bought iPhone $1200"
 ];
