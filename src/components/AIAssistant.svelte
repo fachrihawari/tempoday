@@ -15,7 +15,6 @@ import BottomSheet from './ui/BottomSheet.svelte';
 let userInput = $state('');
 let isProcessing = $state(false);
 let lastParsedCommand = $state<ParsedCommand | null>(null);
-let showExamples = $state(false);
 let showDetailedHelp = $state(false);
 let processingResult = $state<{ type: 'success' | 'error'; message: string } | null>(null);
 
@@ -102,7 +101,6 @@ function handleKeydown(event: KeyboardEvent) {
 
 function insertExample(example: string) {
   userInput = example;
-  showExamples = false;
   showDetailedHelp = false;
 }
 
@@ -142,26 +140,6 @@ const categorizedExamples = {
         onDismiss={clearResult}
         class="mb-4"
       />
-    {/if}
-
-    <!-- Quick Examples Section -->
-    {#if showExamples}
-      <div class="mb-4 p-4 bg-purple-50 rounded-lg border border-purple-200">
-        <h4 class="font-medium text-purple-900 mb-3 flex items-center gap-2">
-          <Icon name="info-circle" size="sm" class="text-purple-600" />
-          Quick Examples:
-        </h4>
-        <div class="space-y-2">
-          {#each EXAMPLE_COMMANDS.slice(0, 6) as example}
-            <button
-              onclick={() => insertExample(example)}
-              class="block w-full text-left text-sm text-purple-700 hover:text-purple-900 hover:bg-purple-100 p-2 rounded transition-colors"
-            >
-              "{example}"
-            </button>
-          {/each}
-        </div>
-      </div>
     {/if}
 
     <!-- Input Section -->
@@ -212,20 +190,6 @@ Press Ctrl+Enter to process`}
           </Button>
         {/if}
       </div>
-
-      <div class="flex gap-2">
-        <Button
-          variant="ghost"
-          size="sm"
-          onclick={() => showExamples = !showExamples}
-          class="text-purple-600 hover:text-purple-700 flex-1"
-        >
-          {#snippet children()}
-            <Icon name={showExamples ? 'close' : 'info-circle'} size="sm" class="mr-1" />
-            {showExamples ? 'Hide Examples' : 'Show Examples'}
-          {/snippet}
-        </Button>
-      </div>
     </div>
 
     <!-- Preview Section -->
@@ -255,17 +219,6 @@ Press Ctrl+Enter to process`}
         </div>
       </div>
     {/if}
-
-    <!-- Help Text -->
-    <div class="mt-4 text-xs text-gray-500 bg-gray-50 p-3 rounded-lg">
-      <p class="font-medium mb-1">💡 Tips:</p>
-      <ul class="space-y-1">
-        <li>• Use action words for tasks: "call", "buy", "finish", "schedule"</li>
-        <li>• Include amounts for transactions: "spent $20 on lunch"</li>
-        <li>• Write naturally for notes: "feeling grateful today"</li>
-        <li>• Press Ctrl+Enter to quickly process your command</li>
-      </ul>
-    </div>
 
     <!-- Detailed Help Bottom Sheet -->
     <BottomSheet bind:open={showDetailedHelp} title="AI Assistant Guide">
