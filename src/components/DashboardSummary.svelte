@@ -1,4 +1,5 @@
 <script lang="ts">
+import { onMount } from 'svelte'
 import { formatDateKey } from '../lib/date';
 import { formatCurrency } from '../lib/currency';
 import { appState } from '../stores/app.svelte';
