@@ -46,7 +46,8 @@ function toggleExpanded() {
 
 <section class="bg-white border-b border-gray-200 {className}">
   {#if title}
-    <div class="flex items-center justify-between {paddings[padding]} {collapsible ? 'pb-0' : ''}">
+    <!-- Header Section -->
+    <div class="flex items-center justify-between {paddings[padding]} {collapsible && isExpanded ? 'pb-2' : collapsible ? 'pb-4' : ''}">
       <button
         onclick={toggleExpanded}
         disabled={!collapsible}
@@ -73,6 +74,7 @@ function toggleExpanded() {
       {/if}
     </div>
     
+    <!-- Header Action for Collapsible (when expanded) -->
     {#if headerAction && collapsible && isExpanded}
       <div class="px-4 pb-2">
         {@render headerAction()}
@@ -80,8 +82,9 @@ function toggleExpanded() {
     {/if}
   {/if}
   
+  <!-- Content Section -->
   {#if !collapsible || isExpanded}
-    <div class="{title ? (collapsible ? 'px-4 pb-4' : '') : paddings[padding]}">
+    <div class="{title ? (collapsible ? 'px-4 pb-4' : 'pt-0 ' + paddings[padding]) : paddings[padding]}">
       {@render children()}
     </div>
   {/if}
