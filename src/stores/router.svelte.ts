@@ -1,37 +1,66 @@
-// WebContainer-compatible router for Svelte 5
-let currentPath = $state('/');
+class ReactiveRouter {
+  #currentPath = $state('/');
+  #isInitialized = false;
 
-// Export a function that returns the current path
-export function activePath() {
-  return currentPath;
-}
-
-// WebContainer-safe navigation - only updates internal state
-export function navigate(newPath: string) {
-  if (!newPath || typeof newPath !== 'string') {
-    console.warn('Invalid path provided to navigate:', newPath);
-    return;
+  // Get the current path
+  get activePath() {
+    return this.#currentPath;
   }
-  
-  // Normalize path (ensure it starts with /)
-  const normalizedPath = newPath.startsWith('/') ? newPath : `/${newPath}`;
-  
-  // Only update internal state - NO URL manipulation in WebContainer
-  currentPath = normalizedPath;
-  
-  console.log('Navigated to:', normalizedPath); // Debug log
+
+  // WebContainer-safe navigation - only updates internal state
+  navigate(newPath: string) {
+    if (!newPath || typeof newPath !== 'string') {
+      console.warn('Invalid path provided to navigate:', newPath);
+      return;
+    }
+    
+    // Normalize path (ensure it starts with /)
+    const normalizedPath = newPath.startsWith('/') ? newPath : `/${newPath}`;
+    
+    // Only update internal state - NO URL manipulation in WebContainer
+    this.#currentPath = normalizedPath;
+    console.log('Navigated to:', normalizedPath); // Debug log
+    
+    window.history.pushState({}, '', normalizedPath);
+  }
+
+  // Simple initialization for WebContainer
+  initialize() {
+    if (this.#isInitialized) {
+      console.warn('Router is already initialized');
+      return;
+    }
+
+    // In WebContainer, don't try to read window.location
+    // Just start with default route
+    this.#currentPath = window.location.pathname || '/';
+    this.#isInitialized = true;
+    
+    console.log('Router initialized with path:', this.#currentPath);
+    
+    // Return a cleanup function
+    return () => {
+      console.log('Router cleanup called');
+      this.#isInitialized = false;
+    };
+  }
+
+  // Check if a path is currently active
+  isActive(path: string): boolean {
+    return this.#currentPath === path;
+  }
+
+  // Check if current path starts with a prefix
+  startsWith(prefix: string): boolean {
+    return this.#currentPath.startsWith(prefix);
+  }
+
+  // Reset router to initial state
+  reset() {
+    this.#currentPath = '/';
+    this.#isInitialized = false;
+    console.log('Router reset');
+  }
 }
 
-// Simple initialization for WebContainer
-export function initializeRouter() {
-  // In WebContainer, don't try to read window.location
-  // Just start with default route
-  currentPath = '/';
-  
-  console.log('Router initialized with path:', currentPath);
-  
-  // Return a no-op cleanup function
-  return () => {
-    console.log('Router cleanup called');
-  };
-}
+export const reactiveRouter = new ReactiveRouter();

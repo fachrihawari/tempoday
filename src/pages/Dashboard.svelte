@@ -1,14 +1,13 @@
 <script lang="ts">
 import { onMount } from 'svelte';
 import { formatDate } from '../lib/date';
-import { appState } from '../stores/app.svelte';
 import { reactiveTasks } from '../stores/tasks.svelte';
 import { reactiveTransactions } from '../stores/transactions.svelte';
 import { reactiveNotes } from '../stores/notes.svelte';
 import { settingsStore } from '../stores/settings.svelte';
 import { formatCurrency } from '../lib/currency';
 import { formatDateKey } from '../lib/date';
-import { navigate } from '../stores/router.svelte';
+import { reactiveRouter } from '../stores/router.svelte';
 import Card from '../components/ui/Card.svelte';
 import Button from '../components/ui/Button.svelte';
 import Icon from '../components/ui/Icon.svelte';
@@ -20,6 +19,7 @@ let { tasks, isLoading: tasksLoading } = $derived(reactiveTasks);
 let { transactions, totalIncome, totalExpenses, netBalance, isLoading: transactionsLoading } = $derived(reactiveTransactions);
 let { hasNote, isLoading: notesLoading } = $derived(reactiveNotes);
 let { settings } = $derived(settingsStore);
+let router = $derived(reactiveRouter);
 
 // Load data for today
 onMount(async () => {
@@ -44,7 +44,7 @@ function formatAmount(amount: number): string {
 }
 
 function goToCalendar() {
-  navigate('/calendar');
+  router.navigate('/calendar');
 }
 </script>
 
