@@ -72,7 +72,7 @@ const TRANSACTION_KEYWORDS = {
     'made', 'revenue', 'earnings', 'paycheck'
   ],
   expense: [
-    'spent', 'spend', 'bought', 'buy', 'purchased', 'purchase',
+    'spent', 'spend', 'bought', 'purchased', 'purchase',
     'paid', 'pay', 'cost', 'costs', 'expense', 'expenses',
     'bill', 'bills', 'fee', 'fees', 'charge', 'charges',
     'subscription', 'rent', 'mortgage', 'insurance', 'tax', 'taxes',
