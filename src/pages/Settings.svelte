@@ -96,9 +96,7 @@ import PageHeader from '../components/ui/PageHeader.svelte';
       </div>
       
       <div class="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
-        <div class="w-16 h-16 rounded-2xl flex items-center justify-center">
-          <img src='/logo.png' class="w-10 h-10" />
-        </div>
+        <img src='/logo.png' class="w-16 h-16" />
         <div class="flex-1">
           <h3 class="font-semibold text-gray-900 text-lg">TempoDay</h3>
           <p class="text-sm text-gray-600 mb-1">Version 0.0.1</p>
