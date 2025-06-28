@@ -55,9 +55,7 @@ function toggleSection(section: 'currency' | 'privacy' | 'features' | 'about') {
       </button>
       
       {#if currencyExpanded}
-        <div class="px-4 pb-4">
           <Settings />
-        </div>
       {/if}
     </section>
 
