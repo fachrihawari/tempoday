@@ -1,4 +1,4 @@
-// Simple state-based router for Svelte 5 - works in any environment
+// WebContainer-compatible router for Svelte 5
 let currentPath = $state('/');
 
 // Export a function that returns the current path
@@ -6,7 +6,7 @@ export function activePath() {
   return currentPath;
 }
 
-// Simple navigation that only updates internal state
+// WebContainer-safe navigation - only updates internal state
 export function navigate(newPath: string) {
   if (!newPath || typeof newPath !== 'string') {
     console.warn('Invalid path provided to navigate:', newPath);
@@ -16,16 +16,19 @@ export function navigate(newPath: string) {
   // Normalize path (ensure it starts with /)
   const normalizedPath = newPath.startsWith('/') ? newPath : `/${newPath}`;
   
-  // Update internal state
+  // Only update internal state - NO URL manipulation in WebContainer
   currentPath = normalizedPath;
   
-  window.location.href = normalizedPath; // Update the browser URL
   console.log('Navigated to:', normalizedPath); // Debug log
 }
 
-// Simple initialization that doesn't depend on browser APIs
+// Simple initialization for WebContainer
 export function initializeRouter() {
-  currentPath = window.location.pathname || '/';
+  // In WebContainer, don't try to read window.location
+  // Just start with default route
+  currentPath = '/';
+  
+  console.log('Router initialized with path:', currentPath);
   
   // Return a no-op cleanup function
   return () => {
