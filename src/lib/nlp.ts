@@ -53,7 +53,7 @@ const KEYWORDS = {
   
   transaction: {
     expense: new Set([
-      'spent', 'spend', 'bought', 'buy', 'purchased', 'purchase',
+      'spent', 'spend', 'bought', 'purchased', 'purchase',
       'paid', 'pay', 'cost', 'costs', 'bill', 'fee', 'charge',
       'ordered', 'order', 'delivery', 'takeout', 'subscription'
     ]),
