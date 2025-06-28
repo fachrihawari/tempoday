@@ -5,6 +5,8 @@ import { appState } from '../stores/app.svelte';
 import { reactiveNotes } from '../stores/notes.svelte';
 import { reactiveTasks } from '../stores/tasks.svelte';
 import { reactiveTransactions } from '../stores/transactions.svelte';
+import { settingsStore } from '../stores/settings.svelte';
+import { formatCurrency } from '../lib/currency';
 import Alert from './ui/Alert.svelte';
 import Button from './ui/Button.svelte';
 import Card from './ui/Card.svelte';
@@ -20,6 +22,16 @@ let textareaElement: HTMLTextAreaElement = $state()!;
 
 // Get current date for operations
 const currentDate = $derived(formatDateKey(appState.selectedDate));
+
+// Reactive settings for currency formatting
+let { settings } = $derived(settingsStore);
+
+// Helper function to format currency with current settings
+function formatAmount(amount: number): string {
+  const currency = settings?.currency || 'USD';
+  const locale = settings?.locale || 'en-US';
+  return formatCurrency(amount, currency, locale);
+}
 
 async function processCommand() {
   if (!userInput.trim()) return;
@@ -67,7 +79,7 @@ async function processCommand() {
           const symbol = parsed.transactionType === 'income' ? '+' : '-';
           processingResult = {
             type: 'success',
-            message: `💰 ${parsed.transactionType === 'income' ? 'Income' : 'Expense'} added: ${symbol}$${parsed.amount} for "${parsed.content}"`
+            message: `💰 ${parsed.transactionType === 'income' ? 'Income' : 'Expense'} added: ${symbol}${formatAmount(parsed.amount)} for "${parsed.content}"`
           };
         } else {
           throw new Error('Could not extract amount or transaction type');
@@ -143,6 +155,56 @@ const categorizedExamples = {
   notes: EXAMPLE_COMMANDS.filter((_, i) => i >= 6 && i < 12),
   transactions: EXAMPLE_COMMANDS.filter((_, i) => i >= 12)
 };
+
+// Get confidence level description
+function getConfidenceDescription(confidence: number): { text: string; color: string } {
+  if (confidence >= 0.8) return { text: 'Very High', color: 'text-green-700 bg-green-100' };
+  if (confidence >= 0.6) return { text: 'High', color: 'text-blue-700 bg-blue-100' };
+  if (confidence >= 0.4) return { text: 'Medium', color: 'text-yellow-700 bg-yellow-100' };
+  return { text: 'Low', color: 'text-red-700 bg-red-100' };
+}
+
+// Get type-specific styling
+function getTypeStyle(type: string) {
+  switch (type) {
+    case 'task':
+      return {
+        icon: '📋',
+        label: 'Task',
+        bgColor: 'bg-blue-50',
+        borderColor: 'border-blue-200',
+        textColor: 'text-blue-800',
+        badgeColor: 'bg-blue-100 text-blue-700'
+      };
+    case 'note':
+      return {
+        icon: '📝',
+        label: 'Note',
+        bgColor: 'bg-purple-50',
+        borderColor: 'border-purple-200',
+        textColor: 'text-purple-800',
+        badgeColor: 'bg-purple-100 text-purple-700'
+      };
+    case 'transaction':
+      return {
+        icon: '💰',
+        label: 'Transaction',
+        bgColor: 'bg-green-50',
+        borderColor: 'border-green-200',
+        textColor: 'text-green-800',
+        badgeColor: 'bg-green-100 text-green-700'
+      };
+    default:
+      return {
+        icon: '❓',
+        label: 'Unknown',
+        bgColor: 'bg-gray-50',
+        borderColor: 'border-gray-200',
+        textColor: 'text-gray-800',
+        badgeColor: 'bg-gray-100 text-gray-700'
+      };
+  }
+}
 </script>
 
 <Card title="TempoDay Assistant" icon="edit" iconColor="text-purple-500">
@@ -210,9 +272,12 @@ const categorizedExamples = {
       </div>
     </div>
 
-    <!-- AI Preview (ChatGPT-style) -->
+    <!-- Enhanced AI Preview -->
     {#if userInput.trim() && !isProcessing}
       {@const preview = parseNaturalLanguage(userInput)}
+      {@const typeStyle = getTypeStyle(preview.type)}
+      {@const confidenceInfo = getConfidenceDescription(preview.confidence)}
+      
       <div class="mt-4 p-4 bg-gradient-to-r from-gray-50 to-purple-50 rounded-xl border border-gray-200">
         <div class="flex items-start gap-3">
           <!-- AI Avatar -->
@@ -222,32 +287,60 @@ const categorizedExamples = {
           
           <!-- AI Response -->
           <div class="flex-1 min-w-0">
-            <div class="flex items-center gap-2 mb-2">
+            <div class="flex items-center gap-2 mb-3">
               <span class="text-sm font-medium text-gray-900">TempoDay Assistant</span>
-              <span class="px-2 py-0.5 text-xs font-medium rounded-full bg-purple-100 text-purple-700">
-                {Math.round(preview.confidence * 100)}% confident
+              <span class="px-2 py-0.5 text-xs font-medium rounded-full {confidenceInfo.color}">
+                {Math.round(preview.confidence * 100)}% confident ({confidenceInfo.text})
               </span>
             </div>
             
-            <div class="bg-white rounded-lg p-3 shadow-sm border border-gray-200">
-              <div class="flex items-center gap-2 mb-2">
-                <span class="px-2 py-1 rounded-md text-xs font-medium
-                  {preview.type === 'task' ? 'bg-blue-100 text-blue-700' : 
-                   preview.type === 'note' ? 'bg-purple-100 text-purple-700' : 
-                   'bg-green-100 text-green-700'}">
-                  {preview.type === 'task' ? '📋 Task' : 
-                   preview.type === 'note' ? '📝 Note' : 
-                   preview.type === 'transaction' ? `💰 ${preview.transactionType === 'income' ? 'Income' : 'Expense'}` : 
-                   '❓ Unknown'}
+            <!-- Enhanced Preview Card -->
+            <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
+              <!-- Type Badge and Icon -->
+              <div class="flex items-center gap-2 mb-3">
+                <span class="text-lg">{typeStyle.icon}</span>
+                <span class="px-3 py-1 rounded-full text-xs font-medium {typeStyle.badgeColor}">
+                  {typeStyle.label}
+                  {#if preview.type === 'transaction' && preview.transactionType}
+                    • {preview.transactionType === 'income' ? 'Income' : 'Expense'}
+                  {/if}
                 </span>
               </div>
               
-              <p class="text-sm text-gray-800 leading-relaxed">
-                I'll create: <strong>"{preview.content}"</strong>
+              <!-- Content Preview -->
+              <div class="space-y-2">
+                <div class="flex items-start gap-2">
+                  <span class="text-sm text-gray-600 font-medium min-w-0 flex-shrink-0">Content:</span>
+                  <span class="text-sm text-gray-900 font-medium break-words">"{preview.content}"</span>
+                </div>
+                
                 {#if preview.amount}
-                  <span class="text-green-600 font-medium"> for ${preview.amount}</span>
+                  <div class="flex items-center gap-2">
+                    <span class="text-sm text-gray-600 font-medium">Amount:</span>
+                    <span class="text-sm font-bold {preview.transactionType === 'income' ? 'text-green-600' : 'text-red-600'}">
+                      {preview.transactionType === 'income' ? '+' : '-'}{formatAmount(preview.amount)}
+                    </span>
+                  </div>
                 {/if}
-              </p>
+              </div>
+              
+              <!-- Action Preview -->
+              <div class="mt-3 pt-3 border-t border-gray-100">
+                <div class="flex items-center gap-2 text-xs text-gray-600">
+                  <Icon name="check" size="sm" class="text-green-500" />
+                  <span>
+                    {#if preview.type === 'task'}
+                      Will add to your task list for today
+                    {:else if preview.type === 'note'}
+                      Will save to your daily note
+                    {:else if preview.type === 'transaction'}
+                      Will record as {preview.transactionType} in your finances
+                    {:else}
+                      Will process as best match
+                    {/if}
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
