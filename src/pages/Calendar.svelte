@@ -3,11 +3,15 @@ import DatePicker from '../components/DatePicker.svelte';
 import FinanceSection from '../components/FinanceSection.svelte';
 import NoteSection from '../components/NoteSection.svelte';
 import TasksSection from '../components/TasksSection.svelte';
-import Header from '../components/ui/Header.svelte';
+import PageHeader from '../components/ui/PageHeader.svelte';
 </script>
 
 <!-- Header Component -->
-<Header />
+<PageHeader 
+  title="Calendar" 
+  subtitle="Manage your daily tasks, notes, and finances"
+  icon="calendar"
+/>
 
 <!-- DatePicker Component (Header + Date Picker) -->
 <DatePicker />

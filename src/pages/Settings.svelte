@@ -1,46 +1,30 @@
 <script lang="ts">
 import Settings from '../components/Settings.svelte';
-import Icon from '../components/ui/Icon.svelte';
+import PageHeader from '../components/ui/PageHeader.svelte';
 </script>
 
 <div class="h-full flex flex-col bg-gray-50">
   <!-- Header -->
-  <div class="bg-white shadow-sm border-b border-gray-200">
-    <div class="flex items-center justify-between p-6">
-      <div>
-        <h1 class="text-2xl font-bold text-gray-900">Settings</h1>
-        <p class="text-sm text-gray-600 mt-1">Customize your TempoDay experience</p>
-      </div>
-      <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
-        <Icon name="settings" class="text-white" size="lg" />
-      </div>
-    </div>
-  </div>
+  <PageHeader 
+    title="Settings" 
+    subtitle="Customize your TempoDay experience"
+    icon="settings"
+  />
 
   <!-- Settings Content -->
   <div class="flex-1 overflow-y-auto p-6 space-y-8">
     <!-- Currency Settings -->
-    <div class="space-y-4">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
-          <Icon name="dollar" class="text-green-600" size="sm" />
-        </div>
-        <div>
-          <h2 class="text-lg font-semibold text-gray-900">Currency Preference</h2>
-          <p class="text-sm text-gray-600">Choose your preferred currency for financial tracking</p>
-        </div>
-      </div>
-      
-      <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-        <Settings />
-      </div>
+    <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+      <Settings />
     </div>
 
     <!-- Privacy & Security -->
     <div class="space-y-4">
       <div class="flex items-center gap-3">
         <div class="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
-          <Icon name="check-circle" class="text-green-600" size="sm" />
+          <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
         </div>
         <div>
           <h2 class="text-lg font-semibold text-gray-900">Privacy & Security</h2>
@@ -59,7 +43,9 @@ import Icon from '../components/ui/Icon.svelte';
     <div class="space-y-4">
       <div class="flex items-center gap-3">
         <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
-          <Icon name="check-circle" class="text-blue-600" size="sm" />
+          <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
         </div>
         <div>
           <h2 class="text-lg font-semibold text-gray-900">Key Features</h2>
@@ -70,19 +56,28 @@ import Icon from '../components/ui/Icon.svelte';
       <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
         <div class="grid grid-cols-1 gap-4">
           <div class="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
-            <Icon name="calendar" class="text-blue-600" size="sm" />
+            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
             <span class="text-sm text-blue-800 font-medium">Calendar-centric task management</span>
           </div>
           <div class="flex items-center gap-3 p-3 bg-purple-50 rounded-lg">
-            <Icon name="edit" class="text-purple-600" size="sm" />
+            <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+            </svg>
             <span class="text-sm text-purple-800 font-medium">Daily notes and journaling</span>
           </div>
           <div class="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
-            <Icon name="dollar" class="text-green-600" size="sm" />
+            <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <line stroke-width="2" x1="12" y1="1" x2="12" y2="23"></line>
+              <path stroke-width="2" d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+            </svg>
             <span class="text-sm text-green-800 font-medium">Personal finance tracking</span>
           </div>
           <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-            <Icon name="check-circle" class="text-gray-600" size="sm" />
+            <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
             <span class="text-sm text-gray-800 font-medium">Offline-first with local storage</span>
           </div>
         </div>
@@ -93,7 +88,9 @@ import Icon from '../components/ui/Icon.svelte';
     <div class="space-y-4">
       <div class="flex items-center gap-3">
         <div class="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center">
-          <Icon name="info-circle" class="text-purple-600" size="sm" />
+          <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
         </div>
         <div>
           <h2 class="text-lg font-semibold text-gray-900">About TempoDay</h2>
