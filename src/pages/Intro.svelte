@@ -19,31 +19,31 @@ const slides = [
     title: 'Calendar-Centric',
     subtitle: 'Everything organized by date',
     description: 'Navigate through your days with an intuitive calendar interface. See all your tasks, notes, and finances in one place.',
-    gradient: 'from-blue-400 to-blue-600',
-    bgGradient: 'from-blue-50 to-blue-100',
+    gradient: 'from-amber-400 to-orange-500', // Warm cream/tempo colors
+    bgGradient: 'from-amber-50 to-orange-50',
   },
   {
     icon: 'clipboard',
     title: 'Smart Tasks',
     subtitle: 'Get things done efficiently',
     description: 'Create, organize, and track your daily tasks with simple taps. Mark them complete and stay productive.',
-    gradient: 'from-purple-400 to-purple-600',
-    bgGradient: 'from-purple-50 to-purple-100',
+    gradient: 'from-blue-400 to-blue-600', // Blue for tasks
+    bgGradient: 'from-blue-50 to-blue-100',
   },
   {
     icon: 'edit',
     title: 'Daily Notes',
     subtitle: 'Capture your thoughts',
     description: 'Write reflections, memories, and ideas in your personal diary. Your thoughts, safely stored.',
-    gradient: 'from-emerald-400 to-emerald-600',
-    bgGradient: 'from-emerald-50 to-emerald-100',
+    gradient: 'from-purple-400 to-purple-600', // Purple for notes
+    bgGradient: 'from-purple-50 to-purple-100',
   },
   {
     icon: 'dollar',
     title: 'Finance Tracking',
     subtitle: 'Monitor your money',
     description: 'Track income and expenses with instant daily summaries. Keep your finances organized and visible.',
-    gradient: 'from-green-400 to-green-600',
+    gradient: 'from-green-400 to-green-600', // Green for finance
     bgGradient: 'from-green-50 to-green-100',
   },
   {
@@ -119,7 +119,7 @@ function handleSwipe() {
 const currentSlideData = $derived(slides[currentSlide]);
 </script>
 
-<!-- Beautiful Original Design with Subtle Improvements -->
+<!-- Beautiful Original Design with Correct TempoDay Colors -->
 <div class="h-screen flex flex-col bg-gradient-to-br {currentSlideData.bgGradient} transition-all duration-500 overflow-hidden">
   <!-- Header -->
   <div class="flex items-center justify-between px-6 py-6">
@@ -214,18 +214,18 @@ const currentSlideData = $derived(slides[currentSlide]);
       {/if}
     </div>
 
-    <!-- Feature Tags -->
+    <!-- Feature Tags with Correct Colors -->
     <div class="flex justify-center gap-2 flex-wrap">
-      <span class="px-3 py-1 bg-white/80 rounded-full text-sm font-medium text-gray-700 shadow-sm">
+      <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium shadow-sm">
         📋 Tasks
       </span>
-      <span class="px-3 py-1 bg-white/80 rounded-full text-sm font-medium text-gray-700 shadow-sm">
+      <span class="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium shadow-sm">
         📝 Notes
       </span>
-      <span class="px-3 py-1 bg-white/80 rounded-full text-sm font-medium text-gray-700 shadow-sm">
+      <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium shadow-sm">
         💰 Finance
       </span>
-      <span class="px-3 py-1 bg-white/80 rounded-full text-sm font-medium text-gray-700 shadow-sm">
+      <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm font-medium shadow-sm">
         🔒 Private
       </span>
     </div>
