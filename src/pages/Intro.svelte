@@ -182,16 +182,22 @@ const currentSlideData = $derived(slides[currentSlide]);
 
   <!-- Bottom Section -->
   <div class="px-6 pb-8 space-y-6">
-    <!-- Slide Indicators -->
-    <div class="flex justify-center gap-2">
+    <!-- Enhanced Slide Indicators with Better Contrast -->
+    <div class="flex justify-center gap-3">
       {#each slides as slide, index}
         <button
           onclick={() => goToSlide(index)}
-          class="w-3 h-3 rounded-full transition-all duration-300 {index === currentSlide 
-            ? 'scale-125' 
-            : 'bg-white/50 hover:bg-white/70'}"
-          style={index === currentSlide ? slide.customStyle : ''}
-        ></button>
+          class="relative w-4 h-4 rounded-full transition-all duration-300 transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400
+            {index === currentSlide 
+              ? 'scale-125 shadow-lg' 
+              : 'bg-white/80 hover:bg-white shadow-md border-2 border-gray-300'}"
+          style={index === currentSlide ? slide.customStyle + '; box-shadow: 0 4px 12px rgba(0,0,0,0.15), 0 0 0 3px rgba(255,255,255,0.8)' : ''}
+        >
+          <!-- Inner dot for inactive indicators -->
+          {#if index !== currentSlide}
+            <div class="absolute inset-1 bg-gray-400 rounded-full"></div>
+          {/if}
+        </button>
       {/each}
     </div>
 
