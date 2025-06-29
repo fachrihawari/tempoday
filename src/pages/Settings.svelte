@@ -17,7 +17,17 @@ import PageHeader from '../components/ui/PageHeader.svelte';
   <!-- Settings Content -->
   <div class="flex-1 overflow-y-auto">
     <!-- Backup & Restore Section -->
-    <BackupRestore />
+    <Card 
+      title="Backup & Restore" 
+      icon="save" 
+      iconColor="text-blue-500"
+      collapsible={true}
+      defaultExpanded={false}
+    >
+      {#snippet children()}
+        <BackupRestore />
+      {/snippet}
+    </Card>
 
     <!-- Currency Settings Section -->
     <Card 
