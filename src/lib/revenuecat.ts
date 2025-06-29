@@ -1,5 +1,5 @@
 // RevenueCat Integration for TempoDay Donations
-import Purchases, { type CustomerInfo, type PurchasesOffering, type PurchasesPackage } from '@revenuecat/purchases-js';
+import Purchases, { CustomerInfo, PurchasesOffering, PurchasesPackage } from '@revenuecat/purchases-js';
 
 export interface DonationTier {
   id: string;
