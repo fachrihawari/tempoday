@@ -25,7 +25,7 @@ import PageHeader from '../components/ui/PageHeader.svelte';
       icon="dollar" 
       iconColor="text-green-500"
       collapsible={true}
-      defaultExpanded={true}
+      defaultExpanded={false}
     >
       {#snippet children()}
         <Settings />
