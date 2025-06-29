@@ -6,6 +6,7 @@ import Button from '../components/ui/Button.svelte';
 import Card from '../components/ui/Card.svelte';
 import Icon from '../components/ui/Icon.svelte';
 import PageHeader from '../components/ui/PageHeader.svelte';
+import { toastStore } from '../stores/toast.svelte';
 
 let showDonationModal = $state(false);
 
@@ -24,6 +25,7 @@ async function handleRateUs() {
     window.open(GITHUB_REPO_URL, '_blank', 'noopener,noreferrer');
   } catch (error) {
     console.error('Failed to open GitHub repo:', error);
+    toastStore.error('Failed to open GitHub repository');
   }
 }
 
@@ -32,6 +34,7 @@ async function handleShare() {
     // Try Web Share API first
     if (navigator.share && navigator.canShare && navigator.canShare(SHARE_CONTENT)) {
       await navigator.share(SHARE_CONTENT);
+      toastStore.success('Content shared successfully!');
       return;
     }
     
@@ -40,8 +43,7 @@ async function handleShare() {
     
     if (navigator.clipboard && navigator.clipboard.writeText) {
       await navigator.clipboard.writeText(shareText);
-      // You could add a toast notification here to inform user it was copied
-      console.log('Share content copied to clipboard');
+      toastStore.success('Share content copied to clipboard!');
     } else {
       // Final fallback for older browsers
       const textArea = document.createElement('textarea');
@@ -54,10 +56,11 @@ async function handleShare() {
       textArea.select();
       document.execCommand('copy');
       document.body.removeChild(textArea);
-      console.log('Share content copied to clipboard (fallback)');
+      toastStore.success('Share content copied to clipboard!');
     }
   } catch (error) {
     console.error('Failed to share:', error);
+    toastStore.error('Failed to share content');
   }
 }
 </script>

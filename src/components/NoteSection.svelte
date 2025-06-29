@@ -2,7 +2,7 @@
 import { formatDateKey } from '../lib/date';
 import { appState } from '../stores/app.svelte';
 import { reactiveNotes } from '../stores/notes.svelte';
-import Alert from './ui/Alert.svelte';
+import { toastStore } from '../stores/toast.svelte';
 import BottomSheet from './ui/BottomSheet.svelte';
 import Button from './ui/Button.svelte';
 import Card from './ui/Card.svelte';
@@ -23,6 +23,14 @@ $effect(() => {
   reactiveNotes.loadNote(dateKey);
 });
 
+// Watch for errors and show toast
+$effect(() => {
+  if (error) {
+    toastStore.error(error);
+    reactiveNotes.clearError();
+  }
+});
+
 function startEditing() {
   editingText = content;
   isEditing = true;
@@ -36,6 +44,7 @@ async function saveNote(event?: Event) {
   const dateKey = formatDateKey(appState.selectedDate);
   try {
     await reactiveNotes.saveNote({ content: editingText, date: dateKey });
+    toastStore.success('Note saved successfully');
     cancelEditing();
   } catch (err) {
     console.error('Failed to save note:', err);
@@ -46,10 +55,6 @@ async function saveNote(event?: Event) {
 function cancelEditing() {
   editingText = '';
   isEditing = false;
-  // Clear any error when closing form
-  if (error) {
-    reactiveNotes.clearError();
-  }
 }
 
 function handleKeydown(event: KeyboardEvent) {
@@ -65,15 +70,6 @@ function handleKeydown(event: KeyboardEvent) {
 
 <Card title="Daily Note" icon="edit" iconColor="text-purple-500">
   {#snippet children()}
-    {#if error}
-      <Alert
-        type="error"
-        description={error}
-        onDismiss={() => reactiveNotes.clearError()}
-        class="mb-4"
-      />
-    {/if}
-
     <!-- Note Edit Form -->
     <BottomSheet
       bind:open={isEditing}

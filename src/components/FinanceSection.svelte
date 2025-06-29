@@ -5,8 +5,8 @@ import { formatCurrency } from '../lib/currency';
 import { formatDateKey } from '../lib/date';
 import { appState } from '../stores/app.svelte';
 import { settingsStore } from '../stores/settings.svelte';
+import { toastStore } from '../stores/toast.svelte';
 import { reactiveTransactions } from '../stores/transactions.svelte';
-import Alert from './ui/Alert.svelte';
 import BottomSheet from './ui/BottomSheet.svelte';
 import Button from './ui/Button.svelte';
 import Card from './ui/Card.svelte';
@@ -47,6 +47,14 @@ onMount(() => {
   settingsStore.loadSettings();
 });
 
+// Watch for errors and show toast
+$effect(() => {
+  if (error) {
+    toastStore.error(error);
+    reactiveTransactions.clearError();
+  }
+});
+
 // Helper function to format currency with current settings
 function formatAmount(amount: number): string {
   // Provide fallback values if settings haven't loaded yet
@@ -70,6 +78,7 @@ async function handleAddTransaction(event?: Event) {
       type,
       date: dateKey,
     });
+    toastStore.success(`${type === 'income' ? 'Income' : 'Expense'} added successfully`);
     resetForm();
   } catch (err) {
     console.error('Failed to add transaction:', err);
@@ -82,10 +91,6 @@ function resetForm() {
   amount = 0;
   type = 'expense';
   showAddForm = false;
-  // Clear any error when closing form
-  if (error) {
-    reactiveTransactions.clearError();
-  }
 }
 </script>
 
@@ -101,15 +106,6 @@ function resetForm() {
   {/snippet}
 
   {#snippet children()}
-    {#if error}
-      <Alert
-        type="error"
-        description={error}
-        onDismiss={() => reactiveTransactions.clearError()}
-        class="mb-4"
-      />
-    {/if}
-
     <!-- Daily Summary -->
     {#if transactions.length > 0 && !isLoading}
       <div class="bg-gray-50 rounded-lg p-3 mb-4 space-y-2">

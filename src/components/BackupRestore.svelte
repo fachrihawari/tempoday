@@ -1,10 +1,10 @@
 <script lang="ts">
 import { backupManager } from '../lib/backup';
-import Alert from './ui/Alert.svelte';
 import BottomSheet from './ui/BottomSheet.svelte';
 import Button from './ui/Button.svelte';
 import Icon from './ui/Icon.svelte';
 import Loading from './ui/Loading.svelte';
+import { toastStore } from '../stores/toast.svelte';
 
 let showBackupModal = $state(false);
 let showRestoreModal = $state(false);
@@ -49,18 +49,23 @@ async function handleWebShareBackup() {
     backupResult = result;
     
     if (result.success) {
+      toastStore.success(result.message);
       // Auto-close modal after success
       setTimeout(() => {
         showBackupModal = false;
         backupResult = null;
       }, 3000);
+    } else {
+      toastStore.error(result.message);
     }
   } catch (error) {
     console.error('Backup failed:', error);
+    const message = error instanceof Error ? error.message : 'Backup failed';
+    toastStore.error(message);
     backupResult = {
       success: false,
       method: 'error',
-      message: error instanceof Error ? error.message : 'Backup failed'
+      message
     };
   } finally {
     isBackingUp = false;
@@ -76,18 +81,23 @@ async function handleDownloadBackup() {
     backupResult = result;
     
     if (result.success) {
+      toastStore.success(result.message);
       // Auto-close modal after success
       setTimeout(() => {
         showBackupModal = false;
         backupResult = null;
       }, 3000);
+    } else {
+      toastStore.error(result.message);
     }
   } catch (error) {
     console.error('Download backup failed:', error);
+    const message = error instanceof Error ? error.message : 'Download backup failed';
+    toastStore.error(message);
     backupResult = {
       success: false,
       method: 'error',
-      message: error instanceof Error ? error.message : 'Download backup failed'
+      message
     };
   } finally {
     isBackingUp = false;
@@ -100,6 +110,7 @@ async function handleRestoreFromClipboard() {
 
   try {
     await backupManager.restoreFromClipboard();
+    toastStore.success('Data restored successfully from clipboard!');
     restoreResult = {
       success: true,
       message: 'Data restored successfully from clipboard!'
@@ -115,9 +126,11 @@ async function handleRestoreFromClipboard() {
     }, 3000);
   } catch (error) {
     console.error('Restore failed:', error);
+    const message = error instanceof Error ? error.message : 'Restore failed';
+    toastStore.error(message);
     restoreResult = {
       success: false,
-      message: error instanceof Error ? error.message : 'Restore failed'
+      message
     };
   } finally {
     isRestoring = false;
@@ -138,6 +151,7 @@ async function handleRestoreFromFile() {
 
     try {
       await backupManager.restoreFromFile(file);
+      toastStore.success('Data restored successfully from file!');
       restoreResult = {
         success: true,
         message: 'Data restored successfully from file!'
@@ -153,9 +167,11 @@ async function handleRestoreFromFile() {
       }, 3000);
     } catch (error) {
       console.error('Restore failed:', error);
+      const message = error instanceof Error ? error.message : 'Restore failed';
+      toastStore.error(message);
       restoreResult = {
         success: false,
-        message: error instanceof Error ? error.message : 'Restore failed'
+        message
       };
     } finally {
       isRestoring = false;
@@ -272,14 +288,6 @@ function getBackupMethodTitle(method: string): string {
             {backupResult.message}
           </p>
         </div>
-      {:else if backupResult && !backupResult.success}
-        <!-- Error State -->
-        <Alert
-          type="error"
-          description={backupResult.message}
-          dismissible={true}
-          onDismiss={() => backupResult = null}
-        />
       {:else}
         <!-- Backup Options -->
         <div class="space-y-4">
@@ -402,14 +410,6 @@ function getBackupMethodTitle(method: string): string {
             {restoreResult.message}
           </p>
         </div>
-      {:else if restoreResult && !restoreResult.success}
-        <!-- Error State -->
-        <Alert
-          type="error"
-          description={restoreResult.message}
-          dismissible={true}
-          onDismiss={() => restoreResult = null}
-        />
       {:else}
         <!-- Restore Options -->
         <div class="space-y-4">

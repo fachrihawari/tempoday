@@ -1,6 +1,6 @@
 <script lang="ts">
 import { settingsStore } from '../stores/settings.svelte';
-import Alert from './ui/Alert.svelte';
+import { toastStore } from '../stores/toast.svelte';
 import Icon from './ui/Icon.svelte';
 import Loading from './ui/Loading.svelte';
 
@@ -27,14 +27,27 @@ $effect(() => {
   settingsStore.loadSettings();
 });
 
+// Watch for errors and show toast
+$effect(() => {
+  if (error) {
+    toastStore.error(error);
+    settingsStore.clearError();
+  }
+});
+
 async function updateCurrency(currencyCode: string) {
   const currency = currencies.find((c) => c.code === currencyCode);
   if (currency) {
-    await settingsStore.updateSettings({
-      currency: currency.code,
-      currencySymbol: currency.symbol,
-      locale: getLocaleForCurrency(currency.code),
-    });
+    try {
+      await settingsStore.updateSettings({
+        currency: currency.code,
+        currencySymbol: currency.symbol,
+        locale: getLocaleForCurrency(currency.code),
+      });
+      toastStore.success(`Currency updated to ${currency.code}`);
+    } catch (error) {
+      // Error will be handled by the effect above
+    }
   }
 }
 
@@ -55,15 +68,6 @@ function getLocaleForCurrency(currencyCode: string): string {
   return localeMap[currencyCode] || 'en-US';
 }
 </script>
-
-{#if error}
-  <Alert
-    type="error"
-    description={error}
-    onDismiss={() => settingsStore.clearError()}
-    class="mb-4"
-  />
-{/if}
 
 {#if isLoading}
   <Loading size="lg" message="Loading settings..." />
