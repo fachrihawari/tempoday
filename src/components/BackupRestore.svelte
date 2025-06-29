@@ -67,6 +67,33 @@ async function handleWebShareBackup() {
   }
 }
 
+async function handleDownloadBackup() {
+  isBackingUp = true;
+  backupResult = null;
+
+  try {
+    const result = await backupManager.createDownloadBackup();
+    backupResult = result;
+    
+    if (result.success) {
+      // Auto-close modal after success
+      setTimeout(() => {
+        showBackupModal = false;
+        backupResult = null;
+      }, 3000);
+    }
+  } catch (error) {
+    console.error('Download backup failed:', error);
+    backupResult = {
+      success: false,
+      method: 'error',
+      message: error instanceof Error ? error.message : 'Download backup failed'
+    };
+  } finally {
+    isBackingUp = false;
+  }
+}
+
 async function handleRestoreFromClipboard() {
   isRestoring = true;
   restoreResult = null;
@@ -266,7 +293,7 @@ function getBackupMethodTitle(method: string): string {
             </p>
           </div>
 
-          <!-- Web Share Option (Primary) -->
+          <!-- Web Share Option -->
           <Button
             variant="primary"
             fullWidth
@@ -292,19 +319,34 @@ function getBackupMethodTitle(method: string): string {
             {/snippet}
           </Button>
 
-          <!-- Coming Soon Options -->
-          <div class="space-y-2 opacity-60">
-            <div class="flex items-center gap-4 p-4 border-2 border-dashed border-gray-300 rounded-lg">
-              <div class="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center">
-                <span class="text-2xl">💾</span>
+          <!-- Download File Option -->
+          <Button
+            variant="outline"
+            fullWidth
+            onclick={handleDownloadBackup}
+            disabled={isBackingUp}
+            class="!p-4 !text-left !justify-start"
+          >
+            {#snippet children()}
+              <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+                  <span class="text-2xl">💾</span>
+                </div>
+                <div class="flex-1">
+                  <div class="font-medium text-gray-900">Download File</div>
+                  <div class="text-sm text-gray-600">Save backup file to Downloads</div>
+                </div>
+                {#if isBackingUp}
+                  <Icon name="loader" class="animate-spin text-gray-400" />
+                {:else}
+                  <Icon name="chevron-down" class="text-gray-400 rotate-[-90deg]" />
+                {/if}
               </div>
-              <div class="flex-1">
-                <div class="font-medium text-gray-700">Download File</div>
-                <div class="text-sm text-gray-500">Coming soon in next update</div>
-              </div>
-              <span class="text-xs bg-gray-200 text-gray-600 px-2 py-1 rounded-full">Soon</span>
-            </div>
+            {/snippet}
+          </Button>
 
+          <!-- Coming Soon Option -->
+          <div class="opacity-60">
             <div class="flex items-center gap-4 p-4 border-2 border-dashed border-gray-300 rounded-lg">
               <div class="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center">
                 <span class="text-2xl">☁️</span>
@@ -334,8 +376,8 @@ function getBackupMethodTitle(method: string): string {
             Backup Tips
           </h4>
           <ul class="text-sm text-blue-800 space-y-1">
-            <li>• Email yourself for cloud backup</li>
-            <li>• Save to Google Drive or iCloud</li>
+            <li>• Use "Share to Apps" for cloud backup</li>
+            <li>• Use "Download File" for local backup</li>
             <li>• Keep multiple backup copies</li>
             <li>• Test restore process occasionally</li>
           </ul>

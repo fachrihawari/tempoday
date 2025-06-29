@@ -1,4 +1,4 @@
-// Backup and Restore functionality using Web Share API
+// Backup and Restore functionality using Web Share API and File Download
 import { db } from '../dexie/db';
 import type { Note, Settings, Task, Transaction } from '../dexie/models';
 
@@ -131,7 +131,33 @@ export class BackupManager {
   }
 
   /**
-   * Download file fallback method
+   * Create backup and download as file directly
+   */
+  async createDownloadBackup(): Promise<BackupResult> {
+    try {
+      const backupData = await this.exportAllData();
+      const backupText = JSON.stringify(backupData, null, 2);
+      const fileName = `tempoday-backup-${new Date().toISOString().split('T')[0]}.json`;
+
+      this.downloadFile(backupText, fileName);
+      
+      return {
+        success: true,
+        method: 'download',
+        message: 'Backup file downloaded successfully! Check your Downloads folder.',
+      };
+    } catch (error) {
+      console.error('Download backup failed:', error);
+      return {
+        success: false,
+        method: 'download',
+        message: error instanceof Error ? error.message : 'Download backup failed',
+      };
+    }
+  }
+
+  /**
+   * Download file method
    */
   private downloadFile(content: string, fileName: string): void {
     const blob = new Blob([content], { type: 'application/json' });
@@ -139,6 +165,7 @@ export class BackupManager {
     const link = document.createElement('a');
     link.href = url;
     link.download = fileName;
+    link.style.display = 'none';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
