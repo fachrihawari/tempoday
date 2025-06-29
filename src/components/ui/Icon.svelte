@@ -20,7 +20,8 @@ export type IconName =
   | 'home'
   | 'calendar'
   | 'chevron-down'
-  | 'chevron-right';
+  | 'chevron-right'
+  | 'chevron-left';
 export type IconSize = 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl';
 
 interface Props {
@@ -65,6 +66,7 @@ const icons = {
   calendar: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>`,
   'chevron-down': `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>`,
   'chevron-right': `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>`,
+  'chevron-left': `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>`,
 };
 </script>
 
