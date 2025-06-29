@@ -1,9 +1,13 @@
 <script lang="ts">
 import BackupRestore from '../components/BackupRestore.svelte';
+import DonationModal from '../components/DonationModal.svelte';
 import Settings from '../components/Settings.svelte';
+import Button from '../components/ui/Button.svelte';
 import Card from '../components/ui/Card.svelte';
 import Icon from '../components/ui/Icon.svelte';
 import PageHeader from '../components/ui/PageHeader.svelte';
+
+let showDonationModal = $state(false);
 </script>
 
 <div class="h-full flex flex-col">
@@ -16,6 +20,74 @@ import PageHeader from '../components/ui/PageHeader.svelte';
 
   <!-- Settings Content -->
   <div class="flex-1 overflow-y-auto">
+    <!-- Support TempoDay Section -->
+    <Card 
+      title="Support TempoDay" 
+      icon="check-circle" 
+      iconColor="text-red-500"
+      collapsible={true}
+      defaultExpanded={false}
+    >
+      {#snippet children()}
+        <div class="space-y-4">
+          <!-- Support Message -->
+          <div class="bg-gradient-to-r from-red-50 to-pink-50 rounded-lg p-4 border border-red-200">
+            <div class="flex items-start gap-3">
+              <div class="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span class="text-white text-lg">❤️</span>
+              </div>
+              <div>
+                <h3 class="font-medium text-gray-900 mb-1">Love TempoDay?</h3>
+                <p class="text-sm text-gray-700 leading-relaxed mb-3">
+                  Help us keep TempoDay free and continuously improving. Your support makes a real difference in our development journey.
+                </p>
+                <div class="flex flex-wrap gap-2 text-xs text-gray-600">
+                  <span class="bg-white px-2 py-1 rounded-full">🚀 New features</span>
+                  <span class="bg-white px-2 py-1 rounded-full">🔒 Privacy-first</span>
+                  <span class="bg-white px-2 py-1 rounded-full">💯 Always free</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Donation Button -->
+          <Button
+            variant="primary"
+            fullWidth
+            onclick={() => showDonationModal = true}
+            class="!p-4 !text-left !justify-start !bg-gradient-to-r !from-red-500 !to-pink-500 hover:!from-red-600 hover:!to-pink-600"
+          >
+            {#snippet children()}
+              <div class="flex items-center gap-4 w-full">
+                <div class="w-12 h-12 bg-red-200 rounded-xl flex items-center justify-center">
+                  <span class="text-2xl">💝</span>
+                </div>
+                <div class="flex-1">
+                  <div class="font-medium text-white">Make a Donation</div>
+                  <div class="text-sm text-red-100">Support our mission with a one-time donation</div>
+                </div>
+                <Icon name="chevron-right" class="text-red-200" />
+              </div>
+            {/snippet}
+          </Button>
+
+          <!-- Alternative Support Options -->
+          <div class="grid grid-cols-2 gap-3">
+            <div class="bg-white rounded-lg p-3 border border-gray-200 text-center">
+              <div class="text-2xl mb-1">⭐</div>
+              <div class="text-xs font-medium text-gray-900">Rate us</div>
+              <div class="text-xs text-gray-600">App Store</div>
+            </div>
+            <div class="bg-white rounded-lg p-3 border border-gray-200 text-center">
+              <div class="text-2xl mb-1">📢</div>
+              <div class="text-xs font-medium text-gray-900">Share</div>
+              <div class="text-xs text-gray-600">Tell friends</div>
+            </div>
+          </div>
+        </div>
+      {/snippet}
+    </Card>
+
     <!-- Backup & Restore Section -->
     <Card 
       title="Backup & Restore" 
@@ -114,3 +186,6 @@ import PageHeader from '../components/ui/PageHeader.svelte';
     </Card>
   </div>
 </div>
+
+<!-- Donation Modal -->
+<DonationModal bind:open={showDonationModal} />
