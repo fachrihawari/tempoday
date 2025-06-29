@@ -9,12 +9,11 @@ function handleDismiss(id: string) {
 }
 </script>
 
-<!-- Toast Container - Fixed position with proper centering and stacking -->
-<div class="toast-container fixed top-4 left-1/2 transform -translate-x-1/2 z-[9999] pointer-events-none">
-  <!-- Mobile: Center horizontally, Desktop: Slightly right of center -->
-  <div class="flex flex-col items-center gap-3 w-screen max-w-sm px-4 sm:max-w-md sm:px-0">
+<!-- Toast Container - Properly centered using flexbox -->
+<div class="toast-container fixed inset-x-0 top-4 z-[9999] pointer-events-none">
+  <div class="flex flex-col items-center gap-3 px-4">
     {#each toasts as toast (toast.id)}
-      <div class="pointer-events-auto w-full animate-in slide-in-from-top-2 duration-400">
+      <div class="pointer-events-auto w-full max-w-sm animate-in slide-in-from-top-2 duration-400">
         <Toast
           id={toast.id}
           type={toast.type}
