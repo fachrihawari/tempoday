@@ -264,7 +264,6 @@ const currentSlideData = $derived(slides[currentSlide]);
     </div>
   </div>
 </div>
-</script>
 
 <style>
 /* Ensure smooth transitions */
