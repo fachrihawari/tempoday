@@ -19,8 +19,10 @@ const slides = [
     title: 'Calendar-Centric',
     subtitle: 'Everything organized by date',
     description: 'Navigate through your days with an intuitive calendar interface. See all your tasks, notes, and finances in one place.',
-    gradient: 'from-amber-400 to-orange-500', // Warm cream/tempo colors
-    bgGradient: 'from-amber-50 to-orange-50',
+    gradient: 'from-[#dfaea0] to-[#d4a394]', // Beautiful TempoDay peach
+    bgGradient: 'from-[#faf8f7] to-[#f5f1ef]', // Soft peach background
+    customStyle: 'background: linear-gradient(135deg, rgb(223, 174, 160), rgb(212, 163, 148))',
+    customBgStyle: 'background: linear-gradient(135deg, rgb(250, 248, 247), rgb(245, 241, 239))',
   },
   {
     icon: 'clipboard',
@@ -29,6 +31,8 @@ const slides = [
     description: 'Create, organize, and track your daily tasks with simple taps. Mark them complete and stay productive.',
     gradient: 'from-blue-400 to-blue-600', // Blue for tasks
     bgGradient: 'from-blue-50 to-blue-100',
+    customStyle: 'background: linear-gradient(135deg, rgb(96, 165, 250), rgb(37, 99, 235))',
+    customBgStyle: 'background: linear-gradient(135deg, rgb(239, 246, 255), rgb(219, 234, 254))',
   },
   {
     icon: 'edit',
@@ -37,6 +41,8 @@ const slides = [
     description: 'Write reflections, memories, and ideas in your personal diary. Your thoughts, safely stored.',
     gradient: 'from-purple-400 to-purple-600', // Purple for notes
     bgGradient: 'from-purple-50 to-purple-100',
+    customStyle: 'background: linear-gradient(135deg, rgb(196, 181, 253), rgb(147, 51, 234))',
+    customBgStyle: 'background: linear-gradient(135deg, rgb(250, 245, 255), rgb(243, 232, 255))',
   },
   {
     icon: 'dollar',
@@ -45,6 +51,8 @@ const slides = [
     description: 'Track income and expenses with instant daily summaries. Keep your finances organized and visible.',
     gradient: 'from-green-400 to-green-600', // Green for finance
     bgGradient: 'from-green-50 to-green-100',
+    customStyle: 'background: linear-gradient(135deg, rgb(74, 222, 128), rgb(22, 163, 74))',
+    customBgStyle: 'background: linear-gradient(135deg, rgb(240, 253, 244), rgb(220, 252, 231))',
   },
   {
     icon: 'check-circle',
@@ -53,6 +61,8 @@ const slides = [
     description: 'Everything stored locally on your device. No cloud sync, no tracking, complete privacy.',
     gradient: 'from-gray-400 to-gray-600',
     bgGradient: 'from-gray-50 to-gray-100',
+    customStyle: 'background: linear-gradient(135deg, rgb(156, 163, 175), rgb(75, 85, 99))',
+    customBgStyle: 'background: linear-gradient(135deg, rgb(249, 250, 251), rgb(243, 244, 246))',
   },
 ];
 
@@ -119,12 +129,12 @@ function handleSwipe() {
 const currentSlideData = $derived(slides[currentSlide]);
 </script>
 
-<!-- Beautiful Original Design with Correct TempoDay Colors -->
-<div class="h-screen flex flex-col bg-gradient-to-br {currentSlideData.bgGradient} transition-all duration-500 overflow-hidden">
+<!-- Beautiful Original Design with Authentic TempoDay Peach -->
+<div class="h-screen flex flex-col transition-all duration-500 overflow-hidden" style={currentSlideData.customBgStyle}>
   <!-- Header -->
   <div class="flex items-center justify-between px-6 py-6">
     <div class="flex items-center gap-3">
-      <div class="w-10 h-10 rounded-2xl bg-gradient-to-br {currentSlideData.gradient} flex items-center justify-center shadow-lg">
+      <div class="w-10 h-10 rounded-2xl flex items-center justify-center shadow-lg" style={currentSlideData.customStyle}>
         <img src="/logo.png" class="w-6 h-6" alt="TempoDay" />
       </div>
       <div>
@@ -149,7 +159,7 @@ const currentSlideData = $derived(slides[currentSlide]);
       {#each slides as slide, index (index)}
         <div class="w-full h-full flex-shrink-0 flex flex-col items-center justify-center text-center px-8">
           <!-- Large Icon with Beautiful Gradient -->
-          <div class="w-32 h-32 rounded-3xl bg-gradient-to-br {slide.gradient} flex items-center justify-center shadow-2xl mb-8 transform hover:scale-105 transition-transform duration-300">
+          <div class="w-32 h-32 rounded-3xl flex items-center justify-center shadow-2xl mb-8 transform hover:scale-105 transition-transform duration-300" style={slide.customStyle}>
             <Icon name={slide.icon} class="text-white" size="3xl" />
           </div>
           
@@ -174,12 +184,13 @@ const currentSlideData = $derived(slides[currentSlide]);
   <div class="px-6 pb-8 space-y-6">
     <!-- Slide Indicators -->
     <div class="flex justify-center gap-2">
-      {#each slides as _, index}
+      {#each slides as slide, index}
         <button
           onclick={() => goToSlide(index)}
           class="w-3 h-3 rounded-full transition-all duration-300 {index === currentSlide 
-            ? 'bg-gradient-to-r ' + currentSlideData.gradient + ' scale-125' 
+            ? 'scale-125' 
             : 'bg-white/50 hover:bg-white/70'}"
+          style={index === currentSlide ? slide.customStyle : ''}
         ></button>
       {/each}
     </div>
@@ -198,19 +209,23 @@ const currentSlideData = $derived(slides[currentSlide]);
       {/if}
 
       {#if currentSlide < slides.length - 1}
-        <Button variant="primary" onclick={nextSlide} class="flex-1 h-14 bg-gradient-to-r {currentSlideData.gradient} border-0 shadow-lg">
-          {#snippet children()}
-            Next
-            <Icon name="chevron-right" size="sm" class="ml-2" />
-          {/snippet}
-        </Button>
+        <button 
+          onclick={nextSlide} 
+          class="flex-1 h-14 border-0 shadow-lg rounded-lg text-white font-medium flex items-center justify-center transition-all duration-200 hover:shadow-xl"
+          style={currentSlideData.customStyle}
+        >
+          Next
+          <Icon name="chevron-right" size="sm" class="ml-2" />
+        </button>
       {:else}
-        <Button variant="primary" onclick={startApp} class="flex-1 h-14 bg-gradient-to-r {currentSlideData.gradient} border-0 shadow-lg">
-          {#snippet children()}
-            <Icon name="check" size="sm" class="mr-2" />
-            Get Started
-          {/snippet}
-        </Button>
+        <button 
+          onclick={startApp} 
+          class="flex-1 h-14 border-0 shadow-lg rounded-lg text-white font-medium flex items-center justify-center transition-all duration-200 hover:shadow-xl"
+          style={currentSlideData.customStyle}
+        >
+          <Icon name="check" size="sm" class="mr-2" />
+          Get Started
+        </button>
       {/if}
     </div>
 
