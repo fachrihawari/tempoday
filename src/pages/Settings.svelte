@@ -10,7 +10,7 @@ import PageHeader from '../components/ui/PageHeader.svelte';
 let showDonationModal = $state(false);
 
 // GitHub repository URL
-const GITHUB_REPO_URL = 'https://github.com/tempoday/tempoday';
+const GITHUB_REPO_URL = 'https://github.com/fachrihawari/tempoday';
 
 // Share content
 const SHARE_CONTENT = {
