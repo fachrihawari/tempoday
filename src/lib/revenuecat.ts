@@ -1,5 +1,5 @@
 // RevenueCat Integration for TempoDay Donations
-import Purchases, { CustomerInfo, PurchasesOffering, PurchasesPackage } from '@revenuecat/purchases-js';
+import Purchases from '@revenuecat/purchases-js';
 
 export interface DonationTier {
   id: string;
@@ -18,7 +18,7 @@ export interface RevenueCatConfig {
 
 export class DonationManager {
   private isInitialized = false;
-  private offerings: PurchasesOffering[] = [];
+  private offerings: Purchases.PurchasesOffering[] = [];
   
   // Predefined donation tiers that match your RevenueCat products
   public readonly donationTiers: DonationTier[] = [
@@ -86,7 +86,7 @@ export class DonationManager {
   /**
    * Load available offerings from RevenueCat
    */
-  async loadOfferings(): Promise<PurchasesOffering[]> {
+  async loadOfferings(): Promise<Purchases.PurchasesOffering[]> {
     if (!this.isInitialized) {
       throw new Error('RevenueCat not initialized');
     }
@@ -105,7 +105,7 @@ export class DonationManager {
   /**
    * Get available donation packages
    */
-  getDonationPackages(): PurchasesPackage[] {
+  getDonationPackages(): Purchases.PurchasesPackage[] {
     const currentOffering = this.offerings.find(offering => offering.identifier === 'donations');
     return currentOffering?.availablePackages || [];
   }
@@ -113,7 +113,7 @@ export class DonationManager {
   /**
    * Purchase a donation package
    */
-  async makeDonation(packageId: string): Promise<{ success: boolean; customerInfo?: CustomerInfo; error?: string }> {
+  async makeDonation(packageId: string): Promise<{ success: boolean; customerInfo?: Purchases.CustomerInfo; error?: string }> {
     if (!this.isInitialized) {
       return { success: false, error: 'Payment system not initialized' };
     }
@@ -148,7 +148,7 @@ export class DonationManager {
   /**
    * Get customer info and purchase history
    */
-  async getCustomerInfo(): Promise<CustomerInfo | null> {
+  async getCustomerInfo(): Promise<Purchases.CustomerInfo | null> {
     if (!this.isInitialized) {
       return null;
     }
@@ -189,7 +189,7 @@ export class DonationManager {
   /**
    * Restore purchases (useful for users who switch devices)
    */
-  async restorePurchases(): Promise<{ success: boolean; customerInfo?: CustomerInfo; error?: string }> {
+  async restorePurchases(): Promise<{ success: boolean; customerInfo?: Purchases.CustomerInfo; error?: string }> {
     if (!this.isInitialized) {
       return { success: false, error: 'Payment system not initialized' };
     }
