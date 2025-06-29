@@ -1,6 +1,7 @@
 <script lang="ts">
 import { onMount } from 'svelte';
 import BottomNavigation from './components/ui/BottomNavigation.svelte';
+import ToastContainer from './components/ui/ToastContainer.svelte';
 import Calendar from './pages/Calendar.svelte';
 import Dashboard from './pages/Dashboard.svelte';
 import Intro from './pages/Intro.svelte';
@@ -49,4 +50,7 @@ function handleIntroCompleted() {
     <!-- Bottom Navigation -->
     <BottomNavigation />
   {/if}
+
+  <!-- Toast Container -->
+  <ToastContainer />
 </div>
