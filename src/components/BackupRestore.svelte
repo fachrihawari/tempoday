@@ -302,7 +302,7 @@ function getBackupMethodTitle(method: string): string {
             class="!p-4 !text-left !justify-start"
           >
             {#snippet children()}
-              <div class="flex items-center gap-4">
+              <div class="flex items-center gap-4 w-full">
                 <div class="w-12 h-12 bg-blue-200 rounded-xl flex items-center justify-center">
                   <span class="text-2xl">📤</span>
                 </div>
@@ -328,7 +328,7 @@ function getBackupMethodTitle(method: string): string {
             class="!p-4 !text-left !justify-start"
           >
             {#snippet children()}
-              <div class="flex items-center gap-4">
+              <div class="flex items-center gap-4  w-full">
                 <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
                   <span class="text-2xl">💾</span>
                 </div>
@@ -433,7 +433,7 @@ function getBackupMethodTitle(method: string): string {
               class="!p-4 !text-left !justify-start"
             >
               {#snippet children()}
-                <div class="flex items-center gap-4">
+                <div class="flex items-center gap-4  w-full">
                   <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
                     <span class="text-2xl">📋</span>
                   </div>
@@ -458,7 +458,7 @@ function getBackupMethodTitle(method: string): string {
               class="!p-4 !text-left !justify-start"
             >
               {#snippet children()}
-                <div class="flex items-center gap-4">
+                <div class="flex items-center gap-4  w-full">
                   <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
                     <span class="text-2xl">📁</span>
                   </div>
