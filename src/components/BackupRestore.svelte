@@ -231,7 +231,7 @@ function getBackupMethodTitle(method: string): string {
           <div class="font-medium text-white">Create Backup</div>
           <div class="text-sm text-blue-100">Export your data safely</div>
         </div>
-        <Icon name="chevron-down" class="text-blue-200 rotate-[-90deg]" />
+        <Icon name="chevron-right" class="text-blue-200" />
       </div>
     {/snippet}
   </Button>
@@ -251,7 +251,7 @@ function getBackupMethodTitle(method: string): string {
           <div class="font-medium text-gray-900">Restore Data</div>
           <div class="text-sm text-gray-600">Import from backup</div>
         </div>
-        <Icon name="chevron-down" class="text-gray-400 rotate-[-90deg]" />
+        <Icon name="chevron-right" class="text-gray-400" />
       </div>
     {/snippet}
   </Button>
@@ -313,7 +313,7 @@ function getBackupMethodTitle(method: string): string {
                 {#if isBackingUp}
                   <Icon name="loader" class="animate-spin text-blue-200" />
                 {:else}
-                  <Icon name="chevron-down" class="text-blue-200 rotate-[-90deg]" />
+                  <Icon name="chevron-right" class="text-blue-200" />
                 {/if}
               </div>
             {/snippet}
@@ -339,7 +339,7 @@ function getBackupMethodTitle(method: string): string {
                 {#if isBackingUp}
                   <Icon name="loader" class="animate-spin text-gray-400" />
                 {:else}
-                  <Icon name="chevron-down" class="text-gray-400 rotate-[-90deg]" />
+                  <Icon name="chevron-right" class="text-gray-400" />
                 {/if}
               </div>
             {/snippet}
@@ -444,7 +444,7 @@ function getBackupMethodTitle(method: string): string {
                   {#if isRestoring}
                     <Icon name="loader" class="animate-spin text-purple-200" />
                   {:else}
-                    <Icon name="chevron-down" class="text-purple-200 rotate-[-90deg]" />
+                    <Icon name="chevron-right" class="text-purple-200" />
                   {/if}
                 </div>
               {/snippet}
@@ -466,7 +466,7 @@ function getBackupMethodTitle(method: string): string {
                     <div class="font-medium text-gray-900">Upload File</div>
                     <div class="text-sm text-gray-600">Select backup file from device</div>
                   </div>
-                  <Icon name="chevron-down" class="text-gray-400 rotate-[-90deg]" />
+                  <Icon name="chevron-right" class="text-gray-400" />
                 </div>
               {/snippet}
             </Button>
