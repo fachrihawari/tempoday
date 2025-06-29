@@ -1,7 +1,12 @@
 <script lang="ts">
-import { onMount } from 'svelte';
+import { createEventDispatcher, onMount } from 'svelte';
 import Button from '../components/ui/Button.svelte';
 import Icon from '../components/ui/Icon.svelte';
+
+// Create Svelte event dispatcher
+const dispatch = createEventDispatcher<{
+  'intro-completed': void;
+}>();
 
 let currentSlide = $state(0);
 let isAutoPlaying = $state(true);
@@ -71,8 +76,8 @@ function startApp() {
   // Set a flag in localStorage to indicate the user has seen the intro
   localStorage.setItem('tempoday-intro-seen', 'true');
   
-  // Trigger a custom event to notify the parent component
-  window.dispatchEvent(new CustomEvent('intro-completed'));
+  // Dispatch Svelte event to parent component
+  dispatch('intro-completed');
 }
 
 function skipIntro() {

@@ -20,33 +20,18 @@ onMount(() => {
   if (!hasSeenIntro) {
     showIntro = true;
   }
-
-  // Listen for intro completion event
-  const handleIntroCompleted = () => {
-    showIntro = false;
-  };
-
-  window.addEventListener('intro-completed', handleIntroCompleted);
-
-  // Cleanup event listener
-  return () => {
-    window.removeEventListener('intro-completed', handleIntroCompleted);
-  };
 });
 
-// Watch for intro completion via localStorage changes (fallback)
-$effect(() => {
-  const hasSeenIntro = localStorage.getItem('tempoday-intro-seen');
-  if (hasSeenIntro && showIntro) {
-    showIntro = false;
-  }
-});
+// Handle intro completion using Svelte event system
+function handleIntroCompleted() {
+  showIntro = false;
+}
 </script>
 
 <div class="h-screen flex flex-col relative">
   {#if showIntro}
     <!-- Show intro page for new users -->
-    <Intro />
+    <Intro on:intro-completed={handleIntroCompleted} />
   {:else}
     <!-- Main App Content -->
     <div class="flex-1 overflow-y-auto pb-16">
