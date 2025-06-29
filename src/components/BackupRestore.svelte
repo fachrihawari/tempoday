@@ -45,6 +45,14 @@ async function handleWebShareBackup() {
 
   try {
     const result = await backupManager.createBackup();
+    
+    // Handle cancellation gracefully - don't show as error
+    if (result.method === 'cancelled') {
+      // Just close the modal without showing error state
+      showBackupModal = false;
+      return;
+    }
+    
     backupResult = result;
     
     // Only show success in the bottom sheet - no toast needed

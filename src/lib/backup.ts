@@ -16,7 +16,7 @@ export interface BackupData {
 
 export interface BackupResult {
   success: boolean;
-  method: 'share' | 'shareText' | 'clipboard' | 'download';
+  method: 'share' | 'shareText' | 'clipboard' | 'download' | 'cancelled';
   message: string;
 }
 
@@ -80,6 +80,14 @@ export class BackupManager {
             };
           }
         } catch (error) {
+          // Check if user cancelled the share
+          if (error instanceof Error && error.name === 'AbortError') {
+            return {
+              success: false,
+              method: 'cancelled',
+              message: 'Share cancelled by user',
+            };
+          }
           console.log('File share failed, trying text share:', error);
         }
 
@@ -95,6 +103,14 @@ export class BackupManager {
             message: 'Backup data shared as text! You can save it in any app.',
           };
         } catch (error) {
+          // Check if user cancelled the share
+          if (error instanceof Error && error.name === 'AbortError') {
+            return {
+              success: false,
+              method: 'cancelled',
+              message: 'Share cancelled by user',
+            };
+          }
           console.log('Text share failed:', error);
         }
       }
