@@ -235,21 +235,6 @@ const currentSlideData = $derived(slides[currentSlide]);
       {/if}
     </div>
 
-    <!-- Feature Tags with Correct Colors -->
-    <div class="flex justify-center gap-2 flex-wrap">
-      <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium shadow-sm">
-        📋 Tasks
-      </span>
-      <span class="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium shadow-sm">
-        📝 Notes
-      </span>
-      <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium shadow-sm">
-        💰 Finance
-      </span>
-      <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm font-medium shadow-sm">
-        🔒 Private
-      </span>
-    </div>
   </div>
 </div>
 
