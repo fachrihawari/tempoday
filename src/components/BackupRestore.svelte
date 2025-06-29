@@ -160,7 +160,13 @@ function getBackupMethodTitle(method: string): string {
 }
 </script>
 
-<Card title="Backup & Restore" icon="save" iconColor="text-blue-500">
+<Card 
+  title="Backup & Restore" 
+  icon="save" 
+  iconColor="text-blue-500"
+  collapsible={true}
+  defaultExpanded={false}
+>
   {#snippet children()}
     <!-- Backup Stats -->
     {#if backupStats}
