@@ -59,6 +59,12 @@ async function handleShare() {
       toastStore.success('Share content copied to clipboard!');
     }
   } catch (error) {
+    // Check if the error is an AbortError (user canceled the share)
+    if (error instanceof DOMException && error.name === 'AbortError') {
+      // User canceled the share dialog - this is expected behavior, don't show error
+      return;
+    }
+    
     console.error('Failed to share:', error);
     toastStore.error('Failed to share content');
   }
