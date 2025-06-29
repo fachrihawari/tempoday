@@ -85,11 +85,11 @@ import PageHeader from '../components/ui/PageHeader.svelte';
           <h3 class="text-xl font-semibold text-gray-900 mb-1">TempoDay</h3>
           <p class="text-sm text-gray-500 mb-6">Version 0.0.1</p>
           
-          <!-- Key Features - Minimal Grid -->
+          <!-- Key Features - Complete 2x2 Grid -->
           <div class="grid grid-cols-2 gap-3 max-w-xs mx-auto mb-6">
             <div class="flex flex-col items-center p-3 bg-blue-50 rounded-lg">
-              <Icon name="calendar" class="text-blue-600 mb-1" size="lg" />
-              <span class="text-xs font-medium text-blue-900">Calendar</span>
+              <Icon name="clipboard" class="text-blue-600 mb-1" size="lg" />
+              <span class="text-xs font-medium text-blue-900">Tasks</span>
             </div>
             <div class="flex flex-col items-center p-3 bg-purple-50 rounded-lg">
               <Icon name="edit" class="text-purple-600 mb-1" size="lg" />
