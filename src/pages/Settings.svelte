@@ -8,6 +8,58 @@ import Icon from '../components/ui/Icon.svelte';
 import PageHeader from '../components/ui/PageHeader.svelte';
 
 let showDonationModal = $state(false);
+
+// GitHub repository URL
+const GITHUB_REPO_URL = 'https://github.com/tempoday/tempoday';
+
+// Share content
+const SHARE_CONTENT = {
+  title: 'TempoDay - Calendar-Centric Personal Management',
+  text: 'Check out TempoDay, a privacy-focused personal management app that helps you organize tasks, notes, and finances by date!',
+  url: 'https://tempoday.app'
+};
+
+async function handleRateUs() {
+  try {
+    window.open(GITHUB_REPO_URL, '_blank', 'noopener,noreferrer');
+  } catch (error) {
+    console.error('Failed to open GitHub repo:', error);
+  }
+}
+
+async function handleShare() {
+  try {
+    // Try Web Share API first
+    if (navigator.share && navigator.canShare && navigator.canShare(SHARE_CONTENT)) {
+      await navigator.share(SHARE_CONTENT);
+      return;
+    }
+    
+    // Fallback to clipboard
+    const shareText = `${SHARE_CONTENT.title}\n\n${SHARE_CONTENT.text}\n\n${SHARE_CONTENT.url}`;
+    
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(shareText);
+      // You could add a toast notification here to inform user it was copied
+      console.log('Share content copied to clipboard');
+    } else {
+      // Final fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = shareText;
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-999999px';
+      textArea.style.top = '-999999px';
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      console.log('Share content copied to clipboard (fallback)');
+    }
+  } catch (error) {
+    console.error('Failed to share:', error);
+  }
+}
 </script>
 
 <div class="h-full flex flex-col">
@@ -73,16 +125,22 @@ let showDonationModal = $state(false);
 
           <!-- Alternative Support Options -->
           <div class="grid grid-cols-2 gap-3">
-            <div class="bg-white rounded-lg p-3 border border-gray-200 text-center">
+            <button
+              onclick={handleRateUs}
+              class="bg-white rounded-lg p-3 border border-gray-200 text-center hover:bg-gray-50 transition-colors"
+            >
               <div class="text-2xl mb-1">⭐</div>
-              <div class="text-xs font-medium text-gray-900">Rate us</div>
-              <div class="text-xs text-gray-600">App Store</div>
-            </div>
-            <div class="bg-white rounded-lg p-3 border border-gray-200 text-center">
+              <div class="text-xs font-medium text-gray-900">Star us</div>
+              <div class="text-xs text-gray-600">GitHub</div>
+            </button>
+            <button
+              onclick={handleShare}
+              class="bg-white rounded-lg p-3 border border-gray-200 text-center hover:bg-gray-50 transition-colors"
+            >
               <div class="text-2xl mb-1">📢</div>
               <div class="text-xs font-medium text-gray-900">Share</div>
               <div class="text-xs text-gray-600">Tell friends</div>
-            </div>
+            </button>
           </div>
         </div>
       {/snippet}
