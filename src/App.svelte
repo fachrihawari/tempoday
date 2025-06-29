@@ -22,7 +22,7 @@ onMount(() => {
   }
 });
 
-// Handle intro completion using Svelte event system
+// Handle intro completion using Svelte 5 callback props
 function handleIntroCompleted() {
   showIntro = false;
 }
@@ -30,8 +30,8 @@ function handleIntroCompleted() {
 
 <div class="h-screen flex flex-col relative">
   {#if showIntro}
-    <!-- Show intro page for new users -->
-    <Intro on:intro-completed={handleIntroCompleted} />
+    <!-- Show intro page for new users - using callback prop (Svelte 5 way) -->
+    <Intro onIntroCompleted={handleIntroCompleted} />
   {:else}
     <!-- Main App Content -->
     <div class="flex-1 overflow-y-auto pb-16">

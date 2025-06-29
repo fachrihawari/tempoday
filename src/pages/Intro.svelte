@@ -1,12 +1,14 @@
 <script lang="ts">
-import { createEventDispatcher, onMount } from 'svelte';
+import { onMount } from 'svelte';
 import Button from '../components/ui/Button.svelte';
 import Icon from '../components/ui/Icon.svelte';
 
-// Create Svelte event dispatcher
-const dispatch = createEventDispatcher<{
-  'intro-completed': void;
-}>();
+// Svelte 5 approach: Use callback props instead of createEventDispatcher
+interface Props {
+  onIntroCompleted?: () => void;
+}
+
+let { onIntroCompleted }: Props = $props();
 
 let currentSlide = $state(0);
 let isAutoPlaying = $state(true);
@@ -76,8 +78,8 @@ function startApp() {
   // Set a flag in localStorage to indicate the user has seen the intro
   localStorage.setItem('tempoday-intro-seen', 'true');
   
-  // Dispatch Svelte event to parent component
-  dispatch('intro-completed');
+  // Call the callback prop function (Svelte 5 way)
+  onIntroCompleted?.();
 }
 
 function skipIntro() {
@@ -262,3 +264,11 @@ const currentSlideData = $derived(slides[currentSlide]);
     </div>
   </div>
 </div>
+</script>
+
+<style>
+/* Ensure smooth transitions */
+.transition-transform {
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+</style>
