@@ -2,9 +2,6 @@
 import { onMount } from 'svelte';
 import Button from '../components/ui/Button.svelte';
 import Icon from '../components/ui/Icon.svelte';
-import { reactiveRouter } from '../stores/router.svelte';
-
-const router = $derived(reactiveRouter);
 
 let currentSlide = $state(0);
 let isAutoPlaying = $state(true);
@@ -73,7 +70,9 @@ function goToSlide(index: number) {
 function startApp() {
   // Set a flag in localStorage to indicate the user has seen the intro
   localStorage.setItem('tempoday-intro-seen', 'true');
-  router.navigate('/');
+  
+  // Trigger a custom event to notify the parent component
+  window.dispatchEvent(new CustomEvent('intro-completed'));
 }
 
 function skipIntro() {

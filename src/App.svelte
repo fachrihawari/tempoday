@@ -20,12 +20,24 @@ onMount(() => {
   if (!hasSeenIntro) {
     showIntro = true;
   }
+
+  // Listen for intro completion event
+  const handleIntroCompleted = () => {
+    showIntro = false;
+  };
+
+  window.addEventListener('intro-completed', handleIntroCompleted);
+
+  // Cleanup event listener
+  return () => {
+    window.removeEventListener('intro-completed', handleIntroCompleted);
+  };
 });
 
-// Watch for intro completion
+// Watch for intro completion via localStorage changes (fallback)
 $effect(() => {
   const hasSeenIntro = localStorage.getItem('tempoday-intro-seen');
-  if (hasSeenIntro) {
+  if (hasSeenIntro && showIntro) {
     showIntro = false;
   }
 });
