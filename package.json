@@ -25,7 +25,6 @@
   "dependencies": {
     "@tailwindcss/vite": "^4.1.8",
     "dexie": "^4.0.11",
-    "tailwindcss": "^4.1.8",
-    "@revenuecat/purchases-js": "^3.0.0"
+    "tailwindcss": "^4.1.8"
   }
 }
