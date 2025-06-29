@@ -109,7 +109,7 @@ onMount(() => {
 {#if visible}
   <div
     class="relative flex items-start gap-3 p-4 rounded-xl border shadow-lg max-w-sm w-full backdrop-blur-sm {config.classes}"
-    transition:fly="{{ y: -50, duration: 400, opacity: 0 }}"
+    transition:fly="{{ y: 50, duration: 400, opacity: 0 }}"
     role="alert"
     style="box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);"
   >
