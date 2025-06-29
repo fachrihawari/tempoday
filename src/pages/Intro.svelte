@@ -181,7 +181,7 @@ const currentSlideData = $derived(slides[currentSlide]);
   </div>
 
   <!-- Bottom Section -->
-  <div class="px-6 pb-8 space-y-6">
+  <div class="px-6 py-6 space-y-6">
     <!-- Enhanced Slide Indicators with Better Contrast -->
     <div class="flex justify-center gap-3">
       {#each slides as slide, index}
