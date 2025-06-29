@@ -1,4 +1,5 @@
 <script lang="ts">
+import BackupRestore from '../components/BackupRestore.svelte';
 import Settings from '../components/Settings.svelte';
 import Card from '../components/ui/Card.svelte';
 import Icon from '../components/ui/Icon.svelte';
@@ -15,13 +16,26 @@ import PageHeader from '../components/ui/PageHeader.svelte';
 
   <!-- Settings Content -->
   <div class="flex-1 overflow-y-auto">
+    <!-- Backup & Restore Section -->
+    <Card 
+      title="Backup & Restore" 
+      icon="save" 
+      iconColor="text-blue-500"
+      collapsible={true}
+      defaultExpanded={false}
+    >
+      {#snippet children()}
+        <BackupRestore />
+      {/snippet}
+    </Card>
+
     <!-- Currency Settings Section -->
     <Card 
       title="Currency Settings" 
       icon="dollar" 
       iconColor="text-green-500"
       collapsible={true}
-      defaultExpanded={true}
+      defaultExpanded={false}
     >
       {#snippet children()}
         <Settings />
@@ -53,57 +67,47 @@ import PageHeader from '../components/ui/PageHeader.svelte';
       {/snippet}
     </Card>
 
-    <!-- App Features Section -->
+    <!-- App Information Section - Minimalist Design -->
     <Card 
-      title="Key Features" 
-      icon="check-circle" 
-      iconColor="text-purple-500"
-      collapsible={true}
-      defaultExpanded={false}
-    >
-      {#snippet children()}
-        <div class="space-y-2">
-          <div class="flex items-center gap-3 p-3 bg-blue-50 rounded-lg border border-blue-100">
-            <Icon name="calendar" class="text-blue-600" />
-            <span class="text-sm font-medium text-blue-900">Calendar-centric task management</span>
-          </div>
-          <div class="flex items-center gap-3 p-3 bg-purple-50 rounded-lg border border-purple-100">
-            <Icon name="edit" class="text-purple-600" />
-            <span class="text-sm font-medium text-purple-900">Daily notes and journaling</span>
-          </div>
-          <div class="flex items-center gap-3 p-3 bg-green-50 rounded-lg border border-green-100">
-            <Icon name="dollar" class="text-green-600" />
-            <span class="text-sm font-medium text-green-900">Personal finance tracking</span>
-          </div>
-          <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-100">
-            <Icon name="check-circle" class="text-gray-600" />
-            <span class="text-sm font-medium text-gray-900">Offline-first with local storage</span>
-          </div>
-        </div>
-      {/snippet}
-    </Card>
-
-    <!-- App Information Section -->
-    <Card 
-      title="About TempoDay" 
+      title="About" 
       icon="info-circle" 
       iconColor="text-gray-500"
       collapsible={true}
       defaultExpanded={false}
     >
       {#snippet children()}
-        <div class="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
-          <img src='/logo.png' class="w-16 h-16" alt="TempoDay Logo" />
-          <div class="flex-1">
-            <h3 class="font-semibold text-gray-900 text-lg">TempoDay</h3>
-            <p class="text-sm text-gray-600 mb-1">Version 0.0.1</p>
-            <p class="text-xs text-gray-500">Calendar-centric personal management</p>
+        <!-- Clean App Info -->
+        <div class="text-center py-6">
+          <div class="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
+            <img src='/logo.png' class="w-12 h-12" alt="TempoDay" />
           </div>
-        </div>
-        
-        <div class="mt-4 pt-4 border-t border-gray-200">
-          <p class="text-xs text-gray-500 text-center">
-            Built with ❤️ for productivity and privacy
+          
+          <h3 class="text-xl font-semibold text-gray-900 mb-1">TempoDay</h3>
+          <p class="text-sm text-gray-500 mb-6">Version 0.0.1</p>
+          
+          <!-- Key Features - Complete 2x2 Grid -->
+          <div class="grid grid-cols-2 gap-3 max-w-xs mx-auto mb-6">
+            <div class="flex flex-col items-center p-3 bg-blue-50 rounded-lg">
+              <Icon name="clipboard" class="text-blue-600 mb-1" size="lg" />
+              <span class="text-xs font-medium text-blue-900">Tasks</span>
+            </div>
+            <div class="flex flex-col items-center p-3 bg-purple-50 rounded-lg">
+              <Icon name="edit" class="text-purple-600 mb-1" size="lg" />
+              <span class="text-xs font-medium text-purple-900">Notes</span>
+            </div>
+            <div class="flex flex-col items-center p-3 bg-green-50 rounded-lg">
+              <Icon name="dollar" class="text-green-600 mb-1" size="lg" />
+              <span class="text-xs font-medium text-green-900">Finance</span>
+            </div>
+            <div class="flex flex-col items-center p-3 bg-gray-50 rounded-lg">
+              <Icon name="check-circle" class="text-gray-600 mb-1" size="lg" />
+              <span class="text-xs font-medium text-gray-900">Private</span>
+            </div>
+          </div>
+          
+          <!-- Simple tagline -->
+          <p class="text-xs text-gray-400">
+            Calendar-centric personal management
           </p>
         </div>
       {/snippet}
