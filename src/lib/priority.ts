@@ -50,9 +50,10 @@ export const PRIORITY_OPTIONS: TaskPriority[] = ['urgent', 'high', 'medium', 'lo
 
 /**
  * Get priority configuration for a given priority level
+ * Returns medium priority config as fallback if priority is invalid or undefined
  */
 export function getPriorityConfig(priority: TaskPriority): PriorityConfig {
-  return PRIORITY_CONFIG[priority];
+  return PRIORITY_CONFIG[priority] || PRIORITY_CONFIG.medium;
 }
 
 /**
