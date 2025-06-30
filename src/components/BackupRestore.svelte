@@ -54,12 +54,17 @@ function checkFileShareSupport() {
   console.log('File share supported:', isFileShareSupported);
 }
 
-// Helper function to refetch all data for current date
-async function refetchCurrentData() {
+// Helper function to force refetch all data for current date
+async function forceRefetchCurrentData() {
   try {
     const currentDateKey = formatDateKey(appState.selectedDate);
     
-    // Reload all data for the current selected date
+    // Clear the current date cache to force reload
+    reactiveTasks.currentDate = '';
+    reactiveNotes.currentDate = '';
+    reactiveTransactions.currentDate = '';
+    
+    // Force reload all data for the current selected date
     await Promise.all([
       reactiveTasks.loadTasks(currentDateKey),
       reactiveNotes.loadNote(currentDateKey),
@@ -67,9 +72,9 @@ async function refetchCurrentData() {
       settingsStore.loadSettings()
     ]);
     
-    console.log('Successfully refetched data for current date:', currentDateKey);
+    console.log('Successfully force refetched data for current date:', currentDateKey);
   } catch (error) {
-    console.error('Failed to refetch current data:', error);
+    console.error('Failed to force refetch current data:', error);
   }
 }
 
@@ -183,8 +188,8 @@ async function handleRestoreFromClipboard() {
     // Reload backup stats after restore
     await loadBackupStats();
     
-    // Refetch current data to show restored content
-    await refetchCurrentData();
+    // Force refetch current data to show restored content
+    await forceRefetchCurrentData();
     
     // Auto-close modal after success
     setTimeout(() => {
@@ -226,8 +231,8 @@ async function handleRestoreFromFile() {
       // Reload backup stats after restore
       await loadBackupStats();
       
-      // Refetch current data to show restored content
-      await refetchCurrentData();
+      // Force refetch current data to show restored content
+      await forceRefetchCurrentData();
       
       // Auto-close modal after success
       setTimeout(() => {
