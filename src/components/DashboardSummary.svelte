@@ -213,4 +213,3 @@ const shouldShowSummary = $derived.by(() => {
     {/snippet}
   </Card>
 {/if}
-</script>
