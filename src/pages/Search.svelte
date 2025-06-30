@@ -15,7 +15,7 @@ let searchInput = $state('');
 let searchTimeout: ReturnType<typeof setTimeout> | null = null;
 let lastSearchQuery = $state('');
 let searchInputElement: HTMLInputElement = $state()!;
-let showFilters = $state(false);
+let showMoreCategories = $state(false);
 
 // Reactive values from search store
 let { query, results, isSearching, error, hasSearched, hasResults, allResults, filters, hasActiveFilters } = $derived(searchStore);
@@ -157,9 +157,9 @@ function handleClearFilters() {
   searchStore.clearFilters();
 }
 
-// Toggle filters panel
-function toggleFilters() {
-  showFilters = !showFilters;
+// Toggle more categories panel
+function toggleMoreCategories() {
+  showMoreCategories = !showMoreCategories;
 }
 
 // Auto-focus search input on mount
@@ -195,7 +195,7 @@ onMount(() => {
   </div>
 
   <!-- Search Input and Filters -->
-  <div class="p-4 bg-white border-b border-gray-200 space-y-3">
+  <div class="p-4 bg-white border-b border-gray-200 space-y-4">
     <!-- Search Input -->
     <div class="relative">
       <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -230,22 +230,14 @@ onMount(() => {
       {/if}
     </div>
 
-    <!-- Filters -->
-    <div class="flex items-center justify-between">
-      <SearchFiltersComponent
-        filters={filters}
-        onFiltersChange={handleFiltersChange}
-        onClearFilters={handleClearFilters}
-        isOpen={showFilters}
-        onToggle={toggleFilters}
-      />
-      
-      {#if hasActiveFilters}
-        <div class="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
-          Filters active
-        </div>
-      {/if}
-    </div>
+    <!-- Horizontal Scrollable Filters -->
+    <SearchFiltersComponent
+      filters={filters}
+      onFiltersChange={handleFiltersChange}
+      onClearFilters={handleClearFilters}
+      isOpen={showMoreCategories}
+      onToggle={toggleMoreCategories}
+    />
     
     <!-- Search Progress Indicator -->
     {#if isSearching}
@@ -328,6 +320,9 @@ onMount(() => {
         <div class="mb-4 flex items-center justify-between">
           <p class="text-sm text-gray-600">
             Found {results.total} result{results.total !== 1 ? 's' : ''} for "{query}"
+            {#if hasActiveFilters}
+              <span class="text-blue-600">with filters</span>
+            {/if}
           </p>
           {#if hasActiveFilters}
             <Button variant="ghost" size="sm" onclick={handleClearFilters}>
@@ -441,7 +436,7 @@ onMount(() => {
           <h4 class="text-sm font-medium text-gray-900 mb-2">Search Tips:</h4>
           <ul class="text-xs text-gray-600 space-y-1">
             <li>• Search across all your tasks, notes, and transactions</li>
-            <li>• Use filters to narrow down results by type, status, or date</li>
+            <li>• Use filters to narrow down results by type, status, or category</li>
             <li>• Results are sorted by date (newest first)</li>
             <li>• Click any result to jump to that date</li>
             <li>• Search is case-insensitive</li>
