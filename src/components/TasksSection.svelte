@@ -219,23 +219,13 @@ const priorityStats = $derived(() => {
 
             <!-- Task Content -->
             <div class="flex-1 min-w-0">
-              <div class="flex items-center gap-2 mb-1">
-                <span
-                  class="text-sm {task.completed
-                    ? 'line-through text-gray-500'
-                    : 'text-gray-900'}"
-                >
-                  {task.description}
-                </span>
-              </div>
-              
-              <!-- Priority Badge -->
-              <div class="flex items-center gap-2">
-                <PriorityBadge priority={task.priority} size="sm" />
-                {#if task.completed}
-                  <span class="text-xs text-gray-500">Completed</span>
-                {/if}
-              </div>
+              <span
+                class="text-sm {task.completed
+                  ? 'line-through text-gray-500'
+                  : 'text-gray-900'}"
+              >
+                {task.description}
+              </span>
             </div>
 
             <!-- Priority Selector (for incomplete tasks) -->
