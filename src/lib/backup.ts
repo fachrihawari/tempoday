@@ -61,38 +61,64 @@ export class BackupManager {
 
       console.log('Starting backup process...');
 
-      // Strategy 1: Web Share API with text content (Most compatible)
-      if (navigator.share && typeof navigator.share === 'function') {
+      // Strategy 1: Web Share API with file (Best UX - Keep this as priority!)
+      if (navigator.share) {
         try {
-          console.log('Attempting to share backup data...');
+          console.log('Attempting file share...');
           
-          const shareContent = {
+          const blob = new Blob([backupText], { type: 'application/json' });
+          const file = new File([blob], fileName, {
+            type: 'application/json',
+          });
+
+          // Try sharing the file directly
+          const shareData = {
             title: 'TempoDay Backup',
-            text: `TempoDay Backup Data (${fileName})\n\nSave this content as a .json file:\n\n${backupText}`,
+            text: 'My personal data backup from TempoDay',
+            files: [file],
           };
 
-          // Check if we can share this content
-          if (navigator.canShare && navigator.canShare(shareContent)) {
-            console.log('Share content is supported, attempting share...');
-            await navigator.share(shareContent);
-            console.log('Share successful');
+          // Check if file sharing is supported
+          if (navigator.canShare && navigator.canShare(shareData)) {
+            console.log('File sharing is supported, attempting share...');
+            await navigator.share(shareData);
+            console.log('File share successful');
             
             return {
               success: true,
-              method: 'shareText',
-              message: 'Backup shared successfully! Save the content as a .json file.',
+              method: 'share',
+              message: 'Backup file shared successfully! Choose your preferred app to save it.',
             };
           } else {
-            // Try sharing without canShare check (some browsers don't support canShare)
-            console.log('Attempting share without canShare check...');
-            await navigator.share(shareContent);
-            console.log('Share successful');
-            
-            return {
-              success: true,
-              method: 'shareText',
-              message: 'Backup shared successfully! Save the content as a .json file.',
-            };
+            console.log('File sharing not supported by canShare, trying anyway...');
+            // Some browsers support file sharing but don't report it in canShare
+            try {
+              await navigator.share(shareData);
+              console.log('File share successful (without canShare)');
+              
+              return {
+                success: true,
+                method: 'share',
+                message: 'Backup file shared successfully! Choose your preferred app to save it.',
+              };
+            } catch (fileShareError) {
+              console.log('File share failed, trying text share:', fileShareError);
+              
+              // If file sharing fails, try text sharing as fallback
+              const textShareData = {
+                title: 'TempoDay Backup',
+                text: `TempoDay Backup Data (${fileName})\n\nSave this content as a .json file:\n\n${backupText}`,
+              };
+              
+              await navigator.share(textShareData);
+              console.log('Text share successful as fallback');
+              
+              return {
+                success: true,
+                method: 'shareText',
+                message: 'Backup shared as text! Save the content as a .json file.',
+              };
+            }
           }
         } catch (error) {
           console.log('Share error:', error);
@@ -109,6 +135,8 @@ export class BackupManager {
           
           console.log('Share failed, falling back to clipboard...');
         }
+      } else {
+        console.log('Web Share API not available');
       }
 
       // Strategy 2: Clipboard fallback
