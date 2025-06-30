@@ -9,7 +9,7 @@ import Icon from '../components/ui/Icon.svelte';
 import Input from '../components/ui/Input.svelte';
 import Loading from '../components/ui/Loading.svelte';
 import PageHeader from '../components/ui/PageHeader.svelte';
-import SearchFilters from '../components/ui/SearchFilters.svelte';
+import SearchFiltersComponent from '../components/ui/SearchFilters.svelte';
 
 let searchInput = $state('');
 let searchTimeout: ReturnType<typeof setTimeout> | null = null;
@@ -232,7 +232,7 @@ onMount(() => {
 
     <!-- Filters -->
     <div class="flex items-center justify-between">
-      <SearchFilters
+      <SearchFiltersComponent
         filters={filters}
         onFiltersChange={handleFiltersChange}
         onClearFilters={handleClearFilters}
