@@ -66,6 +66,7 @@ function handleTaskStatusChange(e: Event) {
 
 function handlePriorityChange(e: Event) {
   const value = (e.target as HTMLSelectElement).value;
+  console.log('Priority changed to:', value); // Debug log
   if (value === '') {
     updateFilters({ taskPriorities: [] });
   } else {
@@ -118,6 +119,8 @@ const activeFilterCount = $derived.by(() => {
 
 // Determine which filters to show based on EXACT selected data type
 const shouldShowTaskFilters = $derived.by(() => {
+  console.log('Selected data type:', selectedDataType); // Debug log
+  console.log('Should show task filters:', selectedDataType === 'task'); // Debug log
   return selectedDataType === 'task'; // ONLY show when specifically "task" is selected
 });
 
@@ -141,6 +144,14 @@ const filterStatusText = $derived.by(() => {
     return 'Filtering transactions';
   }
   return 'Filters active';
+});
+
+// Debug reactive values
+$effect(() => {
+  console.log('Current filters:', filters);
+  console.log('Selected data type:', selectedDataType);
+  console.log('Should show task filters:', shouldShowTaskFilters);
+  console.log('Task priorities:', filters.taskPriorities);
 });
 </script>
 
