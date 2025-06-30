@@ -2,7 +2,6 @@
 import { getCategoryConfig, CATEGORY_OPTIONS, type TransactionCategory } from '../../lib/categories';
 import { getPriorityConfig, PRIORITY_OPTIONS, type TaskPriority } from '../../lib/priority';
 import { type SearchFilters } from '../../stores/search.svelte';
-import DropdownPicker from './DropdownPicker.svelte';
 import Icon from './Icon.svelte';
 
 interface Props {
@@ -26,56 +25,9 @@ function updateFilters(updates: Partial<SearchFilters>) {
   onFiltersChange({ ...filters, ...updates });
 }
 
-// Data type options
-const dataTypeOptions = [
-  { value: '', label: 'All types', icon: '📂' },
-  { value: 'task', label: 'Tasks', icon: '📋' },
-  { value: 'note', label: 'Notes', icon: '📝' },
-  { value: 'transaction', label: 'Money', icon: '💰' },
-];
-
-// Status options
-const statusOptions = [
-  { value: '', label: 'All status', icon: '📊' },
-  { value: 'pending', label: 'Pending', icon: '⏳' },
-  { value: 'completed', label: 'Completed', icon: '✅' },
-];
-
-// Priority options
-const priorityOptions = [
-  { value: '', label: 'All priorities', icon: '📋' },
-  ...PRIORITY_OPTIONS.map(priority => {
-    const config = getPriorityConfig(priority);
-    return {
-      value: priority,
-      label: config.label,
-      icon: config.icon,
-    };
-  }),
-];
-
-// Transaction type options
-const transactionTypeOptions = [
-  { value: '', label: 'All money', icon: '💰' },
-  { value: 'income', label: 'Income', icon: '📈' },
-  { value: 'expense', label: 'Expense', icon: '📉' },
-];
-
-// Category options
-const categoryOptions = [
-  { value: '', label: 'All categories', icon: '📂' },
-  ...CATEGORY_OPTIONS.map(category => {
-    const config = getCategoryConfig(category);
-    return {
-      value: category,
-      label: config.label,
-      icon: config.icon,
-    };
-  }),
-];
-
 // Handle filter changes
-function handleDataTypeChange(value: string) {
+function handleDataTypeChange(e: Event) {
+  const value = (e.target as HTMLSelectElement).value;
   if (value === '') {
     updateFilters({ dataTypes: [] });
   } else {
@@ -83,7 +35,8 @@ function handleDataTypeChange(value: string) {
   }
 }
 
-function handleTaskStatusChange(value: string) {
+function handleTaskStatusChange(e: Event) {
+  const value = (e.target as HTMLSelectElement).value;
   if (value === '') {
     updateFilters({ taskStatus: [] });
   } else {
@@ -91,7 +44,8 @@ function handleTaskStatusChange(value: string) {
   }
 }
 
-function handlePriorityChange(value: string) {
+function handlePriorityChange(e: Event) {
+  const value = (e.target as HTMLSelectElement).value;
   if (value === '') {
     updateFilters({ taskPriorities: [] });
   } else {
@@ -99,7 +53,8 @@ function handlePriorityChange(value: string) {
   }
 }
 
-function handleTransactionTypeChange(value: string) {
+function handleTransactionTypeChange(e: Event) {
+  const value = (e.target as HTMLSelectElement).value;
   if (value === '') {
     updateFilters({ transactionTypes: [] });
   } else {
@@ -107,7 +62,8 @@ function handleTransactionTypeChange(value: string) {
   }
 }
 
-function handleCategoryChange(value: string) {
+function handleCategoryChange(e: Event) {
+  const value = (e.target as HTMLSelectElement).value;
   if (value === '') {
     updateFilters({ transactionCategories: [] });
   } else {
@@ -163,66 +119,81 @@ const activeFilterCount = $derived(() => {
       <!-- Data Type Filter -->
       <div class="flex-shrink-0 w-32">
         <label class="block text-xs font-medium text-gray-700 mb-1">Type</label>
-        <DropdownPicker
-          options={dataTypeOptions}
+        <select
           value={filters.dataTypes[0] || ''}
-          placeholder="All types"
-          onSelect={handleDataTypeChange}
-          horizontalScroll={true}
-          class={filters.dataTypes.length > 0 ? 'border-blue-300 bg-blue-50' : ''}
-        />
+          onchange={handleDataTypeChange}
+          class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white
+            {filters.dataTypes.length > 0 ? 'border-blue-300 bg-blue-50' : ''}"
+        >
+          <option value="">All types</option>
+          <option value="task">📋 Tasks</option>
+          <option value="note">📝 Notes</option>
+          <option value="transaction">💰 Money</option>
+        </select>
       </div>
 
       <!-- Status Filter -->
       <div class="flex-shrink-0 w-32">
         <label class="block text-xs font-medium text-gray-700 mb-1">Status</label>
-        <DropdownPicker
-          options={statusOptions}
+        <select
           value={filters.taskStatus[0] || ''}
-          placeholder="All status"
-          onSelect={handleTaskStatusChange}
-          horizontalScroll={true}
-          class={filters.taskStatus.length > 0 ? 'border-orange-300 bg-orange-50' : ''}
-        />
+          onchange={handleTaskStatusChange}
+          class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white
+            {filters.taskStatus.length > 0 ? 'border-orange-300 bg-orange-50' : ''}"
+        >
+          <option value="">All status</option>
+          <option value="pending">⏳ Pending</option>
+          <option value="completed">✅ Completed</option>
+        </select>
       </div>
 
       <!-- Priority Filter -->
       <div class="flex-shrink-0 w-32">
         <label class="block text-xs font-medium text-gray-700 mb-1">Priority</label>
-        <DropdownPicker
-          options={priorityOptions}
+        <select
           value={filters.taskPriorities[0] || ''}
-          placeholder="All priorities"
-          onSelect={handlePriorityChange}
-          horizontalScroll={true}
-          class={filters.taskPriorities.length > 0 ? 'border-purple-300 bg-purple-50' : ''}
-        />
+          onchange={handlePriorityChange}
+          class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white
+            {filters.taskPriorities.length > 0 ? 'border-purple-300 bg-purple-50' : ''}"
+        >
+          <option value="">All priorities</option>
+          {#each PRIORITY_OPTIONS as priority}
+            {@const config = getPriorityConfig(priority)}
+            <option value={priority}>{config.icon} {config.label}</option>
+          {/each}
+        </select>
       </div>
 
       <!-- Transaction Type Filter -->
       <div class="flex-shrink-0 w-32">
         <label class="block text-xs font-medium text-gray-700 mb-1">Money Type</label>
-        <DropdownPicker
-          options={transactionTypeOptions}
+        <select
           value={filters.transactionTypes[0] || ''}
-          placeholder="All money"
-          onSelect={handleTransactionTypeChange}
-          horizontalScroll={true}
-          class={filters.transactionTypes.length > 0 ? 'border-green-300 bg-green-50' : ''}
-        />
+          onchange={handleTransactionTypeChange}
+          class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white
+            {filters.transactionTypes.length > 0 ? 'border-green-300 bg-green-50' : ''}"
+        >
+          <option value="">All money</option>
+          <option value="income">📈 Income</option>
+          <option value="expense">📉 Expense</option>
+        </select>
       </div>
 
       <!-- Category Filter -->
       <div class="flex-shrink-0 w-40">
         <label class="block text-xs font-medium text-gray-700 mb-1">Category</label>
-        <DropdownPicker
-          options={categoryOptions}
+        <select
           value={filters.transactionCategories[0] || ''}
-          placeholder="All categories"
-          onSelect={handleCategoryChange}
-          horizontalScroll={true}
-          class={filters.transactionCategories.length > 0 ? 'border-indigo-300 bg-indigo-50' : ''}
-        />
+          onchange={handleCategoryChange}
+          class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white
+            {filters.transactionCategories.length > 0 ? 'border-indigo-300 bg-indigo-50' : ''}"
+        >
+          <option value="">All categories</option>
+          {#each CATEGORY_OPTIONS as category}
+            {@const config = getCategoryConfig(category)}
+            <option value={category}>{config.icon} {config.label}</option>
+          {/each}
+        </select>
       </div>
 
       <!-- Date Range Filters -->
