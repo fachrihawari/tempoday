@@ -7,6 +7,7 @@ import Card from '../components/ui/Card.svelte';
 import Icon from '../components/ui/Icon.svelte';
 import PageHeader from '../components/ui/PageHeader.svelte';
 import { toastStore } from '../stores/toast.svelte';
+import { reactiveRouter } from '../stores/router.svelte';
 
 let showDonationModal = $state(false);
 
@@ -19,6 +20,10 @@ const SHARE_CONTENT = {
   text: 'Check out TempoDay, a privacy-focused personal management app that helps you organize tasks, notes, and finances by date!',
   url: 'https://tempoday.app'
 };
+
+function navigateToTerms() {
+  reactiveRouter.navigate('/terms');
+}
 
 async function handleRateUs() {
   try {
@@ -245,9 +250,22 @@ async function handleShare() {
           </div>
           
           <!-- Simple tagline -->
-          <p class="text-xs text-gray-400">
+          <p class="text-xs text-gray-400 mb-4">
             Calendar-centric personal management
           </p>
+          
+          <!-- Terms & Conditions Link -->
+          <Button
+            variant="outline"
+            size="sm"
+            onclick={navigateToTerms}
+            class="!w-full !justify-center !text-gray-600 hover:!text-gray-900"
+          >
+            {#snippet children()}
+              <Icon name="info-circle" class="text-gray-500" size="sm" />
+              <span>Terms & Conditions</span>
+            {/snippet}
+          </Button>
         </div>
       {/snippet}
     </Card>

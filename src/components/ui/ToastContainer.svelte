@@ -46,17 +46,6 @@ function handleDismiss(id: string) {
   }
 }
 
-@keyframes zoom-in {
-  from {
-    transform: scale(0.8);
-    opacity: 0;
-  }
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
 .animate-in {
   animation-fill-mode: both;
 }
@@ -65,7 +54,4 @@ function handleDismiss(id: string) {
   animation: slide-in-from-bottom 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.zoom-in-50 {
-  animation: zoom-in 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
 </style>
