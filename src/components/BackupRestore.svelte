@@ -1,6 +1,5 @@
 <script lang="ts">
 import { backupManager } from '../lib/backup';
-import Alert from './ui/Alert.svelte';
 import BottomSheet from './ui/BottomSheet.svelte';
 import Button from './ui/Button.svelte';
 import Icon from './ui/Icon.svelte';
@@ -46,8 +45,17 @@ async function handleWebShareBackup() {
 
   try {
     const result = await backupManager.createBackup();
+    
+    // Handle cancellation gracefully - don't show as error
+    if (result.method === 'cancelled') {
+      // Just close the modal without showing error state
+      showBackupModal = false;
+      return;
+    }
+    
     backupResult = result;
     
+    // Only show success in the bottom sheet - no toast needed
     if (result.success) {
       // Auto-close modal after success
       setTimeout(() => {
@@ -57,10 +65,11 @@ async function handleWebShareBackup() {
     }
   } catch (error) {
     console.error('Backup failed:', error);
+    const message = error instanceof Error ? error.message : 'Backup failed';
     backupResult = {
       success: false,
       method: 'error',
-      message: error instanceof Error ? error.message : 'Backup failed'
+      message
     };
   } finally {
     isBackingUp = false;
@@ -75,6 +84,7 @@ async function handleDownloadBackup() {
     const result = await backupManager.createDownloadBackup();
     backupResult = result;
     
+    // Only show success in the bottom sheet - no toast needed
     if (result.success) {
       // Auto-close modal after success
       setTimeout(() => {
@@ -84,10 +94,11 @@ async function handleDownloadBackup() {
     }
   } catch (error) {
     console.error('Download backup failed:', error);
+    const message = error instanceof Error ? error.message : 'Download backup failed';
     backupResult = {
       success: false,
       method: 'error',
-      message: error instanceof Error ? error.message : 'Download backup failed'
+      message
     };
   } finally {
     isBackingUp = false;
@@ -100,6 +111,7 @@ async function handleRestoreFromClipboard() {
 
   try {
     await backupManager.restoreFromClipboard();
+    // Only show success in the bottom sheet - no toast needed
     restoreResult = {
       success: true,
       message: 'Data restored successfully from clipboard!'
@@ -115,9 +127,10 @@ async function handleRestoreFromClipboard() {
     }, 3000);
   } catch (error) {
     console.error('Restore failed:', error);
+    const message = error instanceof Error ? error.message : 'Restore failed';
     restoreResult = {
       success: false,
-      message: error instanceof Error ? error.message : 'Restore failed'
+      message
     };
   } finally {
     isRestoring = false;
@@ -138,6 +151,7 @@ async function handleRestoreFromFile() {
 
     try {
       await backupManager.restoreFromFile(file);
+      // Only show success in the bottom sheet - no toast needed
       restoreResult = {
         success: true,
         message: 'Data restored successfully from file!'
@@ -153,9 +167,10 @@ async function handleRestoreFromFile() {
       }, 3000);
     } catch (error) {
       console.error('Restore failed:', error);
+      const message = error instanceof Error ? error.message : 'Restore failed';
       restoreResult = {
         success: false,
-        message: error instanceof Error ? error.message : 'Restore failed'
+        message
       };
     } finally {
       isRestoring = false;
@@ -274,12 +289,15 @@ function getBackupMethodTitle(method: string): string {
         </div>
       {:else if backupResult && !backupResult.success}
         <!-- Error State -->
-        <Alert
-          type="error"
-          description={backupResult.message}
-          dismissible={true}
-          onDismiss={() => backupResult = null}
-        />
+        <div class="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+          <div class="text-4xl mb-3">❌</div>
+          <h3 class="font-medium text-red-900 text-lg mb-2">
+            Backup Failed
+          </h3>
+          <p class="text-sm text-red-700">
+            {backupResult.message}
+          </p>
+        </div>
       {:else}
         <!-- Backup Options -->
         <div class="space-y-4">
@@ -404,12 +422,15 @@ function getBackupMethodTitle(method: string): string {
         </div>
       {:else if restoreResult && !restoreResult.success}
         <!-- Error State -->
-        <Alert
-          type="error"
-          description={restoreResult.message}
-          dismissible={true}
-          onDismiss={() => restoreResult = null}
-        />
+        <div class="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+          <div class="text-4xl mb-3">❌</div>
+          <h3 class="font-medium text-red-900 text-lg mb-2">
+            Restore Failed
+          </h3>
+          <p class="text-sm text-red-700">
+            {restoreResult.message}
+          </p>
+        </div>
       {:else}
         <!-- Restore Options -->
         <div class="space-y-4">

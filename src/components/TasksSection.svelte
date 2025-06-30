@@ -2,7 +2,7 @@
 import { formatDateKey } from '../lib/date';
 import { appState } from '../stores/app.svelte';
 import { reactiveTasks } from '../stores/tasks.svelte';
-import Alert from './ui/Alert.svelte';
+import { toastStore } from '../stores/toast.svelte';
 import BottomSheet from './ui/BottomSheet.svelte';
 import Button from './ui/Button.svelte';
 import Card from './ui/Card.svelte';
@@ -24,22 +24,27 @@ $effect(() => {
   reactiveTasks.loadTasks(dateKey);
 });
 
+// Watch for errors and show toast
+$effect(() => {
+  if (error) {
+    toastStore.error(error);
+    reactiveTasks.clearError();
+  }
+});
+
 async function handleAddTask(event?: Event) {
   if (event) event.preventDefault();
 
   const text = newTaskText.trim();
   const dateKey = formatDateKey(appState.selectedDate);
   await reactiveTasks.createTask({ description: text, date: dateKey });
+  toastStore.success('Task added successfully');
   resetForm();
 }
 
 function resetForm() {
   newTaskText = '';
   showAddForm = false;
-  // Clear any error when closing form
-  if (error) {
-    reactiveTasks.clearError();
-  }
 }
 </script>
 
@@ -53,15 +58,6 @@ function resetForm() {
   {/snippet}
 
   {#snippet children()}
-    {#if error}
-      <Alert
-        type="error"
-        description={error}
-        onDismiss={() => reactiveTasks.clearError()}
-        class="mb-4"
-      />
-    {/if}
-
     <!-- Task List -->
     <div class="space-y-2" class:mb-4={tasks.length > 0}>
       {#if isLoading}

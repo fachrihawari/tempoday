@@ -10,8 +10,8 @@ import { appState } from '../stores/app.svelte';
 import { reactiveNotes } from '../stores/notes.svelte';
 import { settingsStore } from '../stores/settings.svelte';
 import { reactiveTasks } from '../stores/tasks.svelte';
+import { toastStore } from '../stores/toast.svelte';
 import { reactiveTransactions } from '../stores/transactions.svelte';
-import Alert from './ui/Alert.svelte';
 import BottomSheet from './ui/BottomSheet.svelte';
 import Button from './ui/Button.svelte';
 import Card from './ui/Card.svelte';
@@ -21,10 +21,6 @@ let userInput = $state('');
 let isProcessing = $state(false);
 let lastParsedCommand = $state<ParsedCommand | null>(null);
 let showDetailedHelp = $state(false);
-let processingResult = $state<{
-  type: 'success' | 'error';
-  message: string;
-} | null>(null);
 let textareaElement: HTMLTextAreaElement = $state()!;
 
 // Get current date for operations
@@ -44,7 +40,6 @@ async function processCommand() {
   if (!userInput.trim()) return;
 
   isProcessing = true;
-  processingResult = null;
 
   try {
     // Parse the natural language input
@@ -58,10 +53,7 @@ async function processCommand() {
           description: parsed.content,
           date: currentDate,
         });
-        processingResult = {
-          type: 'success',
-          message: `✅ Task created: "${parsed.content}"`,
-        };
+        toastStore.success(`Task created: "${parsed.content}"`);
         break;
 
       case 'note':
@@ -69,10 +61,7 @@ async function processCommand() {
           content: parsed.content,
           date: currentDate,
         });
-        processingResult = {
-          type: 'success',
-          message: `📝 Note saved: "${parsed.content.substring(0, 50)}${parsed.content.length > 50 ? '...' : ''}"`,
-        };
+        toastStore.success(`Note saved: "${parsed.content.substring(0, 50)}${parsed.content.length > 50 ? '...' : ''}"`);
         break;
 
       case 'transaction':
@@ -84,10 +73,7 @@ async function processCommand() {
             date: currentDate,
           });
           const symbol = parsed.transactionType === 'income' ? '+' : '-';
-          processingResult = {
-            type: 'success',
-            message: `💰 ${parsed.transactionType === 'income' ? 'Income' : 'Expense'} added: ${symbol}${formatAmount(parsed.amount)} for "${parsed.content}"`,
-          };
+          toastStore.success(`${parsed.transactionType === 'income' ? 'Income' : 'Expense'} added: ${symbol}${formatAmount(parsed.amount)} for "${parsed.content}"`);
         } else {
           throw new Error('Could not extract amount or transaction type');
         }
@@ -101,11 +87,9 @@ async function processCommand() {
     userInput = '';
   } catch (error) {
     console.error('Error processing command:', error);
-    processingResult = {
-      type: 'error',
-      message:
-        error instanceof Error ? error.message : 'Failed to process command',
-    };
+    toastStore.error(
+      error instanceof Error ? error.message : 'Failed to process command'
+    );
   } finally {
     isProcessing = false;
   }
@@ -159,10 +143,6 @@ function insertExample(example: string) {
   }
 }
 
-function clearResult() {
-  processingResult = null;
-}
-
 // Categorized examples for better organization
 const categorizedExamples = {
   tasks: EXAMPLE_COMMANDS.filter((_, i) => i < 6),
@@ -187,16 +167,6 @@ const categorizedExamples = {
   {/snippet}
 
   {#snippet children()}
-    {#if processingResult}
-      <Alert
-        type={processingResult.type === 'success' ? 'success' : 'error'}
-        description={processingResult.message}
-        dismissible={true}
-        onDismiss={clearResult}
-        class="mb-4"
-      />
-    {/if}
-
     <!-- ChatGPT-style Input Container -->
     <div class="relative">
       <!-- Main Input Area -->
