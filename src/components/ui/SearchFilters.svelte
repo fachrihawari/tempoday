@@ -27,16 +27,17 @@ function updateFilters(updates: Partial<SearchFilters>) {
 
 // Get the current selected data type
 const selectedDataType = $derived(() => {
-  return filters.dataTypes[0] || null;
+  if (filters.dataTypes.length === 0) return 'all';
+  return filters.dataTypes[0];
 });
 
 // Handle filter changes
 function handleDataTypeChange(e: Event) {
   const value = (e.target as HTMLSelectElement).value;
-  if (value === '') {
+  if (value === 'all') {
     updateFilters({ 
       dataTypes: [],
-      // Clear type-specific filters when changing data type
+      // Clear type-specific filters when changing to "all"
       taskStatus: [],
       taskPriorities: [],
       transactionTypes: [],
@@ -117,36 +118,46 @@ const activeFilterCount = $derived(() => {
 
 // Determine which filters to show based on selected data type
 const shouldShowTaskFilters = $derived(() => {
-  return selectedDataType === null || selectedDataType === 'task';
+  return selectedDataType === 'all' || selectedDataType === 'task';
 });
 
 const shouldShowTransactionFilters = $derived(() => {
-  return selectedDataType === null || selectedDataType === 'transaction';
+  return selectedDataType === 'all' || selectedDataType === 'transaction';
 });
 
 const shouldShowDateFilters = $derived(() => {
   return true; // Date filters are always relevant
+});
+
+// Get display text for current filter state
+const filterStatusText = $derived(() => {
+  if (selectedDataType === 'all') {
+    return 'Filtering all data';
+  } else if (selectedDataType === 'task') {
+    return 'Filtering tasks';
+  } else if (selectedDataType === 'note') {
+    return 'Filtering notes';
+  } else if (selectedDataType === 'transaction') {
+    return 'Filtering transactions';
+  }
+  return 'Filters active';
 });
 </script>
 
 <!-- Filter Bar -->
 <div class="space-y-3">
   <!-- Clear Filters Button -->
-  {#if hasActiveFilters()}
+  {#if hasActiveFilters}
     <div class="flex justify-between items-center">
       <span class="text-sm text-gray-600">
-        {#if selectedDataType}
-          Filtering {selectedDataType}s
-        {:else}
-          Filters active
-        {/if}
+        {filterStatusText}
       </span>
       <button
         onclick={onClearFilters}
         class="flex items-center gap-1 px-3 py-1.5 text-sm bg-red-50 text-red-700 border border-red-200 rounded-lg hover:bg-red-100 transition-colors"
       >
         <Icon name="close" size="sm" />
-        <span>Clear all ({activeFilterCount()})</span>
+        <span>Clear all ({activeFilterCount})</span>
       </button>
     </div>
   {/if}
@@ -158,19 +169,19 @@ const shouldShowDateFilters = $derived(() => {
       <div class="flex-shrink-0 w-32">
         <label class="block text-xs font-medium text-gray-700 mb-1">Type</label>
         <select
-          value={filters.dataTypes[0] || ''}
+          value={selectedDataType === 'all' ? 'all' : filters.dataTypes[0] || 'all'}
           onchange={handleDataTypeChange}
           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white
             {filters.dataTypes.length > 0 ? 'border-blue-300 bg-blue-50' : ''}"
         >
-          <option value="">All types</option>
+          <option value="all">All types</option>
           <option value="task">📋 Tasks</option>
           <option value="note">📝 Notes</option>
           <option value="transaction">💰 Money</option>
         </select>
       </div>
 
-      <!-- Task-specific filters - Only show when task type is selected or no type is selected -->
+      <!-- Task-specific filters - Only show when task type is selected or all types are selected -->
       {#if shouldShowTaskFilters}
         <!-- Status Filter -->
         <div class="flex-shrink-0 w-32">
@@ -205,7 +216,7 @@ const shouldShowDateFilters = $derived(() => {
         </div>
       {/if}
 
-      <!-- Transaction-specific filters - Only show when transaction type is selected or no type is selected -->
+      <!-- Transaction-specific filters - Only show when transaction type is selected or all types are selected -->
       {#if shouldShowTransactionFilters}
         <!-- Transaction Type Filter -->
         <div class="flex-shrink-0 w-32">
