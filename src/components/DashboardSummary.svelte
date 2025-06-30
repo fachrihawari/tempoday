@@ -3,6 +3,7 @@ import { onMount } from 'svelte';
 import { formatCurrency } from '../lib/currency';
 import { formatDateKey } from '../lib/date';
 import { getPriorityConfig } from '../lib/priority';
+import { getCategoryConfig } from '../lib/categories';
 import { reactiveNotes } from '../stores/notes.svelte';
 import { reactiveRouter } from '../stores/router.svelte';
 import { settingsStore } from '../stores/settings.svelte';
@@ -10,6 +11,7 @@ import { reactiveTasks } from '../stores/tasks.svelte';
 import { reactiveTransactions } from '../stores/transactions.svelte';
 import Button from './ui/Button.svelte';
 import Card from './ui/Card.svelte';
+import CategoryBadge from './ui/CategoryBadge.svelte';
 import Icon from './ui/Icon.svelte';
 import Loading from './ui/Loading.svelte';
 
@@ -184,11 +186,12 @@ const shouldShowSummary = $derived.by(() => {
               <div class="space-y-2">
                 {#each recentExpenses as expense (expense.id)}
                   <div class="flex items-center justify-between text-sm bg-white rounded-md p-2 border border-red-100">
-                    <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-2 flex-1 min-w-0">
                       <div class="w-2 h-2 rounded-full bg-red-500"></div>
                       <span class="text-red-800 truncate">{expense.description}</span>
+                      <CategoryBadge category={expense.category} size="sm" />
                     </div>
-                    <span class="text-sm font-medium text-red-600">
+                    <span class="text-sm font-medium text-red-600 ml-2">
                       -{formatAmount(expense.amount)}
                     </span>
                   </div>
