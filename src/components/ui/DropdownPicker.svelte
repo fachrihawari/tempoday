@@ -69,55 +69,72 @@ function handleKeydown(event: KeyboardEvent) {
   }
 }
 
-// Position dropdown
+// Position dropdown precisely below the trigger
 function positionDropdown() {
   if (!isOpen || !dropdownElement || !triggerElement) return;
 
   const triggerRect = triggerElement.getBoundingClientRect();
   const viewportHeight = window.innerHeight;
   const viewportWidth = window.innerWidth;
+  const scrollY = window.scrollY;
+  const scrollX = window.scrollX;
 
   // Calculate available space below and above
   const spaceBelow = viewportHeight - triggerRect.bottom;
   const spaceAbove = triggerRect.top;
 
   // Determine if dropdown should open upward or downward
-  const shouldOpenUpward = spaceBelow < 200 && spaceAbove > spaceBelow; // Use fixed height for calculation
+  const shouldOpenUpward = spaceBelow < 200 && spaceAbove > spaceBelow;
 
-  // Set position
+  // Calculate precise positioning
+  let top: number;
+  let left: number;
+  let width: number;
+
   if (shouldOpenUpward) {
-    dropdownElement.style.bottom = `${viewportHeight - triggerRect.top + 4}px`;
-    dropdownElement.style.top = 'auto';
+    // Position above the trigger with 2px gap
+    top = triggerRect.top + scrollY - 2;
+    dropdownElement.style.transform = 'translateY(-100%)';
   } else {
-    dropdownElement.style.top = `${triggerRect.bottom + 4}px`;
-    dropdownElement.style.bottom = 'auto';
+    // Position below the trigger with 2px gap
+    top = triggerRect.bottom + scrollY + 2;
+    dropdownElement.style.transform = 'translateY(0)';
   }
 
   // Horizontal positioning
+  left = triggerRect.left + scrollX;
+  
   if (horizontalScroll) {
-    // For horizontal scroll mode, make dropdown wider and allow scrolling
-    const maxWidth = Math.min(viewportWidth - 32, 400); // Max 400px or viewport width minus padding
-    const minWidth = Math.max(triggerRect.width, 250); // At least trigger width or 250px
+    // For horizontal scroll mode, make dropdown wider
+    const maxWidth = Math.min(viewportWidth - 32, 400);
+    const minWidth = Math.max(triggerRect.width, 280);
+    width = Math.min(maxWidth, minWidth);
     
-    dropdownElement.style.left = `${Math.max(16, triggerRect.left)}px`;
-    dropdownElement.style.width = `${Math.min(maxWidth, minWidth)}px`;
+    // Ensure dropdown doesn't go off-screen to the right
+    if (left + width > viewportWidth + scrollX - 16) {
+      left = viewportWidth + scrollX - width - 16;
+    }
     
-    // Ensure dropdown doesn't go off-screen
-    const rightEdge = parseInt(dropdownElement.style.left) + parseInt(dropdownElement.style.width);
-    if (rightEdge > viewportWidth - 16) {
-      dropdownElement.style.left = `${viewportWidth - parseInt(dropdownElement.style.width) - 16}px`;
+    // Ensure dropdown doesn't go off-screen to the left
+    if (left < scrollX + 16) {
+      left = scrollX + 16;
     }
   } else {
-    // Standard positioning
-    dropdownElement.style.left = `${triggerRect.left}px`;
-    dropdownElement.style.width = `${triggerRect.width}px`;
-
-    // Ensure dropdown doesn't go off-screen horizontally
-    const rightEdge = triggerRect.left + triggerRect.width;
-    if (rightEdge > viewportWidth) {
-      dropdownElement.style.left = `${viewportWidth - triggerRect.width - 8}px`;
+    // Standard positioning - match trigger width
+    width = triggerRect.width;
+    
+    // Ensure dropdown doesn't go off-screen to the right
+    if (left + width > viewportWidth + scrollX - 8) {
+      left = viewportWidth + scrollX - width - 8;
     }
   }
+
+  // Apply positioning
+  dropdownElement.style.position = 'absolute';
+  dropdownElement.style.top = `${top}px`;
+  dropdownElement.style.left = `${left}px`;
+  dropdownElement.style.width = `${width}px`;
+  dropdownElement.style.zIndex = '9999';
 }
 
 // Setup event listeners and positioning
@@ -126,18 +143,26 @@ $effect(() => {
     document.addEventListener('click', handleClickOutside);
     document.addEventListener('keydown', handleKeydown);
     
-    // Position dropdown after DOM update
-    setTimeout(positionDropdown, 0);
+    // Position dropdown immediately
+    requestAnimationFrame(() => {
+      positionDropdown();
+    });
     
     // Reposition on scroll/resize
-    window.addEventListener('scroll', positionDropdown, true);
-    window.addEventListener('resize', positionDropdown);
+    const handleReposition = () => {
+      if (isOpen) {
+        positionDropdown();
+      }
+    };
+    
+    window.addEventListener('scroll', handleReposition, true);
+    window.addEventListener('resize', handleReposition);
 
     return () => {
       document.removeEventListener('click', handleClickOutside);
       document.removeEventListener('keydown', handleKeydown);
-      window.removeEventListener('scroll', positionDropdown, true);
-      window.removeEventListener('resize', positionDropdown);
+      window.removeEventListener('scroll', handleReposition, true);
+      window.removeEventListener('resize', handleReposition);
     };
   }
 });
@@ -170,65 +195,64 @@ $effect(() => {
       class="text-gray-400 transition-transform duration-200 {isOpen ? 'rotate-180' : ''}" 
     />
   </button>
+</div>
 
-  <!-- Dropdown Menu (Portal to body) -->
-  {#if isOpen}
-    <div
-      bind:this={dropdownElement}
-      class="fixed z-[9999] bg-white border border-gray-200 rounded-lg shadow-lg
-        {horizontalScroll ? 'max-h-60' : 'max-h-60'}"
-      style="min-width: 200px;"
-    >
-      {#if horizontalScroll}
-        <!-- Horizontal scrollable layout -->
-        <div class="p-2">
-          <div class="flex gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-            {#each options as option (option.value)}
-              <button
-                onclick={() => handleSelect(option.value)}
-                disabled={option.disabled}
-                class="flex-shrink-0 flex items-center gap-2 px-3 py-2 rounded-lg border transition-colors whitespace-nowrap
-                  {option.value === value 
-                    ? 'bg-blue-100 border-blue-300 text-blue-700' 
-                    : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300'}
-                  {option.disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}"
-              >
-                {#if option.icon}
-                  <span class="text-sm">{option.icon}</span>
-                {/if}
-                <span class="text-sm font-medium">{option.label}</span>
-                {#if option.value === value}
-                  <Icon name="check" size="sm" class="text-blue-600" />
-                {/if}
-              </button>
-            {/each}
-          </div>
-        </div>
-      {:else}
-        <!-- Vertical layout -->
-        <div class="py-1 overflow-y-auto">
+<!-- Dropdown Menu (Portal to body) -->
+{#if isOpen}
+  <div
+    bind:this={dropdownElement}
+    class="bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-hidden"
+    style="position: absolute; z-index: 9999; min-width: 200px;"
+  >
+    {#if horizontalScroll}
+      <!-- Horizontal scrollable layout -->
+      <div class="p-2">
+        <div class="flex gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
           {#each options as option (option.value)}
             <button
               onclick={() => handleSelect(option.value)}
               disabled={option.disabled}
-              class="w-full text-left px-3 py-2 hover:bg-gray-50 transition-colors flex items-center gap-2
-                {option.value === value ? 'bg-blue-50 text-blue-700' : 'text-gray-700'}
+              class="flex-shrink-0 flex items-center gap-2 px-3 py-2 rounded-lg border transition-colors whitespace-nowrap
+                {option.value === value 
+                  ? 'bg-blue-100 border-blue-300 text-blue-700' 
+                  : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300'}
                 {option.disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}"
             >
               {#if option.icon}
                 <span class="text-sm">{option.icon}</span>
               {/if}
-              <span class="flex-1 truncate">{option.label}</span>
+              <span class="text-sm font-medium">{option.label}</span>
               {#if option.value === value}
                 <Icon name="check" size="sm" class="text-blue-600" />
               {/if}
             </button>
           {/each}
         </div>
-      {/if}
-    </div>
-  {/if}
-</div>
+      </div>
+    {:else}
+      <!-- Vertical layout -->
+      <div class="py-1 overflow-y-auto max-h-56">
+        {#each options as option (option.value)}
+          <button
+            onclick={() => handleSelect(option.value)}
+            disabled={option.disabled}
+            class="w-full text-left px-3 py-2 hover:bg-gray-50 transition-colors flex items-center gap-2
+              {option.value === value ? 'bg-blue-50 text-blue-700' : 'text-gray-700'}
+              {option.disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}"
+          >
+            {#if option.icon}
+              <span class="text-sm">{option.icon}</span>
+            {/if}
+            <span class="flex-1 truncate">{option.label}</span>
+            {#if option.value === value}
+              <Icon name="check" size="sm" class="text-blue-600" />
+            {/if}
+          </button>
+        {/each}
+      </div>
+    {/if}
+  </div>
+{/if}
 
 <style>
   /* Custom scrollbar styles for horizontal scroll */
