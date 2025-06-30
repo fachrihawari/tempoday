@@ -1,20 +1,9 @@
 <script lang="ts">
 import { getCategoryConfig, CATEGORY_OPTIONS, type TransactionCategory } from '../../lib/categories';
 import { getPriorityConfig, PRIORITY_OPTIONS, type TaskPriority } from '../../lib/priority';
+import { type SearchFilters } from '../../stores/search.svelte';
 import Button from './Button.svelte';
 import Icon from './Icon.svelte';
-
-export interface SearchFilters {
-  dataTypes: ('task' | 'note' | 'transaction')[];
-  taskStatus: ('completed' | 'pending')[];
-  taskPriorities: TaskPriority[];
-  transactionTypes: ('income' | 'expense')[];
-  transactionCategories: TransactionCategory[];
-  dateRange: {
-    start: string | null;
-    end: string | null;
-  };
-}
 
 interface Props {
   filters: SearchFilters;
