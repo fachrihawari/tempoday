@@ -30,8 +30,8 @@ let {
 }: Props = $props();
 
 let isOpen = $state(false);
-let dropdownElement: HTMLDivElement = $state()!;
 let triggerElement: HTMLButtonElement = $state()!;
+let portalContainer: HTMLDivElement | null = null;
 
 // Get selected option
 const selectedOption = $derived(options.find(opt => opt.value === value));
@@ -57,7 +57,7 @@ function handleSelect(optionValue: string) {
 // Handle click outside to close dropdown
 function handleClickOutside(event: MouseEvent) {
   const target = event.target as Element;
-  if (!dropdownElement?.contains(target) && !triggerElement?.contains(target)) {
+  if (!triggerElement?.contains(target) && !portalContainer?.contains(target)) {
     closeDropdown();
   }
 }
@@ -69,9 +69,29 @@ function handleKeydown(event: KeyboardEvent) {
   }
 }
 
+// Create and position dropdown portal
+function createDropdownPortal() {
+  if (!isOpen || !triggerElement) return;
+
+  // Remove existing portal
+  if (portalContainer) {
+    document.body.removeChild(portalContainer);
+    portalContainer = null;
+  }
+
+  // Create new portal container
+  portalContainer = document.createElement('div');
+  portalContainer.style.position = 'absolute';
+  portalContainer.style.zIndex = '9999';
+  document.body.appendChild(portalContainer);
+
+  // Position the portal
+  positionDropdown();
+}
+
 // Position dropdown precisely below the trigger
 function positionDropdown() {
-  if (!isOpen || !dropdownElement || !triggerElement) return;
+  if (!isOpen || !portalContainer || !triggerElement) return;
 
   const triggerRect = triggerElement.getBoundingClientRect();
   const viewportHeight = window.innerHeight;
@@ -94,11 +114,11 @@ function positionDropdown() {
   if (shouldOpenUpward) {
     // Position above the trigger with 2px gap
     top = triggerRect.top + scrollY - 2;
-    dropdownElement.style.transform = 'translateY(-100%)';
+    portalContainer.style.transform = 'translateY(-100%)';
   } else {
     // Position below the trigger with 2px gap
     top = triggerRect.bottom + scrollY + 2;
-    dropdownElement.style.transform = 'translateY(0)';
+    portalContainer.style.transform = 'translateY(0)';
   }
 
   // Horizontal positioning
@@ -130,23 +150,27 @@ function positionDropdown() {
   }
 
   // Apply positioning
-  dropdownElement.style.position = 'absolute';
-  dropdownElement.style.top = `${top}px`;
-  dropdownElement.style.left = `${left}px`;
-  dropdownElement.style.width = `${width}px`;
-  dropdownElement.style.zIndex = '9999';
+  portalContainer.style.top = `${top}px`;
+  portalContainer.style.left = `${left}px`;
+  portalContainer.style.width = `${width}px`;
+}
+
+// Cleanup portal when component unmounts
+function cleanupPortal() {
+  if (portalContainer && document.body.contains(portalContainer)) {
+    document.body.removeChild(portalContainer);
+    portalContainer = null;
+  }
 }
 
 // Setup event listeners and positioning
 $effect(() => {
   if (isOpen) {
+    // Create portal and position dropdown
+    createDropdownPortal();
+    
     document.addEventListener('click', handleClickOutside);
     document.addEventListener('keydown', handleKeydown);
-    
-    // Position dropdown immediately
-    requestAnimationFrame(() => {
-      positionDropdown();
-    });
     
     // Reposition on scroll/resize
     const handleReposition = () => {
@@ -163,8 +187,19 @@ $effect(() => {
       document.removeEventListener('keydown', handleKeydown);
       window.removeEventListener('scroll', handleReposition, true);
       window.removeEventListener('resize', handleReposition);
+      cleanupPortal();
     };
+  } else {
+    // Clean up portal when closed
+    cleanupPortal();
   }
+});
+
+// Cleanup on unmount
+onMount(() => {
+  return () => {
+    cleanupPortal();
+  };
 });
 </script>
 
@@ -197,12 +232,15 @@ $effect(() => {
   </button>
 </div>
 
-<!-- Dropdown Menu (Portal to body) -->
-{#if isOpen}
+<!-- Dropdown content will be rendered in the portal -->
+{#if isOpen && portalContainer}
+  {@render dropdownContent()}
+{/if}
+
+{#snippet dropdownContent()}
   <div
-    bind:this={dropdownElement}
     class="bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-hidden"
-    style="position: absolute; z-index: 9999; min-width: 200px;"
+    style="min-width: 200px;"
   >
     {#if horizontalScroll}
       <!-- Horizontal scrollable layout -->
@@ -252,7 +290,7 @@ $effect(() => {
       </div>
     {/if}
   </div>
-{/if}
+{/snippet}
 
 <style>
   /* Custom scrollbar styles for horizontal scroll */
