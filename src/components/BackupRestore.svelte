@@ -183,7 +183,6 @@ async function handleRestoreFromFile() {
 function getBackupMethodIcon(method: string): string {
   switch (method) {
     case 'share': return '📤';
-    case 'shareText': return '📝';
     case 'clipboard': return '📋';
     case 'download': return '💾';
     default: return '✅';
@@ -192,8 +191,7 @@ function getBackupMethodIcon(method: string): string {
 
 function getBackupMethodTitle(method: string): string {
   switch (method) {
-    case 'share': return 'Shared Successfully!';
-    case 'shareText': return 'Shared as Text!';
+    case 'share': return 'File Shared Successfully!';
     case 'clipboard': return 'Copied to Clipboard!';
     case 'download': return 'File Downloaded!';
     default: return 'Backup Complete!';
@@ -311,7 +309,7 @@ function getBackupMethodTitle(method: string): string {
             </p>
           </div>
 
-          <!-- Web Share Option -->
+          <!-- Web Share Option (File Priority) -->
           <Button
             variant="primary"
             fullWidth
@@ -325,8 +323,8 @@ function getBackupMethodTitle(method: string): string {
                   <span class="text-2xl">📤</span>
                 </div>
                 <div class="flex-1">
-                  <div class="font-medium text-white">Share to Apps</div>
-                  <div class="text-sm text-blue-100">Save to Drive, email, or notes app</div>
+                  <div class="font-medium text-white">Share Backup File</div>
+                  <div class="text-sm text-blue-100">Save .json file to Drive, email, or notes app</div>
                 </div>
                 {#if isBackingUp}
                   <Icon name="loader" class="animate-spin text-blue-200" />
@@ -394,7 +392,7 @@ function getBackupMethodTitle(method: string): string {
             Backup Tips
           </h4>
           <ul class="text-sm text-blue-800 space-y-1">
-            <li>• Use "Share to Apps" for cloud backup</li>
+            <li>• Use "Share Backup File" for cloud backup</li>
             <li>• Use "Download File" for local backup</li>
             <li>• Keep multiple backup copies</li>
             <li>• Test restore process occasionally</li>

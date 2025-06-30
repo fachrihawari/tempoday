@@ -16,7 +16,7 @@ export interface BackupData {
 
 export interface BackupResult {
   success: boolean;
-  method: 'share' | 'shareText' | 'clipboard' | 'download' | 'cancelled';
+  method: 'share' | 'clipboard' | 'download' | 'cancelled';
   message: string;
 }
 
@@ -61,7 +61,7 @@ export class BackupManager {
 
       console.log('Starting backup process...');
 
-      // Strategy 1: Web Share API with file (Best UX - Keep this as priority!)
+      // Strategy 1: Web Share API with file (TOP PRIORITY!)
       if (navigator.share) {
         try {
           console.log('Attempting file share...');
@@ -102,22 +102,20 @@ export class BackupManager {
                 message: 'Backup file shared successfully! Choose your preferred app to save it.',
               };
             } catch (fileShareError) {
-              console.log('File share failed, trying text share:', fileShareError);
+              console.log('File share failed:', fileShareError);
               
-              // If file sharing fails, try text sharing as fallback
-              const textShareData = {
-                title: 'TempoDay Backup',
-                text: `TempoDay Backup Data (${fileName})\n\nSave this content as a .json file:\n\n${backupText}`,
-              };
+              // Check if user cancelled the share
+              if (fileShareError instanceof Error && fileShareError.name === 'AbortError') {
+                console.log('User cancelled file share');
+                return {
+                  success: false,
+                  method: 'cancelled',
+                  message: 'Share cancelled by user',
+                };
+              }
               
-              await navigator.share(textShareData);
-              console.log('Text share successful as fallback');
-              
-              return {
-                success: true,
-                method: 'shareText',
-                message: 'Backup shared as text! Save the content as a .json file.',
-              };
+              // File sharing failed, continue to next strategy
+              console.log('File sharing not available, trying clipboard...');
             }
           }
         } catch (error) {
