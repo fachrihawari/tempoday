@@ -12,23 +12,55 @@ import PageHeader from '../components/ui/PageHeader.svelte';
 
 let searchInput = $state('');
 let searchTimeout: ReturnType<typeof setTimeout> | null = null;
+let lastSearchQuery = $state('');
 
 // Reactive values from search store
 let { query, results, isSearching, error, hasSearched, hasResults, allResults } = $derived(searchStore);
 
-// Debounced search function
+// Improved debounced search function
 function handleSearchInput() {
+  const trimmedInput = searchInput.trim();
+  
+  // Clear any existing timeout
   if (searchTimeout) {
     clearTimeout(searchTimeout);
+    searchTimeout = null;
   }
   
+  // If input is empty, clear results immediately
+  if (!trimmedInput) {
+    searchStore.clearResults();
+    lastSearchQuery = '';
+    return;
+  }
+  
+  // Don't search if it's the same as the last query
+  if (trimmedInput === lastSearchQuery) {
+    return;
+  }
+  
+  // Set up new debounced search
   searchTimeout = setTimeout(() => {
-    searchStore.performSearch(searchInput);
-  }, 300); // 300ms debounce
+    if (trimmedInput && trimmedInput !== lastSearchQuery) {
+      lastSearchQuery = trimmedInput;
+      searchStore.performSearch(trimmedInput);
+    }
+    searchTimeout = null;
+  }, 500); // Increased to 500ms for better debouncing
 }
+
+// Watch for input changes with proper debouncing
+$effect(() => {
+  handleSearchInput();
+});
 
 // Navigate back to previous page
 function goBack() {
+  // Clean up any pending search
+  if (searchTimeout) {
+    clearTimeout(searchTimeout);
+    searchTimeout = null;
+  }
   reactiveRouter.navigate('/');
 }
 
@@ -82,11 +114,16 @@ function getResultBgColor(type: SearchResult['type']): string {
 
 // Clear search
 function clearSearch() {
-  searchInput = '';
-  searchStore.clearResults();
+  // Clear timeout first
   if (searchTimeout) {
     clearTimeout(searchTimeout);
+    searchTimeout = null;
   }
+  
+  // Clear input and results
+  searchInput = '';
+  lastSearchQuery = '';
+  searchStore.clearResults();
 }
 
 // Clean up timeout on unmount
@@ -94,6 +131,7 @@ onMount(() => {
   return () => {
     if (searchTimeout) {
       clearTimeout(searchTimeout);
+      searchTimeout = null;
     }
   };
 });
@@ -127,7 +165,6 @@ onMount(() => {
       </div>
       <input
         bind:value={searchInput}
-        oninput={handleSearchInput}
         placeholder="Search tasks, notes, and transactions..."
         class="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base
                {isSearching ? 'border-blue-300 bg-blue-50' : ''}"
@@ -156,6 +193,14 @@ onMount(() => {
         <div class="w-full bg-blue-100 rounded-full h-1 overflow-hidden">
           <div class="h-full bg-blue-500 rounded-full animate-pulse" style="width: 100%"></div>
         </div>
+      </div>
+    {/if}
+    
+    <!-- Debounce Status Indicator (for debugging) -->
+    {#if searchTimeout && !isSearching}
+      <div class="mt-2 text-xs text-gray-500 flex items-center gap-1">
+        <Icon name="loader" class="animate-spin" size="sm" />
+        <span>Preparing search...</span>
       </div>
     {/if}
   </div>
