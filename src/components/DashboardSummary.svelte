@@ -2,6 +2,7 @@
 import { onMount } from 'svelte';
 import { formatCurrency } from '../lib/currency';
 import { formatDateKey } from '../lib/date';
+import { getPriorityConfig } from '../lib/priority';
 import { reactiveNotes } from '../stores/notes.svelte';
 import { reactiveRouter } from '../stores/router.svelte';
 import { settingsStore } from '../stores/settings.svelte';
@@ -18,6 +19,8 @@ let {
   isLoading: tasksLoading,
   completedCount,
   totalCount,
+  urgentCount,
+  highPriorityCount,
 } = $derived(reactiveTasks);
 let {
   note,
@@ -78,6 +81,15 @@ const expenseCount = $derived.by(() => {
   return expenseTransactions.length;
 });
 
+// Get priority tasks for display
+const urgentTasks = $derived.by(() => {
+  return tasks.filter((task) => task.priority === 'urgent' && !task.completed);
+});
+
+const highPriorityTasks = $derived.by(() => {
+  return tasks.filter((task) => task.priority === 'high' && !task.completed);
+});
+
 // Check if we should show the summary card
 const shouldShowSummary = $derived.by(() => {
   // Show if we're loading any data
@@ -109,13 +121,87 @@ const shouldShowSummary = $derived.by(() => {
 
     {#snippet children()}
       <div class="space-y-6">
+        <!-- Priority Alert Section - Show if there are urgent/high priority tasks -->
+        {#if (urgentCount > 0 || highPriorityCount > 0) && !tasksLoading}
+          <div class="bg-gradient-to-r from-red-50 to-orange-50 rounded-lg p-4 border border-red-200">
+            <div class="flex items-center gap-2 mb-3">
+              <span class="text-lg">⚠️</span>
+              <h3 class="font-medium text-red-900">Priority Alert</h3>
+            </div>
+            
+            <div class="space-y-2">
+              <!-- Urgent Tasks -->
+              {#if urgentCount > 0}
+                <div class="bg-red-100 rounded-lg p-3 border border-red-200">
+                  <div class="flex items-center justify-between mb-2">
+                    <div class="flex items-center gap-2">
+                      <span class="text-lg">🔥</span>
+                      <span class="font-medium text-red-900">Urgent Tasks</span>
+                    </div>
+                    <span class="text-sm text-red-700 bg-red-200 px-2 py-1 rounded-full">
+                      {urgentCount} pending
+                    </span>
+                  </div>
+                  
+                  <!-- Show first 2 urgent tasks -->
+                  <div class="space-y-1">
+                    {#each urgentTasks.slice(0, 2) as task (task.id)}
+                      <div class="flex items-center gap-2 text-sm">
+                        <div class="w-2 h-2 rounded-full bg-red-500"></div>
+                        <span class="text-red-800 truncate">{task.description}</span>
+                      </div>
+                    {/each}
+                    
+                    {#if urgentTasks.length > 2}
+                      <p class="text-xs text-red-600 mt-1">
+                        +{urgentTasks.length - 2} more urgent tasks
+                      </p>
+                    {/if}
+                  </div>
+                </div>
+              {/if}
+              
+              <!-- High Priority Tasks -->
+              {#if highPriorityCount > 0}
+                <div class="bg-orange-100 rounded-lg p-3 border border-orange-200">
+                  <div class="flex items-center justify-between mb-2">
+                    <div class="flex items-center gap-2">
+                      <span class="text-lg">⚡</span>
+                      <span class="font-medium text-orange-900">High Priority</span>
+                    </div>
+                    <span class="text-sm text-orange-700 bg-orange-200 px-2 py-1 rounded-full">
+                      {highPriorityCount} pending
+                    </span>
+                  </div>
+                  
+                  <!-- Show first 2 high priority tasks -->
+                  <div class="space-y-1">
+                    {#each highPriorityTasks.slice(0, 2) as task (task.id)}
+                      <div class="flex items-center gap-2 text-sm">
+                        <div class="w-2 h-2 rounded-full bg-orange-500"></div>
+                        <span class="text-orange-800 truncate">{task.description}</span>
+                      </div>
+                    {/each}
+                    
+                    {#if highPriorityTasks.length > 2}
+                      <p class="text-xs text-orange-600 mt-1">
+                        +{highPriorityTasks.length - 2} more high priority tasks
+                      </p>
+                    {/if}
+                  </div>
+                </div>
+              {/if}
+            </div>
+          </div>
+        {/if}
+
         <!-- Tasks Summary - Only show if there are pending tasks -->
         {#if tasksLoading || pendingCount > 0}
           <div class="bg-blue-50 rounded-lg p-4 border border-blue-200">
             <div class="flex items-center justify-between mb-3">
               <div class="flex items-center gap-2">
                 <Icon name="clipboard" class="text-blue-600" size="sm" />
-                <h3 class="font-medium text-blue-900">Pending Tasks</h3>
+                <h3 class="font-medium text-blue-900">All Tasks</h3>
               </div>
               {#if tasksLoading}
                 <Icon name="loader" size="sm" class="animate-spin text-blue-600" />
@@ -131,9 +217,13 @@ const shouldShowSummary = $derived.by(() => {
             {:else}
               <div class="space-y-2">
                 {#each incompleteTasks as task (task.id)}
-                  <div class="flex items-center gap-2 text-sm">
+                  {@const priorityConfig = getPriorityConfig(task.priority)}
+                  <div class="flex items-center gap-2 text-sm bg-white rounded-md p-2 border border-blue-100">
                     <div class="w-3 h-3 border border-blue-400 rounded"></div>
-                    <span class="text-blue-800 truncate">{task.description}</span>
+                    <span class="text-blue-800 truncate flex-1">{task.description}</span>
+                    <span class="text-xs {priorityConfig.color} {priorityConfig.bgColor} px-1.5 py-0.5 rounded-full border {priorityConfig.borderColor}">
+                      {priorityConfig.icon}
+                    </span>
                   </div>
                 {/each}
                 
@@ -145,7 +235,7 @@ const shouldShowSummary = $derived.by(() => {
                 
                 {#if completedCount > 0}
                   <p class="text-xs text-green-600 mt-2">
-                    ✓ {completedCount} completed
+                    ✓ {completedCount} completed today
                   </p>
                 {/if}
               </div>
