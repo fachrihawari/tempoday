@@ -116,13 +116,13 @@ const activeFilterCount = $derived.by(() => {
   return count;
 });
 
-// Determine which filters to show based on selected data type
+// Determine which filters to show based on EXACT selected data type
 const shouldShowTaskFilters = $derived.by(() => {
-  return selectedDataType === 'all' || selectedDataType === 'task';
+  return selectedDataType === 'task'; // ONLY show when specifically "task" is selected
 });
 
 const shouldShowTransactionFilters = $derived.by(() => {
-  return selectedDataType === 'all' || selectedDataType === 'transaction';
+  return selectedDataType === 'transaction'; // ONLY show when specifically "transaction" is selected
 });
 
 const shouldShowDateFilters = $derived.by(() => {
@@ -181,7 +181,7 @@ const filterStatusText = $derived.by(() => {
         </select>
       </div>
 
-      <!-- Task-specific filters - Only show when task type is selected or all types are selected -->
+      <!-- Task-specific filters - ONLY show when "task" type is specifically selected -->
       {#if shouldShowTaskFilters}
         <!-- Status Filter -->
         <div class="flex-shrink-0 w-32">
@@ -216,7 +216,7 @@ const filterStatusText = $derived.by(() => {
         </div>
       {/if}
 
-      <!-- Transaction-specific filters - Only show when transaction type is selected or all types are selected -->
+      <!-- Transaction-specific filters - ONLY show when "transaction" type is specifically selected -->
       {#if shouldShowTransactionFilters}
         <!-- Transaction Type Filter -->
         <div class="flex-shrink-0 w-32">
