@@ -30,6 +30,22 @@ export class TempoDayDexie extends Dexie {
         }
       });
     });
+
+    // Version 3: Add category field to transactions
+    this.version(3).stores({
+      tasks: 'id, date, completed, priority',
+      notes: 'id, date',
+      transactions: 'id, date, type, category',
+      settings: 'id',
+    }).upgrade(tx => {
+      // Migrate existing transactions to have default category
+      return tx.table('transactions').toCollection().modify(transaction => {
+        if (!transaction.category) {
+          // Set default category based on transaction type
+          transaction.category = transaction.type === 'income' ? 'work' : 'other';
+        }
+      });
+    });
   }
 }
 

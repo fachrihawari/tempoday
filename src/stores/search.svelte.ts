@@ -1,6 +1,7 @@
 import { db } from '../dexie/db';
 import type { Note, Task, Transaction } from '../dexie/models';
 import { getPriorityConfig } from '../lib/priority';
+import { getCategoryConfig } from '../lib/categories';
 
 export interface SearchResult {
   id: string;
@@ -10,6 +11,7 @@ export interface SearchResult {
   date: string;
   matchedText?: string;
   priority?: string; // For tasks
+  category?: string; // For transactions
   data: Task | Note | Transaction;
 }
 
@@ -144,15 +146,21 @@ class SearchStore {
       .filter(transaction => 
         transaction.description.toLowerCase().includes(lowerQuery)
       )
-      .map(transaction => ({
-        id: transaction.id,
-        type: 'transaction' as const,
-        title: transaction.description,
-        content: `${transaction.type === 'income' ? '+' : '-'}$${transaction.amount.toFixed(2)}`,
-        date: transaction.date,
-        matchedText: this.highlightMatch(transaction.description, query),
-        data: transaction,
-      }))
+      .map(transaction => {
+        const categoryConfig = getCategoryConfig(transaction.category);
+        const categoryText = `${categoryConfig.icon} ${categoryConfig.label}`;
+        
+        return {
+          id: transaction.id,
+          type: 'transaction' as const,
+          title: transaction.description,
+          content: `${transaction.type === 'income' ? '+' : '-'}$${transaction.amount.toFixed(2)} • ${categoryText}`,
+          date: transaction.date,
+          category: categoryText,
+          matchedText: this.highlightMatch(transaction.description, query),
+          data: transaction,
+        };
+      })
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }
 
