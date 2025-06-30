@@ -223,6 +223,7 @@ function getBackupMethodIcon(method: string): string {
     case 'share': return '📤';
     case 'clipboard': return '📋';
     case 'download': return '💾';
+    case 'fallback': return '💾';
     default: return '✅';
   }
 }
@@ -232,6 +233,7 @@ function getBackupMethodTitle(method: string): string {
     case 'share': return 'File Shared Successfully!';
     case 'clipboard': return 'Copied to Clipboard!';
     case 'download': return 'File Downloaded!';
+    case 'fallback': return 'File Downloaded!';
     default: return 'Backup Complete!';
   }
 }

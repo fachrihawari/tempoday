@@ -16,7 +16,7 @@ export interface BackupData {
 
 export interface BackupResult {
   success: boolean;
-  method: 'share' | 'clipboard' | 'download' | 'cancelled';
+  method: 'share' | 'clipboard' | 'download' | 'cancelled' | 'fallback';
   message: string;
 }
 
@@ -71,7 +71,7 @@ export class BackupManager {
   }
 
   /**
-   * Share backup file using Web Share API
+   * Share backup file using Web Share API with fallback to download
    */
   async shareBackupFile(): Promise<BackupResult> {
     try {
@@ -82,7 +82,8 @@ export class BackupManager {
       console.log('Starting file share...');
 
       if (!navigator.share) {
-        throw new Error('Web Share API not supported');
+        console.log('Web Share API not supported, falling back to download');
+        return await this.createDownloadBackup();
       }
 
       const blob = new Blob([backupText], { type: 'application/json' });
@@ -98,7 +99,8 @@ export class BackupManager {
 
       // Check if file sharing is supported
       if (navigator.canShare && !navigator.canShare(shareData)) {
-        throw new Error('File sharing not supported');
+        console.log('File sharing not supported, falling back to download');
+        return await this.createDownloadBackup();
       }
 
       await navigator.share(shareData);
@@ -119,6 +121,26 @@ export class BackupManager {
           method: 'cancelled',
           message: 'Share cancelled by user',
         };
+      }
+      
+      // For permission denied or other Web Share API errors, fall back to download
+      if (error instanceof Error && (
+        error.message.includes('Permission denied') ||
+        error.message.includes('NotAllowedError') ||
+        error.name === 'NotAllowedError'
+      )) {
+        console.log('Permission denied for Web Share API, falling back to download');
+        try {
+          const downloadResult = await this.createDownloadBackup();
+          return {
+            success: downloadResult.success,
+            method: 'fallback',
+            message: 'File sharing was blocked by your browser, so we downloaded the backup file instead. Check your Downloads folder.',
+          };
+        } catch (fallbackError) {
+          console.error('Fallback download also failed:', fallbackError);
+          throw new Error('Both file sharing and download failed. Please try copying to clipboard instead.');
+        }
       }
       
       throw error;
