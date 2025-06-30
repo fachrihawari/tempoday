@@ -26,9 +26,13 @@ let backupStats = $state<{
   totalSize: string;
 } | null>(null);
 
+// Check if file sharing is supported
+let isFileShareSupported = $state(false);
+
 // Load backup stats when component mounts
 $effect(() => {
   loadBackupStats();
+  checkFileShareSupport();
 });
 
 async function loadBackupStats() {
@@ -39,12 +43,17 @@ async function loadBackupStats() {
   }
 }
 
-async function handleWebShareBackup() {
+function checkFileShareSupport() {
+  isFileShareSupported = backupManager.isFileShareSupported();
+  console.log('File share supported:', isFileShareSupported);
+}
+
+async function handleShareBackupFile() {
   isBackingUp = true;
   backupResult = null;
 
   try {
-    const result = await backupManager.createBackup();
+    const result = await backupManager.shareBackupFile();
     
     // Handle cancellation gracefully - don't show as error
     if (result.method === 'cancelled') {
@@ -64,8 +73,37 @@ async function handleWebShareBackup() {
       }, 3000);
     }
   } catch (error) {
-    console.error('Backup failed:', error);
-    const message = error instanceof Error ? error.message : 'Backup failed';
+    console.error('File share failed:', error);
+    const message = error instanceof Error ? error.message : 'File sharing failed';
+    backupResult = {
+      success: false,
+      method: 'error',
+      message
+    };
+  } finally {
+    isBackingUp = false;
+  }
+}
+
+async function handleCopyBackupText() {
+  isBackingUp = true;
+  backupResult = null;
+
+  try {
+    const result = await backupManager.copyBackupText();
+    backupResult = result;
+    
+    // Only show success in the bottom sheet - no toast needed
+    if (result.success) {
+      // Auto-close modal after success
+      setTimeout(() => {
+        showBackupModal = false;
+        backupResult = null;
+      }, 3000);
+    }
+  } catch (error) {
+    console.error('Copy backup failed:', error);
+    const message = error instanceof Error ? error.message : 'Copy to clipboard failed';
     backupResult = {
       success: false,
       method: 'error',
@@ -309,27 +347,69 @@ function getBackupMethodTitle(method: string): string {
             </p>
           </div>
 
-          <!-- Web Share Option (File Priority) -->
+          <!-- Share Backup File Option -->
+          {#if isFileShareSupported}
+            <Button
+              variant="primary"
+              fullWidth
+              onclick={handleShareBackupFile}
+              disabled={isBackingUp}
+              class="!p-4 !text-left !justify-start"
+            >
+              {#snippet children()}
+                <div class="flex items-center gap-4 w-full">
+                  <div class="w-12 h-12 bg-blue-200 rounded-xl flex items-center justify-center">
+                    <span class="text-2xl">📤</span>
+                  </div>
+                  <div class="flex-1">
+                    <div class="font-medium text-white">Share Backup File</div>
+                    <div class="text-sm text-blue-100">Save .json file to Drive, email, or notes app</div>
+                  </div>
+                  {#if isBackingUp}
+                    <Icon name="loader" class="animate-spin text-blue-200" />
+                  {:else}
+                    <Icon name="chevron-right" class="text-blue-200" />
+                  {/if}
+                </div>
+              {/snippet}
+            </Button>
+          {:else}
+            <!-- Disabled File Share Option -->
+            <div class="opacity-60">
+              <div class="flex items-center gap-4 p-4 border-2 border-dashed border-gray-300 rounded-lg">
+                <div class="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center">
+                  <span class="text-2xl">📤</span>
+                </div>
+                <div class="flex-1">
+                  <div class="font-medium text-gray-700">Share Backup File</div>
+                  <div class="text-sm text-gray-500">Not supported on this device</div>
+                </div>
+                <span class="text-xs bg-gray-200 text-gray-600 px-2 py-1 rounded-full">Unavailable</span>
+              </div>
+            </div>
+          {/if}
+
+          <!-- Copy Backup Text Option -->
           <Button
-            variant="primary"
+            variant="outline"
             fullWidth
-            onclick={handleWebShareBackup}
+            onclick={handleCopyBackupText}
             disabled={isBackingUp}
             class="!p-4 !text-left !justify-start"
           >
             {#snippet children()}
               <div class="flex items-center gap-4 w-full">
-                <div class="w-12 h-12 bg-blue-200 rounded-xl flex items-center justify-center">
-                  <span class="text-2xl">📤</span>
+                <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+                  <span class="text-2xl">📋</span>
                 </div>
                 <div class="flex-1">
-                  <div class="font-medium text-white">Share Backup File</div>
-                  <div class="text-sm text-blue-100">Save .json file to Drive, email, or notes app</div>
+                  <div class="font-medium text-gray-900">Copy Backup Text</div>
+                  <div class="text-sm text-gray-600">Copy JSON data to clipboard</div>
                 </div>
                 {#if isBackingUp}
-                  <Icon name="loader" class="animate-spin text-blue-200" />
+                  <Icon name="loader" class="animate-spin text-gray-400" />
                 {:else}
-                  <Icon name="chevron-right" class="text-blue-200" />
+                  <Icon name="chevron-right" class="text-gray-400" />
                 {/if}
               </div>
             {/snippet}
@@ -392,7 +472,8 @@ function getBackupMethodTitle(method: string): string {
             Backup Tips
           </h4>
           <ul class="text-sm text-blue-800 space-y-1">
-            <li>• Use "Share Backup File" for cloud backup</li>
+            <li>• Use "Share Backup File" for cloud backup (if available)</li>
+            <li>• Use "Copy Backup Text" to paste in notes apps</li>
             <li>• Use "Download File" for local backup</li>
             <li>• Keep multiple backup copies</li>
             <li>• Test restore process occasionally</li>
