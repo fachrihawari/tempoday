@@ -3,20 +3,22 @@ import { onMount } from 'svelte';
 import { formatDate } from '../lib/date';
 import { appState, setSelectedDate } from '../stores/app.svelte';
 import { reactiveRouter } from '../stores/router.svelte';
-import { searchStore, type SearchResult } from '../stores/search.svelte';
+import { searchStore, defaultFilters, type SearchResult, type SearchFilters } from '../stores/search.svelte';
 import Button from '../components/ui/Button.svelte';
 import Icon from '../components/ui/Icon.svelte';
 import Input from '../components/ui/Input.svelte';
 import Loading from '../components/ui/Loading.svelte';
 import PageHeader from '../components/ui/PageHeader.svelte';
+import SearchFilters from '../components/ui/SearchFilters.svelte';
 
 let searchInput = $state('');
 let searchTimeout: ReturnType<typeof setTimeout> | null = null;
 let lastSearchQuery = $state('');
 let searchInputElement: HTMLInputElement = $state()!;
+let showFilters = $state(false);
 
 // Reactive values from search store
-let { query, results, isSearching, error, hasSearched, hasResults, allResults } = $derived(searchStore);
+let { query, results, isSearching, error, hasSearched, hasResults, allResults, filters, hasActiveFilters } = $derived(searchStore);
 
 // Improved debounced search function
 function handleSearchInput() {
@@ -145,6 +147,21 @@ function clearSearch() {
   }
 }
 
+// Handle filter changes
+function handleFiltersChange(newFilters: SearchFilters) {
+  searchStore.updateFilters(newFilters);
+}
+
+// Handle clear filters
+function handleClearFilters() {
+  searchStore.clearFilters();
+}
+
+// Toggle filters panel
+function toggleFilters() {
+  showFilters = !showFilters;
+}
+
 // Auto-focus search input on mount
 onMount(() => {
   // Focus the search input when the page loads
@@ -177,8 +194,9 @@ onMount(() => {
     </div>
   </div>
 
-  <!-- Search Input -->
-  <div class="p-4 bg-white border-b border-gray-200">
+  <!-- Search Input and Filters -->
+  <div class="p-4 bg-white border-b border-gray-200 space-y-3">
+    <!-- Search Input -->
     <div class="relative">
       <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
         {#if isSearching}
@@ -208,6 +226,23 @@ onMount(() => {
       {:else if isSearching}
         <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
           <span class="text-xs text-blue-600 font-medium">Searching...</span>
+        </div>
+      {/if}
+    </div>
+
+    <!-- Filters -->
+    <div class="flex items-center justify-between">
+      <SearchFilters
+        filters={filters}
+        onFiltersChange={handleFiltersChange}
+        onClearFilters={handleClearFilters}
+        isOpen={showFilters}
+        onToggle={toggleFilters}
+      />
+      
+      {#if hasActiveFilters}
+        <div class="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
+          Filters active
         </div>
       {/if}
     </div>
@@ -272,17 +307,36 @@ onMount(() => {
         <Icon name="search" class="text-gray-400 mb-4" size="3xl" />
         <h3 class="text-lg font-medium text-gray-900 mb-2">No Results Found</h3>
         <p class="text-gray-600 text-center">
-          No tasks, notes, or transactions match "{query}"
+          No results match "{query}"
+          {#if hasActiveFilters}
+            with the current filters
+          {/if}
         </p>
+        {#if hasActiveFilters}
+          <Button variant="outline" onclick={handleClearFilters} class="mt-4">
+            {#snippet children()}
+              <Icon name="close" size="sm" class="mr-1" />
+              Clear Filters
+            {/snippet}
+          </Button>
+        {/if}
       </div>
     {:else if hasResults}
       <!-- Results -->
       <div class="p-4">
         <!-- Results Summary -->
-        <div class="mb-4">
+        <div class="mb-4 flex items-center justify-between">
           <p class="text-sm text-gray-600">
             Found {results.total} result{results.total !== 1 ? 's' : ''} for "{query}"
           </p>
+          {#if hasActiveFilters}
+            <Button variant="ghost" size="sm" onclick={handleClearFilters}>
+              {#snippet children()}
+                <Icon name="close" size="sm" class="mr-1" />
+                Clear Filters
+              {/snippet}
+            </Button>
+          {/if}
         </div>
 
         <!-- Results by Category -->
@@ -387,6 +441,7 @@ onMount(() => {
           <h4 class="text-sm font-medium text-gray-900 mb-2">Search Tips:</h4>
           <ul class="text-xs text-gray-600 space-y-1">
             <li>• Search across all your tasks, notes, and transactions</li>
+            <li>• Use filters to narrow down results by type, status, or date</li>
             <li>• Results are sorted by date (newest first)</li>
             <li>• Click any result to jump to that date</li>
             <li>• Search is case-insensitive</li>

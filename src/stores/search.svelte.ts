@@ -1,7 +1,7 @@
 import { db } from '../dexie/db';
 import type { Note, Task, Transaction } from '../dexie/models';
-import { getPriorityConfig } from '../lib/priority';
-import { getCategoryConfig } from '../lib/categories';
+import { getPriorityConfig, type TaskPriority } from '../lib/priority';
+import { getCategoryConfig, type TransactionCategory } from '../lib/categories';
 
 export interface SearchResult {
   id: string;
@@ -22,9 +22,35 @@ export interface SearchResults {
   total: number;
 }
 
+export interface SearchFilters {
+  dataTypes: ('task' | 'note' | 'transaction')[];
+  taskStatus: ('completed' | 'pending')[];
+  taskPriorities: TaskPriority[];
+  transactionTypes: ('income' | 'expense')[];
+  transactionCategories: TransactionCategory[];
+  dateRange: {
+    start: string | null;
+    end: string | null;
+  };
+}
+
+// Default filters (empty means no filtering)
+export const defaultFilters: SearchFilters = {
+  dataTypes: [],
+  taskStatus: [],
+  taskPriorities: [],
+  transactionTypes: [],
+  transactionCategories: [],
+  dateRange: {
+    start: null,
+    end: null,
+  },
+};
+
 class SearchStore {
   // Reactive state
   query = $state('');
+  filters = $state<SearchFilters>(defaultFilters);
   results = $state<SearchResults>({
     tasks: [],
     notes: [],
@@ -36,10 +62,11 @@ class SearchStore {
   hasSearched = $state(false);
 
   /**
-   * Perform full-text search across all data types
+   * Perform full-text search across all data types with filters
    */
-  async performSearch(searchQuery: string): Promise<void> {
+  async performSearch(searchQuery: string, searchFilters?: SearchFilters): Promise<void> {
     const trimmedQuery = searchQuery.trim();
+    const filtersToUse = searchFilters || this.filters;
     
     // Clear results if query is empty
     if (!trimmedQuery) {
@@ -50,6 +77,7 @@ class SearchStore {
     this.isSearching = true;
     this.error = null;
     this.query = trimmedQuery;
+    this.filters = filtersToUse;
 
     try {
       // Fetch all data in parallel
@@ -59,14 +87,23 @@ class SearchStore {
         db.transactions.toArray(),
       ]);
 
-      // Search tasks
-      const taskResults = this.searchTasks(allTasks, trimmedQuery);
+      // Apply date range filter to all data first
+      const filteredTasks = this.applyDateRangeFilter(allTasks, filtersToUse.dateRange);
+      const filteredNotes = this.applyDateRangeFilter(allNotes, filtersToUse.dateRange);
+      const filteredTransactions = this.applyDateRangeFilter(allTransactions, filtersToUse.dateRange);
+
+      // Search and filter each data type
+      const taskResults = this.shouldIncludeDataType('task', filtersToUse) 
+        ? this.searchTasks(filteredTasks, trimmedQuery, filtersToUse)
+        : [];
       
-      // Search notes
-      const noteResults = this.searchNotes(allNotes, trimmedQuery);
+      const noteResults = this.shouldIncludeDataType('note', filtersToUse)
+        ? this.searchNotes(filteredNotes, trimmedQuery, filtersToUse)
+        : [];
       
-      // Search transactions
-      const transactionResults = this.searchTransactions(allTransactions, trimmedQuery);
+      const transactionResults = this.shouldIncludeDataType('transaction', filtersToUse)
+        ? this.searchTransactions(filteredTransactions, trimmedQuery, filtersToUse)
+        : [];
 
       // Update results
       this.results = {
@@ -86,15 +123,80 @@ class SearchStore {
   }
 
   /**
-   * Search through tasks
+   * Update filters and re-run search if there's an active query
    */
-  private searchTasks(tasks: Task[], query: string): SearchResult[] {
+  async updateFilters(newFilters: SearchFilters): Promise<void> {
+    this.filters = newFilters;
+    
+    // Re-run search if there's an active query
+    if (this.query.trim()) {
+      await this.performSearch(this.query, newFilters);
+    }
+  }
+
+  /**
+   * Clear all filters
+   */
+  async clearFilters(): Promise<void> {
+    await this.updateFilters(defaultFilters);
+  }
+
+  /**
+   * Check if a data type should be included based on filters
+   */
+  private shouldIncludeDataType(type: 'task' | 'note' | 'transaction', filters: SearchFilters): boolean {
+    // If no data types are specified, include all
+    if (filters.dataTypes.length === 0) return true;
+    return filters.dataTypes.includes(type);
+  }
+
+  /**
+   * Apply date range filter to any array of data with date property
+   */
+  private applyDateRangeFilter<T extends { date: string }>(data: T[], dateRange: SearchFilters['dateRange']): T[] {
+    if (!dateRange.start && !dateRange.end) return data;
+
+    return data.filter(item => {
+      const itemDate = new Date(item.date);
+      
+      if (dateRange.start) {
+        const startDate = new Date(dateRange.start);
+        if (itemDate < startDate) return false;
+      }
+      
+      if (dateRange.end) {
+        const endDate = new Date(dateRange.end);
+        if (itemDate > endDate) return false;
+      }
+      
+      return true;
+    });
+  }
+
+  /**
+   * Search through tasks with filters
+   */
+  private searchTasks(tasks: Task[], query: string, filters: SearchFilters): SearchResult[] {
     const lowerQuery = query.toLowerCase();
     
     return tasks
-      .filter(task => 
-        task.description.toLowerCase().includes(lowerQuery)
-      )
+      .filter(task => {
+        // Text search
+        if (!task.description.toLowerCase().includes(lowerQuery)) return false;
+        
+        // Status filter
+        if (filters.taskStatus.length > 0) {
+          const status = task.completed ? 'completed' : 'pending';
+          if (!filters.taskStatus.includes(status)) return false;
+        }
+        
+        // Priority filter
+        if (filters.taskPriorities.length > 0) {
+          if (!filters.taskPriorities.includes(task.priority)) return false;
+        }
+        
+        return true;
+      })
       .map(task => {
         const priorityConfig = getPriorityConfig(task.priority);
         const statusText = task.completed ? 'Completed' : 'Pending';
@@ -115,9 +217,9 @@ class SearchStore {
   }
 
   /**
-   * Search through notes
+   * Search through notes with filters
    */
-  private searchNotes(notes: Note[], query: string): SearchResult[] {
+  private searchNotes(notes: Note[], query: string, filters: SearchFilters): SearchResult[] {
     const lowerQuery = query.toLowerCase();
     
     return notes
@@ -137,15 +239,28 @@ class SearchStore {
   }
 
   /**
-   * Search through transactions
+   * Search through transactions with filters
    */
-  private searchTransactions(transactions: Transaction[], query: string): SearchResult[] {
+  private searchTransactions(transactions: Transaction[], query: string, filters: SearchFilters): SearchResult[] {
     const lowerQuery = query.toLowerCase();
     
     return transactions
-      .filter(transaction => 
-        transaction.description.toLowerCase().includes(lowerQuery)
-      )
+      .filter(transaction => {
+        // Text search
+        if (!transaction.description.toLowerCase().includes(lowerQuery)) return false;
+        
+        // Transaction type filter
+        if (filters.transactionTypes.length > 0) {
+          if (!filters.transactionTypes.includes(transaction.type)) return false;
+        }
+        
+        // Category filter
+        if (filters.transactionCategories.length > 0) {
+          if (!filters.transactionCategories.includes(transaction.category)) return false;
+        }
+        
+        return true;
+      })
       .map(transaction => {
         const categoryConfig = getCategoryConfig(transaction.category);
         const categoryText = `${categoryConfig.icon} ${categoryConfig.label}`;
@@ -220,6 +335,21 @@ class SearchStore {
    */
   get hasResults(): boolean {
     return this.results.total > 0;
+  }
+
+  /**
+   * Check if any filters are currently active
+   */
+  get hasActiveFilters(): boolean {
+    return (
+      this.filters.dataTypes.length > 0 ||
+      this.filters.taskStatus.length > 0 ||
+      this.filters.taskPriorities.length > 0 ||
+      this.filters.transactionTypes.length > 0 ||
+      this.filters.transactionCategories.length > 0 ||
+      this.filters.dateRange.start ||
+      this.filters.dateRange.end
+    );
   }
 }
 
