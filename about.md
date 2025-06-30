@@ -8,9 +8,9 @@ That's when I decided to build TempoDay. Because let's face it - we don't think 
 
 TempoDay is basically your digital life, organized by date. It's three apps in one, but way cooler:
 
-- 🎯 **Tasks**: Check stuff off your list (super satisfying!)
+- 🎯 **Tasks**: Check stuff off your list with priority levels (super satisfying!)
 - 📝 **Daily Notes**: Jot down thoughts, ideas, or just vent about your day
-- 💰 **Money Tracking**: Track spending without the guilt trip from fancy budgeting apps
+- 💰 **Money Tracking**: Track spending with categories, without the guilt trip from fancy budgeting apps
 
 The magic? Everything lives under one calendar. Tap any date, see your whole day. Your data stays on YOUR device - no cloud, no tracking, no nonsense.
 
@@ -39,6 +39,8 @@ Oh boy, where do we start? 😅
 
 **Mobile calendar UX** - Making a calendar interface that doesn't suck on small screens while keeping all three data types accessible? Challenge accepted and conquered!
 
+**Seamless donation integration** - Implementing a smooth donation flow with RevenueCat while maintaining the privacy-first approach. Getting the payment experience just right without being pushy or breaking the user flow took careful UX design.
+
 ## Accomplishments that we're proud of
 
 We actually built something pretty awesome! 🎉
@@ -48,7 +50,10 @@ We actually built something pretty awesome! 🎉
 - 📱 **Works everywhere** - Desktop, mobile, tablet - we've got you covered
 - 🚀 **Bleeding edge tech** - One of the first apps using Svelte 5 in production (we like living dangerously)
 - 🎯 **Everything in one place** - Tasks, notes, money - all connected by dates like they should be
-- 💰 **Smart money tracking** - Automatic daily summaries that actually make sense
+- 💰 **Smart money tracking** - Automatic daily summaries with categorized spending insights
+- 🔍 **Powerful search** - Find any task, note, or transaction instantly across all your data
+- ⭐ **Task prioritization** - Organize your to-dos by importance with visual priority indicators
+- ☕ **Sustainable funding** - Integrated RevenueCat donations that let supporters contribute while keeping the app free for everyone
 
 ## What we learned
 
@@ -67,7 +72,6 @@ We actually built something pretty awesome! 🎉
 We're just getting started! 🚀
 
 **Coming soon:**
-- **Search everything** - Find that note from three months ago in seconds
 - **Dark mode** - For the night owls among us
 - **Recurring tasks** - Set it and forget it
 
