@@ -1,5 +1,11 @@
 <script lang="ts">
+import { formatDateKey } from '../lib/date';
 import { backupManager } from '../lib/backup';
+import { appState } from '../stores/app.svelte';
+import { reactiveTasks } from '../stores/tasks.svelte';
+import { reactiveNotes } from '../stores/notes.svelte';
+import { reactiveTransactions } from '../stores/transactions.svelte';
+import { settingsStore } from '../stores/settings.svelte';
 import BottomSheet from './ui/BottomSheet.svelte';
 import Button from './ui/Button.svelte';
 import Icon from './ui/Icon.svelte';
@@ -46,6 +52,25 @@ async function loadBackupStats() {
 function checkFileShareSupport() {
   isFileShareSupported = backupManager.isFileShareSupported();
   console.log('File share supported:', isFileShareSupported);
+}
+
+// Helper function to refetch all data for current date
+async function refetchCurrentData() {
+  try {
+    const currentDateKey = formatDateKey(appState.selectedDate);
+    
+    // Reload all data for the current selected date
+    await Promise.all([
+      reactiveTasks.loadTasks(currentDateKey),
+      reactiveNotes.loadNote(currentDateKey),
+      reactiveTransactions.loadTransactions(currentDateKey),
+      settingsStore.loadSettings()
+    ]);
+    
+    console.log('Successfully refetched data for current date:', currentDateKey);
+  } catch (error) {
+    console.error('Failed to refetch current data:', error);
+  }
 }
 
 async function handleShareBackupFile() {
@@ -158,6 +183,9 @@ async function handleRestoreFromClipboard() {
     // Reload backup stats after restore
     await loadBackupStats();
     
+    // Refetch current data to show restored content
+    await refetchCurrentData();
+    
     // Auto-close modal after success
     setTimeout(() => {
       showRestoreModal = false;
@@ -197,6 +225,9 @@ async function handleRestoreFromFile() {
       
       // Reload backup stats after restore
       await loadBackupStats();
+      
+      // Refetch current data to show restored content
+      await refetchCurrentData();
       
       // Auto-close modal after success
       setTimeout(() => {
