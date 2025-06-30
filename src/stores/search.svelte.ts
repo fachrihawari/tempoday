@@ -1,5 +1,6 @@
 import { db } from '../dexie/db';
 import type { Note, Task, Transaction } from '../dexie/models';
+import { getPriorityConfig } from '../lib/priority';
 
 export interface SearchResult {
   id: string;
@@ -8,6 +9,7 @@ export interface SearchResult {
   content: string;
   date: string;
   matchedText?: string;
+  priority?: string; // For tasks
   data: Task | Note | Transaction;
 }
 
@@ -91,15 +93,22 @@ class SearchStore {
       .filter(task => 
         task.description.toLowerCase().includes(lowerQuery)
       )
-      .map(task => ({
-        id: task.id,
-        type: 'task' as const,
-        title: task.description,
-        content: task.completed ? 'Completed' : 'Pending',
-        date: task.date,
-        matchedText: this.highlightMatch(task.description, query),
-        data: task,
-      }))
+      .map(task => {
+        const priorityConfig = getPriorityConfig(task.priority);
+        const statusText = task.completed ? 'Completed' : 'Pending';
+        const priorityText = `${priorityConfig.icon} ${priorityConfig.label}`;
+        
+        return {
+          id: task.id,
+          type: 'task' as const,
+          title: task.description,
+          content: `${statusText} • ${priorityText}`,
+          date: task.date,
+          priority: priorityText,
+          matchedText: this.highlightMatch(task.description, query),
+          data: task,
+        };
+      })
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }
 

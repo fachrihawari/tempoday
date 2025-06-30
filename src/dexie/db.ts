@@ -15,6 +15,21 @@ export class TempoDayDexie extends Dexie {
       transactions: 'id, date, type',
       settings: 'id',
     });
+    
+    // Version 2: Add priority field to tasks
+    this.version(2).stores({
+      tasks: 'id, date, completed, priority',
+      notes: 'id, date',
+      transactions: 'id, date, type',
+      settings: 'id',
+    }).upgrade(tx => {
+      // Migrate existing tasks to have default 'medium' priority
+      return tx.table('tasks').toCollection().modify(task => {
+        if (!task.priority) {
+          task.priority = 'medium';
+        }
+      });
+    });
   }
 }
 

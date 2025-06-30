@@ -5,6 +5,7 @@ export interface Task {
   date: string; // YYYY-MM-DD
   description: string;
   completed: boolean;
+  priority: 'low' | 'medium' | 'high' | 'urgent'; // New priority field
   createdAt: number; // epoch ms
   updatedAt: number; // epoch ms
 }

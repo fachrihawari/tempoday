@@ -6,6 +6,7 @@ export interface ParsedCommand {
   content: string;
   amount?: number;
   transactionType?: 'income' | 'expense';
+  priority?: 'low' | 'medium' | 'high' | 'urgent';
   confidence: number;
 }
 
@@ -82,6 +83,12 @@ const KEYWORDS = {
       'make',
       'sure',
     ]),
+    // Priority keywords
+    priority: {
+      urgent: new Set(['urgent', 'asap', 'immediately', 'critical', 'emergency', 'now']),
+      high: new Set(['important', 'priority', 'high', 'soon', 'quickly', 'fast']),
+      low: new Set(['later', 'sometime', 'eventually', 'low', 'minor', 'optional']),
+    },
   },
 
   note: {
@@ -180,13 +187,21 @@ export function parseNaturalLanguage(input: string): ParsedCommand {
   // Step 2: Extract amounts using proper tokenization
   const amounts = extractAmountsFromTokens(tokens);
 
-  // Step 3: Calculate semantic scores (using lowercase for comparison)
+  // Step 3: Extract priority indicators
+  const priority = extractPriorityFromTokens(tokens);
+
+  // Step 4: Calculate semantic scores (using lowercase for comparison)
   const scores = calculateSemanticScores(tokens);
 
-  // Step 4: Determine type based on scores and context
+  // Step 5: Determine type based on scores and context
   const result = determineType(tokens, amounts, scores);
 
-  // Step 5: Clean and format the content using original casing
+  // Step 6: Add priority if detected
+  if (priority && result.type === 'task') {
+    result.priority = priority;
+  }
+
+  // Step 7: Clean and format the content using original casing
   result.content = cleanContentFromTokens(tokens, result.type, amounts[0]);
 
   return result;
@@ -283,6 +298,36 @@ function parseNumber(str: string): number | null {
 }
 
 /**
+ * PRIORITY EXTRACTION - Extract priority indicators from tokens
+ */
+function extractPriorityFromTokens(tokens: Token[]): 'low' | 'medium' | 'high' | 'urgent' | null {
+  const words = tokens.filter((t) => t.type === 'word').map((t) => t.text);
+
+  // Check for urgent keywords
+  for (const word of words) {
+    if (KEYWORDS.task.priority.urgent.has(word)) {
+      return 'urgent';
+    }
+  }
+
+  // Check for high priority keywords
+  for (const word of words) {
+    if (KEYWORDS.task.priority.high.has(word)) {
+      return 'high';
+    }
+  }
+
+  // Check for low priority keywords
+  for (const word of words) {
+    if (KEYWORDS.task.priority.low.has(word)) {
+      return 'low';
+    }
+  }
+
+  return null; // Default to medium (will be set in the component)
+}
+
+/**
  * AMOUNT EXTRACTION - Using tokens instead of regex
  */
 function extractAmountsFromTokens(tokens: Token[]): number[] {
@@ -374,6 +419,13 @@ function calculateSemanticScores(tokens: Token[]): {
       scores.task += 0.2;
     }
     if (KEYWORDS.task.imperatives.has(word)) {
+      scores.task += 0.3;
+    }
+
+    // Priority keywords boost task score
+    if (KEYWORDS.task.priority.urgent.has(word) || 
+        KEYWORDS.task.priority.high.has(word) || 
+        KEYWORDS.task.priority.low.has(word)) {
       scores.task += 0.3;
     }
 
@@ -502,7 +554,7 @@ function cleanContentFromTokens(
     }
   }
 
-  // Step 2: Filter out amount-related tokens
+  // Step 2: Filter out amount-related tokens and priority keywords
   for (let i = startIndex; i < tokens.length; i++) {
     const token = tokens[i];
 
@@ -522,6 +574,18 @@ function cleanContentFromTokens(
         }
       }
       continue;
+    }
+
+    // Skip priority keywords for tasks
+    if (type === 'task' && token.type === 'word') {
+      const isPriorityKeyword = 
+        KEYWORDS.task.priority.urgent.has(token.text) ||
+        KEYWORDS.task.priority.high.has(token.text) ||
+        KEYWORDS.task.priority.low.has(token.text);
+      
+      if (isPriorityKeyword) {
+        continue;
+      }
     }
 
     // Skip standalone currency symbols
@@ -586,14 +650,14 @@ function cleanContentFromTokens(
   return cleaned;
 }
 
-// Example commands for testing
+// Example commands for testing (updated with priority examples)
 export const EXAMPLE_COMMANDS = [
-  // Tasks
-  'Call dentist to schedule appointment',
+  // Tasks with priorities
+  'Call dentist ASAP to schedule appointment',
   'Buy groceries for dinner',
-  'Finish project report by Friday',
-  'Pick up dry cleaning',
-  'Email client about meeting',
+  'Finish project report by Friday - urgent',
+  'Pick up dry cleaning later',
+  'Email client about meeting - important',
   'Schedule team meeting for next week',
 
   // Notes
