@@ -13,6 +13,7 @@ import PageHeader from '../components/ui/PageHeader.svelte';
 let searchInput = $state('');
 let searchTimeout: ReturnType<typeof setTimeout> | null = null;
 let lastSearchQuery = $state('');
+let searchInputElement: HTMLInputElement = $state()!;
 
 // Reactive values from search store
 let { query, results, isSearching, error, hasSearched, hasResults, allResults } = $derived(searchStore);
@@ -52,6 +53,19 @@ function handleSearchInput() {
 // Watch for input changes with proper debouncing
 $effect(() => {
   handleSearchInput();
+});
+
+// Keep focus on search input after search completes
+$effect(() => {
+  // When search completes (isSearching becomes false) and we have an input element
+  if (!isSearching && searchInputElement && searchInput.trim()) {
+    // Use a small delay to ensure the DOM has updated
+    setTimeout(() => {
+      if (searchInputElement) {
+        searchInputElement.focus();
+      }
+    }, 50);
+  }
 });
 
 // Navigate back to previous page
@@ -124,10 +138,20 @@ function clearSearch() {
   searchInput = '';
   lastSearchQuery = '';
   searchStore.clearResults();
+  
+  // Keep focus on input after clearing
+  if (searchInputElement) {
+    searchInputElement.focus();
+  }
 }
 
-// Clean up timeout on unmount
+// Auto-focus search input on mount
 onMount(() => {
+  // Focus the search input when the page loads
+  if (searchInputElement) {
+    searchInputElement.focus();
+  }
+  
   return () => {
     if (searchTimeout) {
       clearTimeout(searchTimeout);
@@ -164,6 +188,7 @@ onMount(() => {
         {/if}
       </div>
       <input
+        bind:this={searchInputElement}
         bind:value={searchInput}
         placeholder="Search tasks, notes, and transactions..."
         class="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base
