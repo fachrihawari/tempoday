@@ -230,14 +230,17 @@ onMount(() => {
       {/if}
     </div>
 
-    <!-- Horizontal Scrollable Filters -->
-    <SearchFiltersComponent
-      filters={filters}
-      onFiltersChange={handleFiltersChange}
-      onClearFilters={handleClearFilters}
-      isOpen={showMoreCategories}
-      onToggle={toggleMoreCategories}
-    />
+    <!-- Show Filters Only After Search Has Been Performed -->
+    {#if hasSearched}
+      <!-- Horizontal Scrollable Filters -->
+      <SearchFiltersComponent
+        filters={filters}
+        onFiltersChange={handleFiltersChange}
+        onClearFilters={handleClearFilters}
+        isOpen={showMoreCategories}
+        onToggle={toggleMoreCategories}
+      />
+    {/if}
     
     <!-- Search Progress Indicator -->
     {#if isSearching}
@@ -294,6 +297,14 @@ onMount(() => {
             with the current filters
           {/if}
         </p>
+        {#if hasActiveFilters}
+          <Button variant="outline" onclick={handleClearFilters} class="mt-4">
+            {#snippet children()}
+              <Icon name="close" size="sm" class="mr-2" />
+              Clear Filters
+            {/snippet}
+          </Button>
+        {/if}
       </div>
     {:else if hasResults}
       <!-- Results -->
