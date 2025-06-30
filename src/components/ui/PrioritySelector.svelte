@@ -28,7 +28,11 @@ function handleSelect(priority: TaskPriority) {
   isOpen = false;
 }
 
-function toggleOpen() {
+function toggleOpen(event: MouseEvent) {
+  // Prevent form submission
+  event.preventDefault();
+  event.stopPropagation();
+  
   if (!disabled) {
     isOpen = !isOpen;
   }
@@ -61,6 +65,7 @@ const buttonSizes = {
 <div class="relative priority-selector {className}">
   <!-- Current Priority Button -->
   <button
+    type="button"
     onclick={toggleOpen}
     {disabled}
     class="inline-flex items-center gap-2 rounded-lg border transition-colors {currentConfig.bgColor} {currentConfig.color} {currentConfig.borderColor} {buttonSizes[size]}
@@ -84,7 +89,12 @@ const buttonSizes = {
         {#each PRIORITY_OPTIONS as priority (priority)}
           {@const config = getPriorityConfig(priority)}
           <button
-            onclick={() => handleSelect(priority)}
+            type="button"
+            onclick={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              handleSelect(priority);
+            }}
             class="w-full text-left px-3 py-2 hover:bg-gray-50 transition-colors flex items-center gap-2
                    {priority === value ? 'bg-blue-50 text-blue-700' : 'text-gray-700'}"
           >
