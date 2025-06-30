@@ -14,6 +14,11 @@ const navItems = [
     icon: 'calendar' as const,
   },
   {
+    path: '/search',
+    label: 'Search',
+    icon: 'search' as const,
+  },
+  {
     path: '/settings',
     label: 'Settings',
     icon: 'settings' as const,
