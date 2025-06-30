@@ -26,7 +26,7 @@ function updateFilters(updates: Partial<SearchFilters>) {
 }
 
 // Get the current selected data type
-const selectedDataType = $derived(() => {
+const selectedDataType = $derived.by(() => {
   if (filters.dataTypes.length === 0) return 'all';
   return filters.dataTypes[0];
 });
@@ -92,7 +92,7 @@ function handleCategoryChange(e: Event) {
 }
 
 // Check if any filters are active
-const hasActiveFilters = $derived(() => {
+const hasActiveFilters = $derived.by(() => {
   return (
     filters.dataTypes.length > 0 ||
     filters.taskStatus.length > 0 ||
@@ -105,7 +105,7 @@ const hasActiveFilters = $derived(() => {
 });
 
 // Count active filters
-const activeFilterCount = $derived(() => {
+const activeFilterCount = $derived.by(() => {
   let count = 0;
   if (filters.dataTypes.length > 0) count++;
   if (filters.taskStatus.length > 0) count++;
@@ -117,20 +117,20 @@ const activeFilterCount = $derived(() => {
 });
 
 // Determine which filters to show based on selected data type
-const shouldShowTaskFilters = $derived(() => {
+const shouldShowTaskFilters = $derived.by(() => {
   return selectedDataType === 'all' || selectedDataType === 'task';
 });
 
-const shouldShowTransactionFilters = $derived(() => {
+const shouldShowTransactionFilters = $derived.by(() => {
   return selectedDataType === 'all' || selectedDataType === 'transaction';
 });
 
-const shouldShowDateFilters = $derived(() => {
+const shouldShowDateFilters = $derived.by(() => {
   return true; // Date filters are always relevant
 });
 
 // Get display text for current filter state
-const filterStatusText = $derived(() => {
+const filterStatusText = $derived.by(() => {
   if (selectedDataType === 'all') {
     return 'Filtering all data';
   } else if (selectedDataType === 'task') {
