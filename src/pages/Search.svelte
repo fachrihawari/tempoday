@@ -128,6 +128,21 @@ function getResultBgColor(type: SearchResult['type']): string {
   }
 }
 
+// Handle filter changes
+function handleFiltersChange(newFilters: SearchFilters) {
+  searchStore.updateFilters(newFilters);
+}
+
+// Handle clear filters
+function handleClearFilters() {
+  searchStore.clearFilters();
+}
+
+// Toggle more categories panel
+function toggleMoreCategories() {
+  showMoreCategories = !showMoreCategories;
+}
+
 // Clear search
 function clearSearch() {
   // Clear timeout first
@@ -145,21 +160,6 @@ function clearSearch() {
   if (searchInputElement) {
     searchInputElement.focus();
   }
-}
-
-// Handle filter changes
-function handleFiltersChange(newFilters: SearchFilters) {
-  searchStore.updateFilters(newFilters);
-}
-
-// Handle clear filters
-function handleClearFilters() {
-  searchStore.clearFilters();
-}
-
-// Toggle more categories panel
-function toggleMoreCategories() {
-  showMoreCategories = !showMoreCategories;
 }
 
 // Auto-focus search input on mount
@@ -195,7 +195,7 @@ onMount(() => {
   </div>
 
   <!-- Search Input and Filters -->
-  <div class="p-4 bg-white border-b border-gray-200 space-y-4">
+  <div class="p-4 bg-white border-b border-gray-200 space-y-3">
     <!-- Search Input -->
     <div class="relative">
       <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -241,18 +241,8 @@ onMount(() => {
     
     <!-- Search Progress Indicator -->
     {#if isSearching}
-      <div class="mt-2">
-        <div class="w-full bg-blue-100 rounded-full h-1 overflow-hidden">
-          <div class="h-full bg-blue-500 rounded-full animate-pulse" style="width: 100%"></div>
-        </div>
-      </div>
-    {/if}
-    
-    <!-- Debounce Status Indicator (for debugging) -->
-    {#if searchTimeout && !isSearching}
-      <div class="mt-2 text-xs text-gray-500 flex items-center gap-1">
-        <Icon name="loader" class="animate-spin" size="sm" />
-        <span>Preparing search...</span>
+      <div class="w-full bg-blue-100 rounded-full h-1 overflow-hidden">
+        <div class="h-full bg-blue-500 rounded-full animate-pulse" style="width: 100%"></div>
       </div>
     {/if}
   </div>
@@ -304,34 +294,18 @@ onMount(() => {
             with the current filters
           {/if}
         </p>
-        {#if hasActiveFilters}
-          <Button variant="outline" onclick={handleClearFilters} class="mt-4">
-            {#snippet children()}
-              <Icon name="close" size="sm" class="mr-1" />
-              Clear Filters
-            {/snippet}
-          </Button>
-        {/if}
       </div>
     {:else if hasResults}
       <!-- Results -->
       <div class="p-4">
         <!-- Results Summary -->
-        <div class="mb-4 flex items-center justify-between">
+        <div class="mb-4">
           <p class="text-sm text-gray-600">
             Found {results.total} result{results.total !== 1 ? 's' : ''} for "{query}"
             {#if hasActiveFilters}
               <span class="text-blue-600">with filters</span>
             {/if}
           </p>
-          {#if hasActiveFilters}
-            <Button variant="ghost" size="sm" onclick={handleClearFilters}>
-              {#snippet children()}
-                <Icon name="close" size="sm" class="mr-1" />
-                Clear Filters
-              {/snippet}
-            </Button>
-          {/if}
         </div>
 
         <!-- Results by Category -->

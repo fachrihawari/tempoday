@@ -95,11 +95,11 @@ const activeFilterCount = $derived(() => {
 function getDataTypeConfig(type: 'task' | 'note' | 'transaction') {
   switch (type) {
     case 'task':
-      return { icon: 'clipboard', label: 'Tasks', color: 'bg-blue-100 text-blue-700 border-blue-300' };
+      return { icon: 'clipboard', label: 'Tasks', color: 'bg-blue-500 text-white' };
     case 'note':
-      return { icon: 'edit', label: 'Notes', color: 'bg-purple-100 text-purple-700 border-purple-300' };
+      return { icon: 'edit', label: 'Notes', color: 'bg-purple-500 text-white' };
     case 'transaction':
-      return { icon: 'dollar', label: 'Transactions', color: 'bg-green-100 text-green-700 border-green-300' };
+      return { icon: 'dollar', label: 'Money', color: 'bg-green-500 text-white' };
   }
 }
 
@@ -107,9 +107,9 @@ function getDataTypeConfig(type: 'task' | 'note' | 'transaction') {
 function getStatusConfig(status: 'completed' | 'pending') {
   switch (status) {
     case 'completed':
-      return { label: 'Completed', color: 'bg-green-100 text-green-700 border-green-300' };
+      return { label: 'Done', color: 'bg-green-500 text-white' };
     case 'pending':
-      return { label: 'Pending', color: 'bg-orange-100 text-orange-700 border-orange-300' };
+      return { label: 'Todo', color: 'bg-orange-500 text-white' };
   }
 }
 
@@ -117,185 +117,219 @@ function getStatusConfig(status: 'completed' | 'pending') {
 function getTransactionTypeConfig(type: 'income' | 'expense') {
   switch (type) {
     case 'income':
-      return { icon: 'trending-up', label: 'Income', color: 'bg-green-100 text-green-700 border-green-300' };
+      return { icon: 'trending-up', label: 'Income', color: 'bg-green-500 text-white' };
     case 'expense':
-      return { icon: 'trending-down', label: 'Expense', color: 'bg-red-100 text-red-700 border-red-300' };
+      return { icon: 'trending-down', label: 'Expense', color: 'bg-red-500 text-white' };
   }
 }
 </script>
 
-<!-- Horizontal Scrollable Filter Chips -->
-<div class="space-y-3">
-  <!-- Filter Header with Clear Button -->
-  <div class="flex items-center justify-between">
-    <div class="flex items-center gap-2">
-      <Icon name="settings" size="sm" class="text-gray-500" />
-      <span class="text-sm font-medium text-gray-700">Filters</span>
-      {#if activeFilterCount() > 0}
-        <span class="bg-blue-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-          {activeFilterCount()}
+<!-- Clean Horizontal Filter Chips -->
+{#if hasActiveFilters() || activeFilterCount() > 0}
+  <div class="flex items-center gap-2 overflow-x-auto pb-2 -mx-4 px-4">
+    <!-- Active Filter Count Badge -->
+    {#if activeFilterCount() > 0}
+      <div class="flex items-center gap-2 flex-shrink-0">
+        <span class="bg-blue-500 text-white text-xs px-2 py-1 rounded-full font-medium">
+          {activeFilterCount()} filter{activeFilterCount() !== 1 ? 's' : ''}
         </span>
-      {/if}
-    </div>
-    
-    {#if hasActiveFilters()}
-      <Button variant="ghost" size="sm" onclick={onClearFilters}>
-        {#snippet children()}
-          <Icon name="close" size="sm" class="mr-1" />
-          Clear
-        {/snippet}
-      </Button>
+        <button
+          onclick={onClearFilters}
+          class="text-gray-500 hover:text-gray-700 transition-colors"
+          title="Clear all filters"
+        >
+          <Icon name="close" size="sm" />
+        </button>
+      </div>
+      
+      <!-- Separator -->
+      <div class="w-px h-4 bg-gray-300 flex-shrink-0"></div>
     {/if}
-  </div>
 
-  <!-- Scrollable Filter Chips Container -->
-  <div class="overflow-x-auto pb-2 -mx-4 px-4">
+    <!-- Active Filter Chips -->
     <div class="flex gap-2 min-w-max">
       <!-- Data Type Chips -->
-      <div class="flex gap-2 items-center">
-        <span class="text-xs text-gray-500 font-medium whitespace-nowrap">Type:</span>
+      {#each filters.dataTypes as type}
+        {@const config = getDataTypeConfig(type)}
+        <button
+          onclick={() => toggleDataType(type)}
+          class="flex items-center gap-1 px-3 py-1 text-sm rounded-full transition-all duration-200 {config.color} shadow-sm hover:shadow-md"
+        >
+          <Icon name={config.icon} size="sm" />
+          <span>{config.label}</span>
+          <Icon name="close" size="sm" class="ml-1 opacity-80" />
+        </button>
+      {/each}
+
+      <!-- Task Status Chips -->
+      {#each filters.taskStatus as status}
+        {@const config = getStatusConfig(status)}
+        <button
+          onclick={() => toggleTaskStatus(status)}
+          class="flex items-center gap-1 px-3 py-1 text-sm rounded-full transition-all duration-200 {config.color} shadow-sm hover:shadow-md"
+        >
+          <span>{config.label}</span>
+          <Icon name="close" size="sm" class="ml-1 opacity-80" />
+        </button>
+      {/each}
+
+      <!-- Task Priority Chips -->
+      {#each filters.taskPriorities as priority}
+        {@const config = getPriorityConfig(priority)}
+        <button
+          onclick={() => toggleTaskPriority(priority)}
+          class="flex items-center gap-1 px-3 py-1 text-sm rounded-full transition-all duration-200 bg-gray-800 text-white shadow-sm hover:shadow-md"
+        >
+          <span>{config.icon}</span>
+          <span>{config.label}</span>
+          <Icon name="close" size="sm" class="ml-1 opacity-80" />
+        </button>
+      {/each}
+
+      <!-- Transaction Type Chips -->
+      {#each filters.transactionTypes as type}
+        {@const config = getTransactionTypeConfig(type)}
+        <button
+          onclick={() => toggleTransactionType(type)}
+          class="flex items-center gap-1 px-3 py-1 text-sm rounded-full transition-all duration-200 {config.color} shadow-sm hover:shadow-md"
+        >
+          <Icon name={config.icon} size="sm" />
+          <span>{config.label}</span>
+          <Icon name="close" size="sm" class="ml-1 opacity-80" />
+        </button>
+      {/each}
+
+      <!-- Transaction Category Chips -->
+      {#each filters.transactionCategories as category}
+        {@const config = getCategoryConfig(category)}
+        <button
+          onclick={() => toggleTransactionCategory(category)}
+          class="flex items-center gap-1 px-3 py-1 text-sm rounded-full transition-all duration-200 bg-gray-700 text-white shadow-sm hover:shadow-md"
+        >
+          <span>{config.icon}</span>
+          <span>{config.label}</span>
+          <Icon name="close" size="sm" class="ml-1 opacity-80" />
+        </button>
+      {/each}
+    </div>
+  </div>
+{/if}
+
+<!-- Filter Selection (only show when no active filters) -->
+{#if !hasActiveFilters()}
+  <div class="overflow-x-auto pb-2 -mx-4 px-4">
+    <div class="flex gap-3 min-w-max">
+      <!-- Data Type Options -->
+      <div class="flex gap-1">
         {#each ['task', 'note', 'transaction'] as type}
           {@const config = getDataTypeConfig(type)}
           <button
             onclick={() => toggleDataType(type)}
-            class="flex items-center gap-1 px-3 py-1.5 text-sm rounded-full border transition-all duration-200 whitespace-nowrap
-              {filters.dataTypes.includes(type)
-                ? config.color + ' shadow-sm'
-                : 'bg-gray-50 text-gray-700 border-gray-300 hover:bg-gray-100'}"
+            class="flex items-center gap-1 px-3 py-1.5 text-sm rounded-full border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 transition-all duration-200"
           >
             <Icon name={config.icon} size="sm" />
             <span>{config.label}</span>
-            {#if filters.dataTypes.includes(type)}
-              <Icon name="close" size="sm" class="ml-1 opacity-70" />
-            {/if}
           </button>
         {/each}
       </div>
 
       <!-- Separator -->
-      <div class="w-px h-6 bg-gray-300 mx-2"></div>
+      <div class="w-px h-6 bg-gray-200 self-center"></div>
 
-      <!-- Task Status Chips (only show if tasks are included or no type filter) -->
-      {#if filters.dataTypes.length === 0 || filters.dataTypes.includes('task')}
-        <div class="flex gap-2 items-center">
-          <span class="text-xs text-gray-500 font-medium whitespace-nowrap">Status:</span>
-          {#each ['pending', 'completed'] as status}
-            {@const config = getStatusConfig(status)}
-            <button
-              onclick={() => toggleTaskStatus(status)}
-              class="flex items-center gap-1 px-3 py-1.5 text-sm rounded-full border transition-all duration-200 whitespace-nowrap
-                {filters.taskStatus.includes(status)
-                  ? config.color + ' shadow-sm'
-                  : 'bg-gray-50 text-gray-700 border-gray-300 hover:bg-gray-100'}"
-            >
-              <span>{config.label}</span>
-              {#if filters.taskStatus.includes(status)}
-                <Icon name="close" size="sm" class="ml-1 opacity-70" />
-              {/if}
-            </button>
-          {/each}
-        </div>
+      <!-- Status Options -->
+      <div class="flex gap-1">
+        {#each ['pending', 'completed'] as status}
+          {@const config = getStatusConfig(status)}
+          <button
+            onclick={() => toggleTaskStatus(status)}
+            class="px-3 py-1.5 text-sm rounded-full border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 transition-all duration-200"
+          >
+            {config.label}
+          </button>
+        {/each}
+      </div>
 
-        <!-- Separator -->
-        <div class="w-px h-6 bg-gray-300 mx-2"></div>
+      <!-- Separator -->
+      <div class="w-px h-6 bg-gray-200 self-center"></div>
 
-        <!-- Task Priority Chips -->
-        <div class="flex gap-2 items-center">
-          <span class="text-xs text-gray-500 font-medium whitespace-nowrap">Priority:</span>
-          {#each PRIORITY_OPTIONS as priority}
-            {@const config = getPriorityConfig(priority)}
-            <button
-              onclick={() => toggleTaskPriority(priority)}
-              class="flex items-center gap-1 px-3 py-1.5 text-sm rounded-full border transition-all duration-200 whitespace-nowrap
-                {filters.taskPriorities.includes(priority)
-                  ? config.bgColor + ' ' + config.color + ' ' + config.borderColor + ' shadow-sm'
-                  : 'bg-gray-50 text-gray-700 border-gray-300 hover:bg-gray-100'}"
-            >
-              <span>{config.icon}</span>
-              <span>{config.label}</span>
-              {#if filters.taskPriorities.includes(priority)}
-                <Icon name="close" size="sm" class="ml-1 opacity-70" />
-              {/if}
-            </button>
-          {/each}
-        </div>
+      <!-- Priority Options -->
+      <div class="flex gap-1">
+        {#each PRIORITY_OPTIONS.slice(0, 2) as priority}
+          {@const config = getPriorityConfig(priority)}
+          <button
+            onclick={() => toggleTaskPriority(priority)}
+            class="flex items-center gap-1 px-3 py-1.5 text-sm rounded-full border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 transition-all duration-200"
+          >
+            <span>{config.icon}</span>
+            <span>{config.label}</span>
+          </button>
+        {/each}
+      </div>
 
-        <!-- Separator -->
-        <div class="w-px h-6 bg-gray-300 mx-2"></div>
-      {/if}
+      <!-- Separator -->
+      <div class="w-px h-6 bg-gray-200 self-center"></div>
 
-      <!-- Transaction Type Chips (only show if transactions are included or no type filter) -->
-      {#if filters.dataTypes.length === 0 || filters.dataTypes.includes('transaction')}
-        <div class="flex gap-2 items-center">
-          <span class="text-xs text-gray-500 font-medium whitespace-nowrap">Money:</span>
-          {#each ['income', 'expense'] as type}
-            {@const config = getTransactionTypeConfig(type)}
-            <button
-              onclick={() => toggleTransactionType(type)}
-              class="flex items-center gap-1 px-3 py-1.5 text-sm rounded-full border transition-all duration-200 whitespace-nowrap
-                {filters.transactionTypes.includes(type)
-                  ? config.color + ' shadow-sm'
-                  : 'bg-gray-50 text-gray-700 border-gray-300 hover:bg-gray-100'}"
-            >
-              <Icon name={config.icon} size="sm" />
-              <span>{config.label}</span>
-              {#if filters.transactionTypes.includes(type)}
-                <Icon name="close" size="sm" class="ml-1 opacity-70" />
-              {/if}
-            </button>
-          {/each}
-        </div>
+      <!-- Transaction Type Options -->
+      <div class="flex gap-1">
+        {#each ['income', 'expense'] as type}
+          {@const config = getTransactionTypeConfig(type)}
+          <button
+            onclick={() => toggleTransactionType(type)}
+            class="flex items-center gap-1 px-3 py-1.5 text-sm rounded-full border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 transition-all duration-200"
+          >
+            <Icon name={config.icon} size="sm" />
+            <span>{config.label}</span>
+          </button>
+        {/each}
+      </div>
 
-        <!-- Separator -->
-        <div class="w-px h-6 bg-gray-300 mx-2"></div>
-
-        <!-- Transaction Category Chips -->
-        <div class="flex gap-2 items-center">
-          <span class="text-xs text-gray-500 font-medium whitespace-nowrap">Category:</span>
-          {#each CATEGORY_OPTIONS.slice(0, 6) as category}
-            {@const config = getCategoryConfig(category)}
-            <button
-              onclick={() => toggleTransactionCategory(category)}
-              class="flex items-center gap-1 px-3 py-1.5 text-sm rounded-full border transition-all duration-200 whitespace-nowrap
-                {filters.transactionCategories.includes(category)
-                  ? config.bgColor + ' ' + config.color + ' ' + config.borderColor + ' shadow-sm'
-                  : 'bg-gray-50 text-gray-700 border-gray-300 hover:bg-gray-100'}"
-            >
-              <span>{config.icon}</span>
-              <span>{config.label}</span>
-              {#if filters.transactionCategories.includes(category)}
-                <Icon name="close" size="sm" class="ml-1 opacity-70" />
-              {/if}
-            </button>
-          {/each}
-          
-          <!-- More Categories Button -->
-          {#if CATEGORY_OPTIONS.length > 6}
-            <button
-              onclick={onToggle}
-              class="flex items-center gap-1 px-3 py-1.5 text-sm rounded-full border transition-all duration-200 whitespace-nowrap bg-gray-50 text-gray-700 border-gray-300 hover:bg-gray-100"
-            >
-              <Icon name="plus" size="sm" />
-              <span>More</span>
-            </button>
-          {/if}
-        </div>
-      {/if}
+      <!-- More Options Button -->
+      <button
+        onclick={onToggle}
+        class="flex items-center gap-1 px-3 py-1.5 text-sm rounded-full border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 transition-all duration-200"
+      >
+        <Icon name="settings" size="sm" />
+        <span>More</span>
+      </button>
     </div>
   </div>
+{/if}
 
-  <!-- Expanded Category Panel (when "More" is clicked) -->
-  {#if isOpen}
-    <div class="bg-gray-50 rounded-lg p-3 border border-gray-200">
-      <div class="flex items-center justify-between mb-3">
-        <h4 class="text-sm font-medium text-gray-700">All Categories</h4>
-        <Button variant="ghost" size="sm" onclick={onToggle}>
-          {#snippet children()}
-            <Icon name="close" size="sm" />
-          {/snippet}
-        </Button>
+<!-- Expanded Options Panel -->
+{#if isOpen}
+  <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 space-y-4">
+    <div class="flex items-center justify-between">
+      <h4 class="text-sm font-medium text-gray-900">All Filters</h4>
+      <Button variant="ghost" size="sm" onclick={onToggle}>
+        {#snippet children()}
+          <Icon name="close" size="sm" />
+        {/snippet}
+      </Button>
+    </div>
+    
+    <!-- Priority Options -->
+    <div class="space-y-2">
+      <h5 class="text-xs font-medium text-gray-700 uppercase tracking-wide">Priority</h5>
+      <div class="flex flex-wrap gap-2">
+        {#each PRIORITY_OPTIONS as priority}
+          {@const config = getPriorityConfig(priority)}
+          <button
+            onclick={() => toggleTaskPriority(priority)}
+            class="flex items-center gap-1 px-3 py-1.5 text-sm rounded-lg border transition-all duration-200
+              {filters.taskPriorities.includes(priority)
+                ? 'bg-gray-800 text-white border-gray-800'
+                : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'}"
+          >
+            <span>{config.icon}</span>
+            <span>{config.label}</span>
+          </button>
+        {/each}
       </div>
-      
+    </div>
+
+    <!-- Categories -->
+    <div class="space-y-2">
+      <h5 class="text-xs font-medium text-gray-700 uppercase tracking-wide">Categories</h5>
       <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
         {#each CATEGORY_OPTIONS as category}
           {@const config = getCategoryConfig(category)}
@@ -303,30 +337,27 @@ function getTransactionTypeConfig(type: 'income' | 'expense') {
             onclick={() => toggleTransactionCategory(category)}
             class="flex items-center gap-2 px-3 py-2 text-sm rounded-lg border transition-all duration-200 text-left
               {filters.transactionCategories.includes(category)
-                ? config.bgColor + ' ' + config.color + ' ' + config.borderColor + ' shadow-sm'
-                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}"
+                ? 'bg-gray-700 text-white border-gray-700'
+                : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'}"
           >
             <span>{config.icon}</span>
             <span class="truncate">{config.label}</span>
-            {#if filters.transactionCategories.includes(category)}
-              <Icon name="check" size="sm" class="ml-auto" />
-            {/if}
           </button>
         {/each}
       </div>
     </div>
-  {/if}
-</div>
+  </div>
+{/if}
 
 <style>
-/* Custom scrollbar for horizontal scroll */
+/* Clean scrollbar styling */
 .overflow-x-auto {
   scrollbar-width: thin;
-  scrollbar-color: #cbd5e1 transparent;
+  scrollbar-color: #e2e8f0 transparent;
 }
 
 .overflow-x-auto::-webkit-scrollbar {
-  height: 4px;
+  height: 3px;
 }
 
 .overflow-x-auto::-webkit-scrollbar-track {
@@ -334,11 +365,11 @@ function getTransactionTypeConfig(type: 'income' | 'expense') {
 }
 
 .overflow-x-auto::-webkit-scrollbar-thumb {
-  background-color: #cbd5e1;
+  background-color: #e2e8f0;
   border-radius: 2px;
 }
 
 .overflow-x-auto::-webkit-scrollbar-thumb:hover {
-  background-color: #94a3b8;
+  background-color: #cbd5e1;
 }
 </style>
