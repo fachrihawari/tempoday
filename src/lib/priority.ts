@@ -60,8 +60,8 @@ export function getPriorityConfig(priority: TaskPriority): PriorityConfig {
  */
 export function sortTasksByPriority<T extends { priority: TaskPriority }>(tasks: T[]): T[] {
   return [...tasks].sort((a, b) => {
-    const aPriority = PRIORITY_CONFIG[a.priority].sortOrder;
-    const bPriority = PRIORITY_CONFIG[b.priority].sortOrder;
+    const aPriority = PRIORITY_CONFIG[a.priority]?.sortOrder ?? PRIORITY_CONFIG.medium.sortOrder;
+    const bPriority = PRIORITY_CONFIG[b.priority]?.sortOrder ?? PRIORITY_CONFIG.medium.sortOrder;
     return aPriority - bPriority;
   });
 }
@@ -80,9 +80,9 @@ export function sortTasksComprehensive<T extends {
       return a.completed ? 1 : -1;
     }
     
-    // Then by priority (urgent first)
-    const aPriority = PRIORITY_CONFIG[a.priority].sortOrder;
-    const bPriority = PRIORITY_CONFIG[b.priority].sortOrder;
+    // Then by priority (urgent first) - handle undefined priorities gracefully
+    const aPriority = PRIORITY_CONFIG[a.priority]?.sortOrder ?? PRIORITY_CONFIG.medium.sortOrder;
+    const bPriority = PRIORITY_CONFIG[b.priority]?.sortOrder ?? PRIORITY_CONFIG.medium.sortOrder;
     if (aPriority !== bPriority) {
       return aPriority - bPriority;
     }
@@ -117,11 +117,13 @@ export function getPriorityStats<T extends { priority: TaskPriority; completed: 
   };
 
   tasks.forEach(task => {
-    stats[task.priority].total++;
+    // Handle undefined or invalid priorities gracefully
+    const priority = PRIORITY_CONFIG[task.priority] ? task.priority : 'medium';
+    stats[priority].total++;
     if (task.completed) {
-      stats[task.priority].completed++;
+      stats[priority].completed++;
     } else {
-      stats[task.priority].pending++;
+      stats[priority].pending++;
     }
   });
 
@@ -132,7 +134,9 @@ export function getPriorityStats<T extends { priority: TaskPriority; completed: 
  * Get the next higher priority level
  */
 export function getNextHigherPriority(priority: TaskPriority): TaskPriority | null {
-  const currentOrder = PRIORITY_CONFIG[priority].sortOrder;
+  const currentOrder = PRIORITY_CONFIG[priority]?.sortOrder;
+  if (currentOrder === undefined) return null;
+  
   const higherPriority = PRIORITY_OPTIONS.find(p => 
     PRIORITY_CONFIG[p].sortOrder === currentOrder - 1
   );
@@ -143,7 +147,9 @@ export function getNextHigherPriority(priority: TaskPriority): TaskPriority | nu
  * Get the next lower priority level
  */
 export function getNextLowerPriority(priority: TaskPriority): TaskPriority | null {
-  const currentOrder = PRIORITY_CONFIG[priority].sortOrder;
+  const currentOrder = PRIORITY_CONFIG[priority]?.sortOrder;
+  if (currentOrder === undefined) return null;
+  
   const lowerPriority = PRIORITY_OPTIONS.find(p => 
     PRIORITY_CONFIG[p].sortOrder === currentOrder + 1
   );
