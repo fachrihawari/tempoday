@@ -190,7 +190,7 @@ $effect(() => {
       </button>
 
       {#if showDataTypeDropdown}
-        <div class="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-xl z-[60] min-w-[160px]">
+        <div class="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-xl z-[70] min-w-[160px]">
           <div class="py-1">
             {#each ['task', 'note', 'transaction'] as type}
               {@const config = getDataTypeConfig(type)}
@@ -232,7 +232,7 @@ $effect(() => {
       </button>
 
       {#if showStatusDropdown}
-        <div class="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-xl z-[60] min-w-[140px]">
+        <div class="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-xl z-[70] min-w-[140px]">
           <div class="py-1">
             {#each ['pending', 'completed'] as status}
               {@const config = getStatusConfig(status)}
@@ -273,7 +273,7 @@ $effect(() => {
       </button>
 
       {#if showPriorityDropdown}
-        <div class="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-xl z-[60] min-w-[140px]">
+        <div class="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-xl z-[70] min-w-[140px]">
           <div class="py-1">
             {#each PRIORITY_OPTIONS as priority}
               {@const config = getPriorityConfig(priority)}
@@ -315,7 +315,7 @@ $effect(() => {
       </button>
 
       {#if showTransactionTypeDropdown}
-        <div class="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-xl z-[60] min-w-[140px]">
+        <div class="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-xl z-[70] min-w-[140px]">
           <div class="py-1">
             {#each ['income', 'expense'] as type}
               {@const config = getTransactionTypeConfig(type)}
@@ -357,21 +357,21 @@ $effect(() => {
       </button>
 
       {#if showCategoryDropdown}
-        <div class="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-xl z-[60] min-w-[200px] max-h-64 overflow-y-auto">
-          <div class="py-1">
+        <div class="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-xl z-[70] min-w-[200px]">
+          <div class="py-1 max-h-48 overflow-y-auto">
             {#each CATEGORY_OPTIONS as category}
               {@const config = getCategoryConfig(category)}
               <button
                 onclick={() => toggleTransactionCategory(category)}
                 class="w-full text-left px-3 py-2 hover:bg-gray-50 transition-colors flex items-center gap-2"
               >
-                <div class="w-4 h-4 border border-gray-300 rounded flex items-center justify-center
+                <div class="w-4 h-4 border border-gray-300 rounded flex items-center justify-center flex-shrink-0
                   {filters.transactionCategories.includes(category) ? 'bg-indigo-500 border-indigo-500' : ''}">
                   {#if filters.transactionCategories.includes(category)}
                     <Icon name="check" size="sm" class="text-white" />
                   {/if}
                 </div>
-                <span class="text-sm">{config.icon}</span>
+                <span class="text-sm flex-shrink-0">{config.icon}</span>
                 <span class="text-sm text-gray-900 truncate">{config.label}</span>
               </button>
             {/each}
@@ -406,18 +406,23 @@ $effect(() => {
   background-color: #cbd5e1;
 }
 
-/* Dropdown scrollbar */
+/* Dropdown scrollbar - only for category dropdown */
 .overflow-y-auto::-webkit-scrollbar {
   width: 4px;
 }
 
 .overflow-y-auto::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: #f8fafc;
+  border-radius: 2px;
 }
 
 .overflow-y-auto::-webkit-scrollbar-thumb {
   background-color: #cbd5e1;
   border-radius: 2px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb:hover {
+  background-color: #94a3b8;
 }
 
 /* Ensure dropdowns appear above other content */
