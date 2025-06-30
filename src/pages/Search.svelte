@@ -119,34 +119,72 @@ onMount(() => {
   <div class="p-4 bg-white border-b border-gray-200">
     <div class="relative">
       <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-        <Icon name="search" class="text-gray-400" size="sm" />
+        {#if isSearching}
+          <Icon name="loader" class="text-blue-500 animate-spin" size="sm" />
+        {:else}
+          <Icon name="search" class="text-gray-400" size="sm" />
+        {/if}
       </div>
       <input
         bind:value={searchInput}
         oninput={handleSearchInput}
         placeholder="Search tasks, notes, and transactions..."
-        class="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
+        class="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base
+               {isSearching ? 'border-blue-300 bg-blue-50' : ''}"
         autocomplete="off"
         autocapitalize="off"
         spellcheck="false"
+        disabled={isSearching}
       />
-      {#if searchInput}
+      {#if searchInput && !isSearching}
         <button
           onclick={clearSearch}
           class="absolute inset-y-0 right-0 pr-3 flex items-center"
         >
           <Icon name="close" class="text-gray-400 hover:text-gray-600" size="sm" />
         </button>
+      {:else if isSearching}
+        <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+          <span class="text-xs text-blue-600 font-medium">Searching...</span>
+        </div>
       {/if}
     </div>
+    
+    <!-- Search Progress Indicator -->
+    {#if isSearching}
+      <div class="mt-2">
+        <div class="w-full bg-blue-100 rounded-full h-1 overflow-hidden">
+          <div class="h-full bg-blue-500 rounded-full animate-pulse" style="width: 100%"></div>
+        </div>
+      </div>
+    {/if}
   </div>
 
   <!-- Search Results -->
   <div class="flex-1 overflow-y-auto">
     {#if isSearching}
-      <!-- Loading State -->
-      <div class="flex items-center justify-center py-12">
-        <Loading size="lg" message="Searching..." />
+      <!-- Enhanced Loading State -->
+      <div class="flex flex-col items-center justify-center py-12 px-6">
+        <div class="relative mb-6">
+          <!-- Animated search icon -->
+          <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
+            <Icon name="search" class="text-blue-600 animate-pulse" size="xl" />
+          </div>
+          <!-- Spinning loader overlay -->
+          <div class="absolute inset-0 border-4 border-blue-200 border-t-blue-500 rounded-full animate-spin"></div>
+        </div>
+        
+        <h3 class="text-lg font-medium text-gray-900 mb-2">Searching...</h3>
+        <p class="text-gray-600 text-center mb-4">
+          Looking through your tasks, notes, and transactions
+        </p>
+        
+        <!-- Search progress dots -->
+        <div class="flex space-x-2">
+          <div class="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style="animation-delay: 0ms"></div>
+          <div class="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style="animation-delay: 150ms"></div>
+          <div class="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style="animation-delay: 300ms"></div>
+        </div>
       </div>
     {:else if error}
       <!-- Error State -->
@@ -296,5 +334,19 @@ onMount(() => {
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+/* Custom bounce animation with staggered delays */
+@keyframes bounce {
+  0%, 80%, 100% {
+    transform: scale(0);
+  }
+  40% {
+    transform: scale(1);
+  }
+}
+
+.animate-bounce {
+  animation: bounce 1.4s infinite ease-in-out both;
 }
 </style>
