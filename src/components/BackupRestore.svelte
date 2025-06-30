@@ -223,7 +223,6 @@ function getBackupMethodIcon(method: string): string {
     case 'share': return '📤';
     case 'clipboard': return '📋';
     case 'download': return '💾';
-    case 'fallback': return '💾';
     default: return '✅';
   }
 }
@@ -233,7 +232,6 @@ function getBackupMethodTitle(method: string): string {
     case 'share': return 'File Shared Successfully!';
     case 'clipboard': return 'Copied to Clipboard!';
     case 'download': return 'File Downloaded!';
-    case 'fallback': return 'File Downloaded!';
     default: return 'Backup Complete!';
   }
 }
@@ -400,7 +398,7 @@ function getBackupMethodTitle(method: string): string {
             class="!p-4 !text-left !justify-start"
           >
             {#snippet children()}
-              <div class="flex items-center gap-4 w-full">
+              <div class="flex items-center gap-4  w-full">
                 <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
                   <span class="text-2xl">📋</span>
                 </div>

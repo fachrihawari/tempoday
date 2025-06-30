@@ -16,7 +16,7 @@ export interface BackupData {
 
 export interface BackupResult {
   success: boolean;
-  method: 'share' | 'clipboard' | 'download' | 'cancelled' | 'fallback';
+  method: 'share' | 'clipboard' | 'download' | 'cancelled';
   message: string;
 }
 
@@ -71,7 +71,7 @@ export class BackupManager {
   }
 
   /**
-   * Share backup file using Web Share API with fallback to download
+   * Share backup file using Web Share API - NO FALLBACK
    */
   async shareBackupFile(): Promise<BackupResult> {
     try {
@@ -79,11 +79,8 @@ export class BackupManager {
       const backupText = JSON.stringify(backupData, null, 2);
       const fileName = `tempoday-backup-${new Date().toISOString().split('T')[0]}.json`;
 
-      console.log('Starting file share...');
-
       if (!navigator.share) {
-        console.log('Web Share API not supported, falling back to download');
-        return await this.createDownloadBackup();
+        throw new Error('Web Share API not supported on this device');
       }
 
       const blob = new Blob([backupText], { type: 'application/json' });
@@ -99,12 +96,10 @@ export class BackupManager {
 
       // Check if file sharing is supported
       if (navigator.canShare && !navigator.canShare(shareData)) {
-        console.log('File sharing not supported, falling back to download');
-        return await this.createDownloadBackup();
+        throw new Error('File sharing not supported on this device');
       }
 
       await navigator.share(shareData);
-      console.log('File share successful');
       
       return {
         success: true,
@@ -123,26 +118,7 @@ export class BackupManager {
         };
       }
       
-      // For permission denied or other Web Share API errors, fall back to download
-      if (error instanceof Error && (
-        error.message.includes('Permission denied') ||
-        error.message.includes('NotAllowedError') ||
-        error.name === 'NotAllowedError'
-      )) {
-        console.log('Permission denied for Web Share API, falling back to download');
-        try {
-          const downloadResult = await this.createDownloadBackup();
-          return {
-            success: downloadResult.success,
-            method: 'fallback',
-            message: 'File sharing was blocked by your browser, so we downloaded the backup file instead. Check your Downloads folder.',
-          };
-        } catch (fallbackError) {
-          console.error('Fallback download also failed:', fallbackError);
-          throw new Error('Both file sharing and download failed. Please try copying to clipboard instead.');
-        }
-      }
-      
+      // For any other error, just throw it - no fallback
       throw error;
     }
   }
@@ -155,14 +131,11 @@ export class BackupManager {
       const backupData = await this.exportAllData();
       const backupText = JSON.stringify(backupData, null, 2);
 
-      console.log('Starting clipboard copy...');
-
       if (!navigator.clipboard || !navigator.clipboard.writeText) {
-        throw new Error('Clipboard API not supported');
+        throw new Error('Clipboard API not supported on this device');
       }
 
       await navigator.clipboard.writeText(backupText);
-      console.log('Clipboard copy successful');
       
       return {
         success: true,
