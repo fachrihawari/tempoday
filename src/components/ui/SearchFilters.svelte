@@ -25,13 +25,32 @@ function updateFilters(updates: Partial<SearchFilters>) {
   onFiltersChange({ ...filters, ...updates });
 }
 
+// Get the current selected data type
+const selectedDataType = $derived(() => {
+  return filters.dataTypes[0] || null;
+});
+
 // Handle filter changes
 function handleDataTypeChange(e: Event) {
   const value = (e.target as HTMLSelectElement).value;
   if (value === '') {
-    updateFilters({ dataTypes: [] });
+    updateFilters({ 
+      dataTypes: [],
+      // Clear type-specific filters when changing data type
+      taskStatus: [],
+      taskPriorities: [],
+      transactionTypes: [],
+      transactionCategories: []
+    });
   } else {
-    updateFilters({ dataTypes: [value as 'task' | 'note' | 'transaction'] });
+    updateFilters({ 
+      dataTypes: [value as 'task' | 'note' | 'transaction'],
+      // Clear type-specific filters when changing data type
+      taskStatus: [],
+      taskPriorities: [],
+      transactionTypes: [],
+      transactionCategories: []
+    });
   }
 }
 
@@ -95,6 +114,19 @@ const activeFilterCount = $derived(() => {
   if (filters.dateRange.start || filters.dateRange.end) count++;
   return count;
 });
+
+// Determine which filters to show based on selected data type
+const shouldShowTaskFilters = $derived(() => {
+  return selectedDataType === null || selectedDataType === 'task';
+});
+
+const shouldShowTransactionFilters = $derived(() => {
+  return selectedDataType === null || selectedDataType === 'transaction';
+});
+
+const shouldShowDateFilters = $derived(() => {
+  return true; // Date filters are always relevant
+});
 </script>
 
 <!-- Filter Bar -->
@@ -102,7 +134,13 @@ const activeFilterCount = $derived(() => {
   <!-- Clear Filters Button -->
   {#if hasActiveFilters()}
     <div class="flex justify-between items-center">
-      <span class="text-sm text-gray-600">Filters active</span>
+      <span class="text-sm text-gray-600">
+        {#if selectedDataType}
+          Filtering {selectedDataType}s
+        {:else}
+          Filters active
+        {/if}
+      </span>
       <button
         onclick={onClearFilters}
         class="flex items-center gap-1 px-3 py-1.5 text-sm bg-red-50 text-red-700 border border-red-200 rounded-lg hover:bg-red-100 transition-colors"
@@ -116,7 +154,7 @@ const activeFilterCount = $derived(() => {
   <!-- Horizontal Scrollable Filter Row -->
   <div class="overflow-x-auto pb-2">
     <div class="flex gap-3 min-w-max">
-      <!-- Data Type Filter -->
+      <!-- Data Type Filter - Always shown -->
       <div class="flex-shrink-0 w-32">
         <label class="block text-xs font-medium text-gray-700 mb-1">Type</label>
         <select
@@ -132,102 +170,110 @@ const activeFilterCount = $derived(() => {
         </select>
       </div>
 
-      <!-- Status Filter -->
-      <div class="flex-shrink-0 w-32">
-        <label class="block text-xs font-medium text-gray-700 mb-1">Status</label>
-        <select
-          value={filters.taskStatus[0] || ''}
-          onchange={handleTaskStatusChange}
-          class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white
-            {filters.taskStatus.length > 0 ? 'border-orange-300 bg-orange-50' : ''}"
-        >
-          <option value="">All status</option>
-          <option value="pending">⏳ Pending</option>
-          <option value="completed">✅ Completed</option>
-        </select>
-      </div>
+      <!-- Task-specific filters - Only show when task type is selected or no type is selected -->
+      {#if shouldShowTaskFilters}
+        <!-- Status Filter -->
+        <div class="flex-shrink-0 w-32">
+          <label class="block text-xs font-medium text-gray-700 mb-1">Status</label>
+          <select
+            value={filters.taskStatus[0] || ''}
+            onchange={handleTaskStatusChange}
+            class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white
+              {filters.taskStatus.length > 0 ? 'border-orange-300 bg-orange-50' : ''}"
+          >
+            <option value="">All status</option>
+            <option value="pending">⏳ Pending</option>
+            <option value="completed">✅ Completed</option>
+          </select>
+        </div>
 
-      <!-- Priority Filter -->
-      <div class="flex-shrink-0 w-32">
-        <label class="block text-xs font-medium text-gray-700 mb-1">Priority</label>
-        <select
-          value={filters.taskPriorities[0] || ''}
-          onchange={handlePriorityChange}
-          class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white
-            {filters.taskPriorities.length > 0 ? 'border-purple-300 bg-purple-50' : ''}"
-        >
-          <option value="">All priorities</option>
-          {#each PRIORITY_OPTIONS as priority}
-            {@const config = getPriorityConfig(priority)}
-            <option value={priority}>{config.icon} {config.label}</option>
-          {/each}
-        </select>
-      </div>
+        <!-- Priority Filter -->
+        <div class="flex-shrink-0 w-32">
+          <label class="block text-xs font-medium text-gray-700 mb-1">Priority</label>
+          <select
+            value={filters.taskPriorities[0] || ''}
+            onchange={handlePriorityChange}
+            class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white
+              {filters.taskPriorities.length > 0 ? 'border-purple-300 bg-purple-50' : ''}"
+          >
+            <option value="">All priorities</option>
+            {#each PRIORITY_OPTIONS as priority}
+              {@const config = getPriorityConfig(priority)}
+              <option value={priority}>{config.icon} {config.label}</option>
+            {/each}
+          </select>
+        </div>
+      {/if}
 
-      <!-- Transaction Type Filter -->
-      <div class="flex-shrink-0 w-32">
-        <label class="block text-xs font-medium text-gray-700 mb-1">Money Type</label>
-        <select
-          value={filters.transactionTypes[0] || ''}
-          onchange={handleTransactionTypeChange}
-          class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white
-            {filters.transactionTypes.length > 0 ? 'border-green-300 bg-green-50' : ''}"
-        >
-          <option value="">All money</option>
-          <option value="income">📈 Income</option>
-          <option value="expense">📉 Expense</option>
-        </select>
-      </div>
+      <!-- Transaction-specific filters - Only show when transaction type is selected or no type is selected -->
+      {#if shouldShowTransactionFilters}
+        <!-- Transaction Type Filter -->
+        <div class="flex-shrink-0 w-32">
+          <label class="block text-xs font-medium text-gray-700 mb-1">Money Type</label>
+          <select
+            value={filters.transactionTypes[0] || ''}
+            onchange={handleTransactionTypeChange}
+            class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white
+              {filters.transactionTypes.length > 0 ? 'border-green-300 bg-green-50' : ''}"
+          >
+            <option value="">All money</option>
+            <option value="income">📈 Income</option>
+            <option value="expense">📉 Expense</option>
+          </select>
+        </div>
 
-      <!-- Category Filter -->
-      <div class="flex-shrink-0 w-40">
-        <label class="block text-xs font-medium text-gray-700 mb-1">Category</label>
-        <select
-          value={filters.transactionCategories[0] || ''}
-          onchange={handleCategoryChange}
-          class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white
-            {filters.transactionCategories.length > 0 ? 'border-indigo-300 bg-indigo-50' : ''}"
-        >
-          <option value="">All categories</option>
-          {#each CATEGORY_OPTIONS as category}
-            {@const config = getCategoryConfig(category)}
-            <option value={category}>{config.icon} {config.label}</option>
-          {/each}
-        </select>
-      </div>
+        <!-- Category Filter -->
+        <div class="flex-shrink-0 w-40">
+          <label class="block text-xs font-medium text-gray-700 mb-1">Category</label>
+          <select
+            value={filters.transactionCategories[0] || ''}
+            onchange={handleCategoryChange}
+            class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white
+              {filters.transactionCategories.length > 0 ? 'border-indigo-300 bg-indigo-50' : ''}"
+          >
+            <option value="">All categories</option>
+            {#each CATEGORY_OPTIONS as category}
+              {@const config = getCategoryConfig(category)}
+              <option value={category}>{config.icon} {config.label}</option>
+            {/each}
+          </select>
+        </div>
+      {/if}
 
-      <!-- Date Range Filters -->
-      <div class="flex-shrink-0 w-36">
-        <label class="block text-xs font-medium text-gray-700 mb-1">From Date</label>
-        <input
-          type="date"
-          value={filters.dateRange.start || ''}
-          onchange={(e) => updateFilters({ 
-            dateRange: { 
-              ...filters.dateRange, 
-              start: (e.target as HTMLInputElement).value || null 
-            } 
-          })}
-          class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white
-            {filters.dateRange.start ? 'border-blue-300 bg-blue-50' : ''}"
-        />
-      </div>
+      <!-- Date Range Filters - Always shown as they're relevant to all data types -->
+      {#if shouldShowDateFilters}
+        <div class="flex-shrink-0 w-36">
+          <label class="block text-xs font-medium text-gray-700 mb-1">From Date</label>
+          <input
+            type="date"
+            value={filters.dateRange.start || ''}
+            onchange={(e) => updateFilters({ 
+              dateRange: { 
+                ...filters.dateRange, 
+                start: (e.target as HTMLInputElement).value || null 
+              } 
+            })}
+            class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white
+              {filters.dateRange.start ? 'border-blue-300 bg-blue-50' : ''}"
+          />
+        </div>
 
-      <div class="flex-shrink-0 w-36">
-        <label class="block text-xs font-medium text-gray-700 mb-1">To Date</label>
-        <input
-          type="date"
-          value={filters.dateRange.end || ''}
-          onchange={(e) => updateFilters({ 
-            dateRange: { 
-              ...filters.dateRange, 
-              end: (e.target as HTMLInputElement).value || null 
-            } 
-          })}
-          class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white
-            {filters.dateRange.end ? 'border-blue-300 bg-blue-50' : ''}"
-        />
-      </div>
+        <div class="flex-shrink-0 w-36">
+          <label class="block text-xs font-medium text-gray-700 mb-1">To Date</label>
+          <input
+            type="date"
+            value={filters.dateRange.end || ''}
+            onchange={(e) => updateFilters({ 
+              dateRange: { 
+                ...filters.dateRange, 
+                end: (e.target as HTMLInputElement).value || null 
+              } 
+            })}
+            class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white
+              {filters.dateRange.end ? 'border-blue-300 bg-blue-50' : ''}"
+          />
+        </div>
+      {/if}
     </div>
   </div>
 </div>
