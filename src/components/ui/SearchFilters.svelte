@@ -157,100 +157,132 @@ const activeFilterCount = $derived(() => {
     </div>
   {/if}
 
-  <!-- Filter Grid -->
-  <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-    <!-- Data Type Filter -->
-    <div class="space-y-1">
-      <label class="block text-xs font-medium text-gray-700">Type</label>
-      <DropdownPicker
-        options={dataTypeOptions}
-        value={filters.dataTypes[0] || ''}
-        placeholder="All types"
-        onSelect={handleDataTypeChange}
-        class={filters.dataTypes.length > 0 ? 'border-blue-300 bg-blue-50' : ''}
-      />
-    </div>
+  <!-- Horizontal Scrollable Filter Row -->
+  <div class="overflow-x-auto pb-2">
+    <div class="flex gap-3 min-w-max">
+      <!-- Data Type Filter -->
+      <div class="flex-shrink-0 w-32">
+        <label class="block text-xs font-medium text-gray-700 mb-1">Type</label>
+        <DropdownPicker
+          options={dataTypeOptions}
+          value={filters.dataTypes[0] || ''}
+          placeholder="All types"
+          onSelect={handleDataTypeChange}
+          horizontalScroll={true}
+          class={filters.dataTypes.length > 0 ? 'border-blue-300 bg-blue-50' : ''}
+        />
+      </div>
 
-    <!-- Status Filter -->
-    <div class="space-y-1">
-      <label class="block text-xs font-medium text-gray-700">Status</label>
-      <DropdownPicker
-        options={statusOptions}
-        value={filters.taskStatus[0] || ''}
-        placeholder="All status"
-        onSelect={handleTaskStatusChange}
-        class={filters.taskStatus.length > 0 ? 'border-orange-300 bg-orange-50' : ''}
-      />
-    </div>
+      <!-- Status Filter -->
+      <div class="flex-shrink-0 w-32">
+        <label class="block text-xs font-medium text-gray-700 mb-1">Status</label>
+        <DropdownPicker
+          options={statusOptions}
+          value={filters.taskStatus[0] || ''}
+          placeholder="All status"
+          onSelect={handleTaskStatusChange}
+          horizontalScroll={true}
+          class={filters.taskStatus.length > 0 ? 'border-orange-300 bg-orange-50' : ''}
+        />
+      </div>
 
-    <!-- Priority Filter -->
-    <div class="space-y-1">
-      <label class="block text-xs font-medium text-gray-700">Priority</label>
-      <DropdownPicker
-        options={priorityOptions}
-        value={filters.taskPriorities[0] || ''}
-        placeholder="All priorities"
-        onSelect={handlePriorityChange}
-        class={filters.taskPriorities.length > 0 ? 'border-purple-300 bg-purple-50' : ''}
-      />
-    </div>
+      <!-- Priority Filter -->
+      <div class="flex-shrink-0 w-32">
+        <label class="block text-xs font-medium text-gray-700 mb-1">Priority</label>
+        <DropdownPicker
+          options={priorityOptions}
+          value={filters.taskPriorities[0] || ''}
+          placeholder="All priorities"
+          onSelect={handlePriorityChange}
+          horizontalScroll={true}
+          class={filters.taskPriorities.length > 0 ? 'border-purple-300 bg-purple-50' : ''}
+        />
+      </div>
 
-    <!-- Transaction Type Filter -->
-    <div class="space-y-1">
-      <label class="block text-xs font-medium text-gray-700">Money Type</label>
-      <DropdownPicker
-        options={transactionTypeOptions}
-        value={filters.transactionTypes[0] || ''}
-        placeholder="All money"
-        onSelect={handleTransactionTypeChange}
-        class={filters.transactionTypes.length > 0 ? 'border-green-300 bg-green-50' : ''}
-      />
-    </div>
+      <!-- Transaction Type Filter -->
+      <div class="flex-shrink-0 w-32">
+        <label class="block text-xs font-medium text-gray-700 mb-1">Money Type</label>
+        <DropdownPicker
+          options={transactionTypeOptions}
+          value={filters.transactionTypes[0] || ''}
+          placeholder="All money"
+          onSelect={handleTransactionTypeChange}
+          horizontalScroll={true}
+          class={filters.transactionTypes.length > 0 ? 'border-green-300 bg-green-50' : ''}
+        />
+      </div>
 
-    <!-- Category Filter -->
-    <div class="space-y-1">
-      <label class="block text-xs font-medium text-gray-700">Category</label>
-      <DropdownPicker
-        options={categoryOptions}
-        value={filters.transactionCategories[0] || ''}
-        placeholder="All categories"
-        onSelect={handleCategoryChange}
-        class={filters.transactionCategories.length > 0 ? 'border-indigo-300 bg-indigo-50' : ''}
-      />
-    </div>
-  </div>
+      <!-- Category Filter -->
+      <div class="flex-shrink-0 w-40">
+        <label class="block text-xs font-medium text-gray-700 mb-1">Category</label>
+        <DropdownPicker
+          options={categoryOptions}
+          value={filters.transactionCategories[0] || ''}
+          placeholder="All categories"
+          onSelect={handleCategoryChange}
+          horizontalScroll={true}
+          class={filters.transactionCategories.length > 0 ? 'border-indigo-300 bg-indigo-50' : ''}
+        />
+      </div>
 
-  <!-- Date Range Filter -->
-  <div class="grid grid-cols-2 gap-3">
-    <div class="space-y-1">
-      <label class="block text-xs font-medium text-gray-700">From Date</label>
-      <input
-        type="date"
-        value={filters.dateRange.start || ''}
-        onchange={(e) => updateFilters({ 
-          dateRange: { 
-            ...filters.dateRange, 
-            start: (e.target as HTMLInputElement).value || null 
-          } 
-        })}
-        class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white
-          {filters.dateRange.start ? 'border-blue-300 bg-blue-50' : ''}"
-      />
-    </div>
-    <div class="space-y-1">
-      <label class="block text-xs font-medium text-gray-700">To Date</label>
-      <input
-        type="date"
-        value={filters.dateRange.end || ''}
-        onchange={(e) => updateFilters({ 
-          dateRange: { 
-            ...filters.dateRange, 
-            end: (e.target as HTMLInputElement).value || null 
-          } 
-        })}
-        class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white
-          {filters.dateRange.end ? 'border-blue-300 bg-blue-50' : ''}"
-      />
+      <!-- Date Range Filters -->
+      <div class="flex-shrink-0 w-36">
+        <label class="block text-xs font-medium text-gray-700 mb-1">From Date</label>
+        <input
+          type="date"
+          value={filters.dateRange.start || ''}
+          onchange={(e) => updateFilters({ 
+            dateRange: { 
+              ...filters.dateRange, 
+              start: (e.target as HTMLInputElement).value || null 
+            } 
+          })}
+          class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white
+            {filters.dateRange.start ? 'border-blue-300 bg-blue-50' : ''}"
+        />
+      </div>
+
+      <div class="flex-shrink-0 w-36">
+        <label class="block text-xs font-medium text-gray-700 mb-1">To Date</label>
+        <input
+          type="date"
+          value={filters.dateRange.end || ''}
+          onchange={(e) => updateFilters({ 
+            dateRange: { 
+              ...filters.dateRange, 
+              end: (e.target as HTMLInputElement).value || null 
+            } 
+          })}
+          class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white
+            {filters.dateRange.end ? 'border-blue-300 bg-blue-50' : ''}"
+        />
+      </div>
     </div>
   </div>
 </div>
+
+<style>
+  /* Hide scrollbar for cleaner look while maintaining functionality */
+  .overflow-x-auto {
+    scrollbar-width: thin;
+    scrollbar-color: #d1d5db #f3f4f6;
+  }
+  
+  .overflow-x-auto::-webkit-scrollbar {
+    height: 6px;
+  }
+  
+  .overflow-x-auto::-webkit-scrollbar-track {
+    background: #f3f4f6;
+    border-radius: 3px;
+  }
+  
+  .overflow-x-auto::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 3px;
+  }
+  
+  .overflow-x-auto::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+  }
+</style>

@@ -16,6 +16,7 @@ interface Props {
   disabled?: boolean;
   class?: string;
   onSelect: (value: string) => void;
+  horizontalScroll?: boolean; // New prop to enable horizontal scrolling
 }
 
 let {
@@ -25,6 +26,7 @@ let {
   disabled = false,
   class: className = '',
   onSelect,
+  horizontalScroll = false,
 }: Props = $props();
 
 let isOpen = $state(false);
@@ -72,7 +74,6 @@ function positionDropdown() {
   if (!isOpen || !dropdownElement || !triggerElement) return;
 
   const triggerRect = triggerElement.getBoundingClientRect();
-  const dropdownRect = dropdownElement.getBoundingClientRect();
   const viewportHeight = window.innerHeight;
   const viewportWidth = window.innerWidth;
 
@@ -81,7 +82,7 @@ function positionDropdown() {
   const spaceAbove = triggerRect.top;
 
   // Determine if dropdown should open upward or downward
-  const shouldOpenUpward = spaceBelow < dropdownRect.height && spaceAbove > spaceBelow;
+  const shouldOpenUpward = spaceBelow < 200 && spaceAbove > spaceBelow; // Use fixed height for calculation
 
   // Set position
   if (shouldOpenUpward) {
@@ -93,13 +94,29 @@ function positionDropdown() {
   }
 
   // Horizontal positioning
-  dropdownElement.style.left = `${triggerRect.left}px`;
-  dropdownElement.style.width = `${triggerRect.width}px`;
+  if (horizontalScroll) {
+    // For horizontal scroll mode, make dropdown wider and allow scrolling
+    const maxWidth = Math.min(viewportWidth - 32, 400); // Max 400px or viewport width minus padding
+    const minWidth = Math.max(triggerRect.width, 250); // At least trigger width or 250px
+    
+    dropdownElement.style.left = `${Math.max(16, triggerRect.left)}px`;
+    dropdownElement.style.width = `${Math.min(maxWidth, minWidth)}px`;
+    
+    // Ensure dropdown doesn't go off-screen
+    const rightEdge = parseInt(dropdownElement.style.left) + parseInt(dropdownElement.style.width);
+    if (rightEdge > viewportWidth - 16) {
+      dropdownElement.style.left = `${viewportWidth - parseInt(dropdownElement.style.width) - 16}px`;
+    }
+  } else {
+    // Standard positioning
+    dropdownElement.style.left = `${triggerRect.left}px`;
+    dropdownElement.style.width = `${triggerRect.width}px`;
 
-  // Ensure dropdown doesn't go off-screen horizontally
-  const rightEdge = triggerRect.left + triggerRect.width;
-  if (rightEdge > viewportWidth) {
-    dropdownElement.style.left = `${viewportWidth - triggerRect.width - 8}px`;
+    // Ensure dropdown doesn't go off-screen horizontally
+    const rightEdge = triggerRect.left + triggerRect.width;
+    if (rightEdge > viewportWidth) {
+      dropdownElement.style.left = `${viewportWidth - triggerRect.width - 8}px`;
+    }
   }
 }
 
@@ -158,28 +175,78 @@ $effect(() => {
   {#if isOpen}
     <div
       bind:this={dropdownElement}
-      class="fixed z-[9999] bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+      class="fixed z-[9999] bg-white border border-gray-200 rounded-lg shadow-lg
+        {horizontalScroll ? 'max-h-60' : 'max-h-60'}"
       style="min-width: 200px;"
     >
-      <div class="py-1">
-        {#each options as option (option.value)}
-          <button
-            onclick={() => handleSelect(option.value)}
-            disabled={option.disabled}
-            class="w-full text-left px-3 py-2 hover:bg-gray-50 transition-colors flex items-center gap-2
-              {option.value === value ? 'bg-blue-50 text-blue-700' : 'text-gray-700'}
-              {option.disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}"
-          >
-            {#if option.icon}
-              <span class="text-sm">{option.icon}</span>
-            {/if}
-            <span class="flex-1 truncate">{option.label}</span>
-            {#if option.value === value}
-              <Icon name="check" size="sm" class="text-blue-600" />
-            {/if}
-          </button>
-        {/each}
-      </div>
+      {#if horizontalScroll}
+        <!-- Horizontal scrollable layout -->
+        <div class="p-2">
+          <div class="flex gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+            {#each options as option (option.value)}
+              <button
+                onclick={() => handleSelect(option.value)}
+                disabled={option.disabled}
+                class="flex-shrink-0 flex items-center gap-2 px-3 py-2 rounded-lg border transition-colors whitespace-nowrap
+                  {option.value === value 
+                    ? 'bg-blue-100 border-blue-300 text-blue-700' 
+                    : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300'}
+                  {option.disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}"
+              >
+                {#if option.icon}
+                  <span class="text-sm">{option.icon}</span>
+                {/if}
+                <span class="text-sm font-medium">{option.label}</span>
+                {#if option.value === value}
+                  <Icon name="check" size="sm" class="text-blue-600" />
+                {/if}
+              </button>
+            {/each}
+          </div>
+        </div>
+      {:else}
+        <!-- Vertical layout -->
+        <div class="py-1 overflow-y-auto">
+          {#each options as option (option.value)}
+            <button
+              onclick={() => handleSelect(option.value)}
+              disabled={option.disabled}
+              class="w-full text-left px-3 py-2 hover:bg-gray-50 transition-colors flex items-center gap-2
+                {option.value === value ? 'bg-blue-50 text-blue-700' : 'text-gray-700'}
+                {option.disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}"
+            >
+              {#if option.icon}
+                <span class="text-sm">{option.icon}</span>
+              {/if}
+              <span class="flex-1 truncate">{option.label}</span>
+              {#if option.value === value}
+                <Icon name="check" size="sm" class="text-blue-600" />
+              {/if}
+            </button>
+          {/each}
+        </div>
+      {/if}
     </div>
   {/if}
 </div>
+
+<style>
+  /* Custom scrollbar styles for horizontal scroll */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+  }
+  
+  .scrollbar-thumb-gray-300::-webkit-scrollbar-thumb {
+    background-color: #d1d5db;
+    border-radius: 4px;
+  }
+  
+  .scrollbar-track-gray-100::-webkit-scrollbar-track {
+    background-color: #f3f4f6;
+    border-radius: 4px;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar {
+    height: 6px;
+  }
+</style>
