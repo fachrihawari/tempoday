@@ -1,11 +1,14 @@
 import { db } from '../dexie/db';
 import type { Task } from '../dexie/models';
 import { NotFoundError } from '../lib/error';
+import { sortTasksComprehensive, type TaskPriority } from '../lib/priority';
 // Reactive Dexie-based tasks store using Svelte 5 runes
 import { uuid } from '../lib/unique';
 
 // Types for better API
-export type CreateTaskInput = Pick<Task, 'description' | 'date'>;
+export type CreateTaskInput = Pick<Task, 'description' | 'date'> & {
+  priority?: TaskPriority;
+};
 
 export class ReactiveTasks {
   // Reactive state for tasks
@@ -16,12 +19,16 @@ export class ReactiveTasks {
   isCreating = $state(false);
   isToggling = $state<Record<string, boolean>>({});
   isDeleting = $state<Record<string, boolean>>({});
+  isUpdatingPriority = $state<Record<string, boolean>>({});
 
   // Error state
   error = $state<string | null>(null);
 
   // Current date being displayed
   currentDate = $state<string>('');
+
+  // Priority filter state
+  priorityFilter = $state<TaskPriority[]>([]);
 
   /**
    * Get a single task by ID
@@ -46,8 +53,10 @@ export class ReactiveTasks {
       const tasks = await db.tasks
         .where('date')
         .equals(date)
-        .sortBy('createdAt');
-      this.tasks = tasks;
+        .toArray();
+      
+      // Sort tasks comprehensively (by completion, priority, then date)
+      this.tasks = sortTasksComprehensive(tasks);
       this.currentDate = date;
     } catch (err) {
       this.error = err instanceof Error ? err.message : 'Failed to load tasks';
@@ -68,6 +77,7 @@ export class ReactiveTasks {
       const now = Date.now();
       const newTask: Task = {
         ...input,
+        priority: input.priority || 'medium', // Default to medium priority
         completed: false,
         id: uuid(),
         createdAt: now,
@@ -75,8 +85,9 @@ export class ReactiveTasks {
       };
       await db.tasks.add(newTask);
 
-      // Add to local state directly
-      this.tasks = [...this.tasks, newTask];
+      // Add to local state and re-sort
+      const updatedTasks = [...this.tasks, newTask];
+      this.tasks = sortTasksComprehensive(updatedTasks);
     } catch (err) {
       this.error = err instanceof Error ? err.message : 'Failed to create task';
       console.error('Error creating task:', err);
@@ -100,16 +111,18 @@ export class ReactiveTasks {
 
       const updatedCount = await db.tasks.update(taskId, {
         completed: !task.completed,
+        updatedAt: Date.now(),
       });
 
       if (updatedCount === 0) {
         throw new NotFoundError(`Task with ID ${taskId} not found`);
       }
 
-      // Update the local task state
-      this.tasks = this.tasks.map((t) =>
-        t.id === taskId ? { ...t, completed: !t.completed } : t,
+      // Update the local task state and re-sort
+      const updatedTasks = this.tasks.map((t) =>
+        t.id === taskId ? { ...t, completed: !t.completed, updatedAt: Date.now() } : t,
       );
+      this.tasks = sortTasksComprehensive(updatedTasks);
     } catch (err) {
       if (err instanceof NotFoundError) {
         this.error = 'Task not found';
@@ -120,6 +133,46 @@ export class ReactiveTasks {
       console.error('Error toggling task:', err);
     } finally {
       this.isToggling[taskId] = false;
+    }
+  }
+
+  /**
+   * Update task priority
+   */
+  async updateTaskPriority(taskId: string, priority: TaskPriority): Promise<void> {
+    this.isUpdatingPriority[taskId] = true;
+    this.error = null;
+
+    try {
+      const task = await this.getTaskById(taskId);
+      if (!task) {
+        throw new NotFoundError(`Task with ID ${taskId} not found`);
+      }
+
+      const updatedCount = await db.tasks.update(taskId, {
+        priority,
+        updatedAt: Date.now(),
+      });
+
+      if (updatedCount === 0) {
+        throw new NotFoundError(`Task with ID ${taskId} not found`);
+      }
+
+      // Update the local task state and re-sort
+      const updatedTasks = this.tasks.map((t) =>
+        t.id === taskId ? { ...t, priority, updatedAt: Date.now() } : t,
+      );
+      this.tasks = sortTasksComprehensive(updatedTasks);
+    } catch (err) {
+      if (err instanceof NotFoundError) {
+        this.error = 'Task not found';
+      } else {
+        this.error =
+          err instanceof Error ? err.message : 'Failed to update task priority';
+      }
+      console.error('Error updating task priority:', err);
+    } finally {
+      this.isUpdatingPriority[taskId] = false;
     }
   }
 
@@ -154,6 +207,30 @@ export class ReactiveTasks {
   }
 
   /**
+   * Set priority filter
+   */
+  setPriorityFilter(priorities: TaskPriority[]): void {
+    this.priorityFilter = priorities;
+  }
+
+  /**
+   * Clear priority filter
+   */
+  clearPriorityFilter(): void {
+    this.priorityFilter = [];
+  }
+
+  /**
+   * Get filtered tasks based on priority filter
+   */
+  get filteredTasks(): Task[] {
+    if (this.priorityFilter.length === 0) {
+      return this.tasks;
+    }
+    return this.tasks.filter(task => this.priorityFilter.includes(task.priority));
+  }
+
+  /**
    * Get task statistics for a date
    */
   async getTaskStats(
@@ -173,14 +250,35 @@ export class ReactiveTasks {
    * Get completed tasks count (reactive derived value)
    */
   get completedCount(): number {
-    return this.tasks.filter((task) => task.completed).length;
+    return this.filteredTasks.filter((task) => task.completed).length;
   }
 
   /**
    * Get total tasks count (reactive derived value)
    */
   get totalCount(): number {
-    return this.tasks.length;
+    return this.filteredTasks.length;
+  }
+
+  /**
+   * Get pending tasks count (reactive derived value)
+   */
+  get pendingCount(): number {
+    return this.filteredTasks.filter((task) => !task.completed).length;
+  }
+
+  /**
+   * Get urgent tasks count (reactive derived value)
+   */
+  get urgentCount(): number {
+    return this.filteredTasks.filter((task) => task.priority === 'urgent' && !task.completed).length;
+  }
+
+  /**
+   * Get high priority tasks count (reactive derived value)
+   */
+  get highPriorityCount(): number {
+    return this.filteredTasks.filter((task) => task.priority === 'high' && !task.completed).length;
   }
 
   /**

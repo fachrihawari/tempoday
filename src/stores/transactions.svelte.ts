@@ -1,6 +1,7 @@
 import { db } from '../dexie/db';
 import type { Transaction, TransactionType } from '../dexie/models';
 import { NotFoundError } from '../lib/error';
+import { getDefaultCategory, type TransactionCategory } from '../lib/categories';
 // Reactive Dexie-based transactions store using Svelte 5 runes
 import { uuid } from '../lib/unique';
 
@@ -71,6 +72,8 @@ export class ReactiveTransactions {
       const now = Date.now();
       const newTransaction: Transaction = {
         ...input,
+        // Set default category if not provided
+        category: input.category || getDefaultCategory(input.type),
         id: uuid(),
         createdAt: now,
         updatedAt: now,
@@ -170,6 +173,23 @@ export class ReactiveTransactions {
    */
   get hasTransactions(): boolean {
     return this.transactions.length > 0;
+  }
+
+  /**
+   * Get transactions grouped by category
+   */
+  get transactionsByCategory(): Record<TransactionCategory, Transaction[]> {
+    const grouped: Record<string, Transaction[]> = {};
+    
+    this.transactions.forEach(transaction => {
+      const category = transaction.category || 'other';
+      if (!grouped[category]) {
+        grouped[category] = [];
+      }
+      grouped[category].push(transaction);
+    });
+    
+    return grouped as Record<TransactionCategory, Transaction[]>;
   }
 
   /**

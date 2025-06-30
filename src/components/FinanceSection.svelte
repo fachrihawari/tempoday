@@ -3,6 +3,7 @@
 import { onMount } from 'svelte';
 import { formatCurrency } from '../lib/currency';
 import { formatDateKey } from '../lib/date';
+import { getDefaultCategory, type TransactionCategory } from '../lib/categories';
 import { appState } from '../stores/app.svelte';
 import { settingsStore } from '../stores/settings.svelte';
 import { toastStore } from '../stores/toast.svelte';
@@ -10,6 +11,8 @@ import { reactiveTransactions } from '../stores/transactions.svelte';
 import BottomSheet from './ui/BottomSheet.svelte';
 import Button from './ui/Button.svelte';
 import Card from './ui/Card.svelte';
+import CategoryBadge from './ui/CategoryBadge.svelte';
+import CategorySelector from './ui/CategorySelector.svelte';
 import EmptyState from './ui/EmptyState.svelte';
 import Icon from './ui/Icon.svelte';
 import Input from './ui/Input.svelte';
@@ -35,6 +38,7 @@ let showAddForm = $state(false);
 let description = $state('');
 let amount = $state(0);
 let type = $state<'income' | 'expense'>('expense');
+let category = $state<TransactionCategory>(getDefaultCategory('expense'));
 
 // Watch for date changes and load transactions
 $effect(() => {
@@ -53,6 +57,11 @@ $effect(() => {
     toastStore.error(error);
     reactiveTransactions.clearError();
   }
+});
+
+// Update category when transaction type changes
+$effect(() => {
+  category = getDefaultCategory(type);
 });
 
 // Helper function to format currency with current settings
@@ -76,6 +85,7 @@ async function handleAddTransaction(event?: Event) {
       description: desc,
       amount,
       type,
+      category,
       date: dateKey,
     });
     toastStore.success(`${type === 'income' ? 'Income' : 'Expense'} added successfully`);
@@ -90,6 +100,7 @@ function resetForm() {
   description = '';
   amount = 0;
   type = 'expense';
+  category = getDefaultCategory('expense');
   showAddForm = false;
 }
 </script>
@@ -138,7 +149,7 @@ function resetForm() {
       {:else}
         {#each transactions as transaction (transaction.id)}
           <div
-            class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 group relative"
+            class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 group relative border border-gray-100"
           >
             <div
               class="flex-shrink-0 w-3 h-3 rounded-full {transaction.type ===
@@ -148,10 +159,15 @@ function resetForm() {
             ></div>
 
             <div class="flex-1 min-w-0">
-              <p class="text-sm text-gray-900 truncate">
-                {transaction.description}
-              </p>
-              <p class="text-xs text-gray-500 capitalize">{transaction.type}</p>
+              <div class="flex items-center gap-2 mb-1">
+                <p class="text-sm text-gray-900 truncate">
+                  {transaction.description}
+                </p>
+              </div>
+              <div class="flex items-center gap-2">
+                <CategoryBadge category={transaction.category} size="sm" />
+                <p class="text-xs text-gray-500 capitalize">{transaction.type}</p>
+              </div>
             </div>
 
             <div class="text-right">
@@ -242,6 +258,20 @@ function resetForm() {
               </Button>
             </div>
           </fieldset>
+
+          <!-- Category Selection -->
+          <div class="space-y-2">
+            <label class="block text-sm font-medium text-gray-700">
+              Category
+            </label>
+            <CategorySelector
+              bind:value={category}
+              transactionType={type}
+              onSelect={(selectedCategory) => category = selectedCategory}
+              size="md"
+              class="w-full"
+            />
+          </div>
 
           <!-- Description Input -->
           <Input

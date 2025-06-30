@@ -2,6 +2,7 @@
 import { onMount } from 'svelte';
 import { formatCurrency } from '../lib/currency';
 import { formatDateKey } from '../lib/date';
+import { getPriorityConfig } from '../lib/priority';
 import { reactiveNotes } from '../stores/notes.svelte';
 import { reactiveRouter } from '../stores/router.svelte';
 import { settingsStore } from '../stores/settings.svelte';
@@ -131,9 +132,14 @@ const shouldShowSummary = $derived.by(() => {
             {:else}
               <div class="space-y-2">
                 {#each incompleteTasks as task (task.id)}
-                  <div class="flex items-center gap-2 text-sm">
+                  {@const priorityConfig = getPriorityConfig(task.priority)}
+                  <div class="flex items-center gap-2 text-sm bg-white rounded-md p-2 border border-blue-100">
                     <div class="w-3 h-3 border border-blue-400 rounded"></div>
-                    <span class="text-blue-800 truncate">{task.description}</span>
+                    <span class="text-blue-800 truncate flex-1">{task.description}</span>
+                    <span class="text-xs {priorityConfig.color} {priorityConfig.bgColor} px-1.5 py-0.5 rounded-full border {priorityConfig.borderColor} flex items-center gap-1">
+                      <span>{priorityConfig.icon}</span>
+                      <span class="font-medium">{priorityConfig.label}</span>
+                    </span>
                   </div>
                 {/each}
                 
@@ -145,7 +151,7 @@ const shouldShowSummary = $derived.by(() => {
                 
                 {#if completedCount > 0}
                   <p class="text-xs text-green-600 mt-2">
-                    ✓ {completedCount} completed
+                    ✓ {completedCount} completed today
                   </p>
                 {/if}
               </div>
@@ -178,7 +184,7 @@ const shouldShowSummary = $derived.by(() => {
               <div class="space-y-2">
                 {#each recentExpenses as expense (expense.id)}
                   <div class="flex items-center justify-between text-sm bg-white rounded-md p-2 border border-red-100">
-                    <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-2 flex-1 min-w-0">
                       <div class="w-2 h-2 rounded-full bg-red-500"></div>
                       <span class="text-red-800 truncate">{expense.description}</span>
                     </div>

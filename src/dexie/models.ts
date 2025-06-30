@@ -5,6 +5,7 @@ export interface Task {
   date: string; // YYYY-MM-DD
   description: string;
   completed: boolean;
+  priority: 'low' | 'medium' | 'high' | 'urgent'; // New priority field
   createdAt: number; // epoch ms
   updatedAt: number; // epoch ms
 }
@@ -19,12 +20,26 @@ export interface Note {
 
 export type TransactionType = 'income' | 'expense';
 
+export type TransactionCategory = 
+  | 'food'
+  | 'transport'
+  | 'shopping'
+  | 'entertainment'
+  | 'bills'
+  | 'health'
+  | 'education'
+  | 'work'
+  | 'travel'
+  | 'gifts'
+  | 'other';
+
 export interface Transaction {
   id: string; // UUID
   date: string; // YYYY-MM-DD
   description: string;
   amount: number;
   type: TransactionType;
+  category: TransactionCategory; // New category field
   createdAt: number; // epoch ms
   updatedAt: number; // epoch ms
 }

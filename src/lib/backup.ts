@@ -16,7 +16,7 @@ export interface BackupData {
 
 export interface BackupResult {
   success: boolean;
-  method: 'share' | 'shareText' | 'clipboard' | 'download' | 'cancelled';
+  method: 'share' | 'clipboard' | 'download' | 'cancelled';
   message: string;
 }
 
@@ -51,98 +51,100 @@ export class BackupManager {
   }
 
   /**
-   * Create backup using Web Share API with smart fallbacks
+   * Check if file sharing is supported
    */
-  async createBackup(): Promise<BackupResult> {
+  isFileShareSupported(): boolean {
+    if (!navigator.share) {
+      return false;
+    }
+
+    // Create a test file to check if file sharing is supported
+    try {
+      const testBlob = new Blob(['test'], { type: 'text/plain' });
+      const testFile = new File([testBlob], 'test.txt', { type: 'text/plain' });
+      const testData = { files: [testFile] };
+      
+      return navigator.canShare ? navigator.canShare(testData) : true;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  /**
+   * Share backup file using Web Share API - NO FALLBACK
+   */
+  async shareBackupFile(): Promise<BackupResult> {
     try {
       const backupData = await this.exportAllData();
       const backupText = JSON.stringify(backupData, null, 2);
       const fileName = `tempoday-backup-${new Date().toISOString().split('T')[0]}.json`;
 
-      // Strategy 1: Web Share API with file (Best UX)
-      if (navigator.share && navigator.canShare) {
-        try {
-          const blob = new Blob([backupText], { type: 'application/json' });
-          const file = new File([blob], fileName, {
-            type: 'application/json',
-          });
-
-          if (navigator.canShare({ files: [file] })) {
-            await navigator.share({
-              title: 'TempoDay Backup',
-              text: 'My personal data backup from TempoDay',
-              files: [file],
-            });
-            return {
-              success: true,
-              method: 'share',
-              message: 'Backup shared successfully! Choose your preferred app to save it.',
-            };
-          }
-        } catch (error) {
-          // Check if user cancelled the share
-          if (error instanceof Error && error.name === 'AbortError') {
-            return {
-              success: false,
-              method: 'cancelled',
-              message: 'Share cancelled by user',
-            };
-          }
-          console.log('File share failed, trying text share:', error);
-        }
-
-        // Strategy 2: Web Share API with text (Fallback)
-        try {
-          await navigator.share({
-            title: 'TempoDay Backup',
-            text: `TempoDay Backup Data:\n\n${backupText}`,
-          });
-          return {
-            success: true,
-            method: 'shareText',
-            message: 'Backup data shared as text! You can save it in any app.',
-          };
-        } catch (error) {
-          // Check if user cancelled the share
-          if (error instanceof Error && error.name === 'AbortError') {
-            return {
-              success: false,
-              method: 'cancelled',
-              message: 'Share cancelled by user',
-            };
-          }
-          console.log('Text share failed:', error);
-        }
+      if (!navigator.share) {
+        throw new Error('Web Share API not supported on this device');
       }
 
-      // Strategy 3: Clipboard fallback
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        try {
-          await navigator.clipboard.writeText(backupText);
-          return {
-            success: true,
-            method: 'clipboard',
-            message: 'Backup copied to clipboard! Paste it in your notes app or email to save.',
-          };
-        } catch (error) {
-          console.log('Clipboard failed:', error);
-        }
+      const blob = new Blob([backupText], { type: 'application/json' });
+      const file = new File([blob], fileName, {
+        type: 'application/json',
+      });
+
+      const shareData = {
+        title: 'TempoDay Backup',
+        text: 'My personal data backup from TempoDay',
+        files: [file],
+      };
+
+      // Check if file sharing is supported
+      if (navigator.canShare && !navigator.canShare(shareData)) {
+        throw new Error('File sharing not supported on this device');
       }
 
-      // Strategy 4: Download fallback
-      this.downloadFile(backupText, fileName);
+      await navigator.share(shareData);
+      
       return {
         success: true,
-        method: 'download',
-        message: 'Backup file downloaded! Check your Downloads folder.',
+        method: 'share',
+        message: 'Backup file shared successfully! Choose your preferred app to save it.',
       };
     } catch (error) {
-      console.error('Backup failed:', error);
+      console.error('File share failed:', error);
+      
+      // Check if user cancelled the share
+      if (error instanceof Error && error.name === 'AbortError') {
+        return {
+          success: false,
+          method: 'cancelled',
+          message: 'Share cancelled by user',
+        };
+      }
+      
+      // For any other error, just throw it - no fallback
+      throw error;
+    }
+  }
+
+  /**
+   * Copy backup text to clipboard
+   */
+  async copyBackupText(): Promise<BackupResult> {
+    try {
+      const backupData = await this.exportAllData();
+      const backupText = JSON.stringify(backupData, null, 2);
+
+      if (!navigator.clipboard || !navigator.clipboard.writeText) {
+        throw new Error('Clipboard API not supported on this device');
+      }
+
+      await navigator.clipboard.writeText(backupText);
+      
       return {
-        success: false,
-        method: 'download',
-        message: error instanceof Error ? error.message : 'Backup failed',
+        success: true,
+        method: 'clipboard',
+        message: 'Backup copied to clipboard! Paste it in your notes app or email to save.',
       };
+    } catch (error) {
+      console.error('Clipboard copy failed:', error);
+      throw error;
     }
   }
 

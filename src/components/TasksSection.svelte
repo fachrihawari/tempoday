@@ -1,5 +1,6 @@
 <script lang="ts">
 import { formatDateKey } from '../lib/date';
+import { getPriorityConfig, PRIORITY_OPTIONS, type TaskPriority } from '../lib/priority';
 import { appState } from '../stores/app.svelte';
 import { reactiveTasks } from '../stores/tasks.svelte';
 import { toastStore } from '../stores/toast.svelte';
@@ -10,13 +11,25 @@ import EmptyState from './ui/EmptyState.svelte';
 import Icon from './ui/Icon.svelte';
 import Input from './ui/Input.svelte';
 import Loading from './ui/Loading.svelte';
+import PrioritySelector from './ui/PrioritySelector.svelte';
 
 // Reactive values from the store
-let { tasks, isLoading, isCreating, error, completedCount, totalCount } =
-  $derived(reactiveTasks);
+let { 
+  tasks, 
+  isLoading, 
+  isCreating, 
+  isUpdatingPriority,
+  error, 
+  completedCount, 
+  totalCount, 
+  pendingCount,
+  urgentCount,
+  highPriorityCount
+} = $derived(reactiveTasks);
 
 let showAddForm = $state(false);
 let newTaskText = $state('');
+let newTaskPriority = $state<TaskPriority>('medium');
 
 // Watch for date changes and load tasks
 $effect(() => {
@@ -37,14 +50,24 @@ async function handleAddTask(event?: Event) {
 
   const text = newTaskText.trim();
   const dateKey = formatDateKey(appState.selectedDate);
-  await reactiveTasks.createTask({ description: text, date: dateKey });
+  await reactiveTasks.createTask({ 
+    description: text, 
+    date: dateKey,
+    priority: newTaskPriority 
+  });
   toastStore.success('Task added successfully');
   resetForm();
 }
 
 function resetForm() {
   newTaskText = '';
+  newTaskPriority = 'medium';
   showAddForm = false;
+}
+
+function handlePriorityChange(taskId: string, priority: TaskPriority) {
+  reactiveTasks.updateTaskPriority(taskId, priority);
+  toastStore.success(`Priority updated to ${getPriorityConfig(priority).label}`);
 }
 </script>
 
@@ -58,6 +81,28 @@ function resetForm() {
   {/snippet}
 
   {#snippet children()}
+    <!-- Priority Summary (if there are urgent/high priority tasks) -->
+    {#if (urgentCount > 0 || highPriorityCount > 0) && !isLoading}
+      <div class="bg-gradient-to-r from-red-50 to-orange-50 rounded-lg p-3 mb-4 border border-red-200">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-lg">⚠️</span>
+          <h3 class="font-medium text-gray-900">Priority Alert</h3>
+        </div>
+        <div class="flex flex-wrap gap-2 text-sm">
+          {#if urgentCount > 0}
+            <span class="bg-red-100 text-red-700 px-2 py-1 rounded-full">
+              🔥 {urgentCount} urgent
+            </span>
+          {/if}
+          {#if highPriorityCount > 0}
+            <span class="bg-orange-100 text-orange-700 px-2 py-1 rounded-full">
+              ⚡ {highPriorityCount} high priority
+            </span>
+          {/if}
+        </div>
+      </div>
+    {/if}
+
     <!-- Task List -->
     <div class="space-y-2" class:mb-4={tasks.length > 0}>
       {#if isLoading}
@@ -65,8 +110,9 @@ function resetForm() {
       {:else}
         {#each tasks as task (task.id)}
           <div
-            class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 group"
+            class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 group border border-gray-100"
           >
+            <!-- Completion Checkbox -->
             <button
               onclick={() => reactiveTasks.toggleTask(task.id)}
               disabled={reactiveTasks.isToggling[task.id]}
@@ -85,14 +131,30 @@ function resetForm() {
               {/if}
             </button>
 
-            <span
-              class="flex-1 text-sm {task.completed
-                ? 'line-through text-gray-500'
-                : 'text-gray-900'}"
-            >
-              {task.description}
-            </span>
+            <!-- Task Content -->
+            <div class="flex-1 min-w-0">
+              <span
+                class="text-sm {task.completed
+                  ? 'line-through text-gray-500'
+                  : 'text-gray-900'}"
+              >
+                {task.description}
+              </span>
+            </div>
 
+            <!-- Priority Selector (for incomplete tasks) -->
+            {#if !task.completed}
+              <div class="flex-shrink-0">
+                <PrioritySelector
+                  value={task.priority}
+                  onSelect={(priority) => handlePriorityChange(task.id, priority)}
+                  disabled={isUpdatingPriority[task.id]}
+                  size="sm"
+                />
+              </div>
+            {/if}
+
+            <!-- Delete Button -->
             <Button
               variant="ghost"
               size="sm"
@@ -131,6 +193,20 @@ function resetForm() {
             label="Task Description"
             theme="tasks"
           />
+          
+          <!-- Priority Selection -->
+          <div class="space-y-2">
+            <label class="block text-sm font-medium text-gray-700">
+              Priority Level
+            </label>
+            <PrioritySelector
+              value={newTaskPriority}
+              onSelect={(priority) => newTaskPriority = priority}
+              size="md"
+              class="w-full"
+            />
+          </div>
+          
           <div class="flex gap-3 pt-2">
             <Button
               type="button"

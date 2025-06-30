@@ -5,6 +5,7 @@ import ToastContainer from './components/ui/ToastContainer.svelte';
 import Calendar from './pages/Calendar.svelte';
 import Dashboard from './pages/Dashboard.svelte';
 import Intro from './pages/Intro.svelte';
+import Search from './pages/Search.svelte';
 import Settings from './pages/Settings.svelte';
 import Terms from './pages/Terms.svelte';
 import Thanks from './pages/Thanks.svelte';
@@ -37,11 +38,13 @@ function handleIntroCompleted() {
     <Intro onIntroCompleted={handleIntroCompleted} />
   {:else}
     <!-- Main App Content -->
-    <div class="flex-1 overflow-y-auto {router.activePath === '/terms' || router.activePath === '/thanks' ? '' : 'pb-16'}">
+    <div class="flex-1 overflow-y-auto {router.activePath === '/terms' || router.activePath === '/thanks' || router.activePath === '/search' ? '' : 'pb-16'}">
       {#if router.activePath === "/"}
         <Dashboard />
       {:else if router.activePath === "/calendar"}
         <Calendar />
+      {:else if router.activePath === "/search"}
+        <Search />
       {:else if router.activePath === "/settings"}
         <Settings />
       {:else if router.activePath === "/terms"}
@@ -53,8 +56,8 @@ function handleIntroCompleted() {
       {/if}
     </div>
 
-    <!-- Bottom Navigation - Hide on Terms and Thanks pages -->
-    {#if router.activePath !== "/terms" && router.activePath !== "/thanks"}
+    <!-- Bottom Navigation - Hide on Terms, Thanks, and Search pages -->
+    {#if router.activePath !== "/terms" && router.activePath !== "/thanks" && router.activePath !== "/search"}
       <BottomNavigation />
     {/if}
   {/if}
