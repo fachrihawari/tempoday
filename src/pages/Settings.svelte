@@ -8,8 +8,28 @@ import Icon from '../components/ui/Icon.svelte';
 import PageHeader from '../components/ui/PageHeader.svelte';
 import { toastStore } from '../stores/toast.svelte';
 import { reactiveRouter } from '../stores/router.svelte';
+import { db } from '../dexie/db'; // Add database import for testing
 
 let showDonationModal = $state(false);
+
+// Test function for database indexes
+async function testDatabaseIndexes() {
+  try {
+    await db.testIndexes();
+    toastStore.add({
+      type: 'success',
+      message: 'Index test completed - check console for results',
+      duration: 3000
+    });
+  } catch (error) {
+    console.error('Index test failed:', error);
+    toastStore.add({
+      type: 'error',
+      message: 'Index test failed - check console for details',
+      duration: 3000
+    });
+  }
+}
 
 // GitHub repository URL
 const GITHUB_REPO_URL = 'https://github.com/fachrihawari/tempoday';
@@ -129,23 +149,24 @@ async function handleShare() {
                   <span class="text-2xl">💝</span>
                 </div>
                 <div class="flex-1">
-                  <div class="font-medium text-white">Make a Donation</div>
-                  <div class="text-sm text-red-100">Support our mission with a one-time donation</div>
+                  <h3 class="font-semibold text-white mb-1">Support TempoDay</h3>
+                  <p class="text-red-100 text-sm">Help keep this app free and growing</p>
                 </div>
-                <Icon name="chevron-right" class="text-red-200" />
+                <div class="text-white">
+                  <Icon name="chevron-right" />
+                </div>
               </div>
             {/snippet}
           </Button>
 
-          <!-- Alternative Support Options -->
-          <div class="grid grid-cols-2 gap-3">
+          <div class="grid grid-cols-3 gap-3 mt-4">
             <button
-              onclick={handleRateUs}
+              onclick={testDatabaseIndexes}
               class="bg-white rounded-lg p-3 border border-gray-200 text-center hover:bg-gray-50 transition-colors"
             >
-              <div class="text-2xl mb-1">⭐</div>
-              <div class="text-xs font-medium text-gray-900">Star us</div>
-              <div class="text-xs text-gray-600">GitHub</div>
+              <div class="text-2xl mb-1">🔍</div>
+              <div class="text-xs font-medium text-gray-900">Test DB</div>
+              <div class="text-xs text-gray-600">Debug indexes</div>
             </button>
             <button
               onclick={handleShare}

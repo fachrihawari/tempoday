@@ -1,14 +1,10 @@
 <script lang="ts">
 import { onMount } from 'svelte';
-import { formatDate } from '../lib/date';
-import { appState, setSelectedDate } from '../stores/app.svelte';
+import { setSelectedDate } from '../stores/app.svelte';
 import { reactiveRouter } from '../stores/router.svelte';
-import { searchStore, defaultFilters, type SearchResult, type SearchFilters } from '../stores/search.svelte';
+import { searchStore, type SearchResult, type SearchFilters } from '../stores/search.svelte';
 import Button from '../components/ui/Button.svelte';
 import Icon from '../components/ui/Icon.svelte';
-import Input from '../components/ui/Input.svelte';
-import Loading from '../components/ui/Loading.svelte';
-import PageHeader from '../components/ui/PageHeader.svelte';
 import SearchFiltersComponent from '../components/ui/SearchFilters.svelte';
 
 let searchInput = $state('');
@@ -18,7 +14,7 @@ let searchInputElement: HTMLInputElement = $state()!;
 let showMoreCategories = $state(false);
 
 // Reactive values from search store
-let { query, results, isSearching, error, hasSearched, hasResults, allResults, filters, hasActiveFilters } = $derived(searchStore);
+let { query, results, isSearching, error, hasSearched, hasResults, filters, hasActiveFilters } = $derived(searchStore);
 
 // Improved debounced search function
 function handleSearchInput() {
@@ -436,6 +432,7 @@ onMount(() => {
 /* Line clamp utility for truncating text */
 .line-clamp-2 {
   display: -webkit-box;
+  line-clamp: 2;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;

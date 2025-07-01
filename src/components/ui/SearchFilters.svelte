@@ -1,158 +1,159 @@
 <script lang="ts">
-import { getCategoryConfig, CATEGORY_OPTIONS, type TransactionCategory } from '../../lib/categories';
-import { getPriorityConfig, PRIORITY_OPTIONS, type TaskPriority } from '../../lib/priority';
-import { type SearchFilters } from '../../stores/search.svelte';
-import Icon from './Icon.svelte';
+  import {
+    getCategoryConfig,
+    CATEGORY_OPTIONS,
+    type TransactionCategory,
+  } from "../../lib/categories";
+  import {
+    getPriorityConfig,
+    PRIORITY_OPTIONS,
+    type TaskPriority,
+  } from "../../lib/priority";
+  import { type SearchFilters } from "../../stores/search.svelte";
+  import Icon from "./Icon.svelte";
 
-interface Props {
-  filters: SearchFilters;
-  onFiltersChange: (filters: SearchFilters) => void;
-  onClearFilters: () => void;
-  isOpen: boolean;
-  onToggle: () => void;
-}
-
-let {
-  filters,
-  onFiltersChange,
-  onClearFilters,
-  isOpen,
-  onToggle,
-}: Props = $props();
-
-// Helper function to update filters
-function updateFilters(updates: Partial<SearchFilters>) {
-  onFiltersChange({ ...filters, ...updates });
-}
-
-// Get the current selected data type
-const selectedDataType = $derived.by(() => {
-  if (filters.dataTypes.length === 0) return 'all';
-  return filters.dataTypes[0];
-});
-
-// Handle filter changes
-function handleDataTypeChange(e: Event) {
-  const value = (e.target as HTMLSelectElement).value;
-  if (value === 'all') {
-    updateFilters({ 
-      dataTypes: [],
-      // Clear type-specific filters when changing to "all"
-      taskStatus: [],
-      taskPriorities: [],
-      transactionTypes: [],
-      transactionCategories: []
-    });
-  } else {
-    updateFilters({ 
-      dataTypes: [value as 'task' | 'note' | 'transaction'],
-      // Clear type-specific filters when changing data type
-      taskStatus: [],
-      taskPriorities: [],
-      transactionTypes: [],
-      transactionCategories: []
-    });
+  interface Props {
+    filters: SearchFilters;
+    onFiltersChange: (filters: SearchFilters) => void;
+    onClearFilters: () => void;
+    isOpen: boolean;
+    onToggle: () => void;
   }
-}
 
-function handleTaskStatusChange(e: Event) {
-  const value = (e.target as HTMLSelectElement).value;
-  if (value === '') {
-    updateFilters({ taskStatus: [] });
-  } else {
-    updateFilters({ taskStatus: [value as 'completed' | 'pending'] });
+  let { filters, onFiltersChange, onClearFilters, isOpen, onToggle }: Props =
+    $props();
+
+  // Helper function to update filters
+  function updateFilters(updates: Partial<SearchFilters>) {
+    onFiltersChange({ ...filters, ...updates });
   }
-}
 
-function handlePriorityChange(e: Event) {
-  const value = (e.target as HTMLSelectElement).value;
-  console.log('Priority changed to:', value); // Debug log
-  if (value === '') {
-    updateFilters({ taskPriorities: [] });
-  } else {
-    updateFilters({ taskPriorities: [value as TaskPriority] });
+  // Get the current selected data type
+  const selectedDataType = $derived.by(() => {
+    if (filters.dataTypes.length === 0) return "all";
+    return filters.dataTypes[0];
+  });
+
+  // Handle filter changes
+  function handleDataTypeChange(e: Event) {
+    const value = (e.target as HTMLSelectElement).value;
+    if (value === "all") {
+      updateFilters({
+        dataTypes: [],
+        // Clear type-specific filters when changing to "all"
+        taskStatus: [],
+        taskPriorities: [],
+        transactionTypes: [],
+        transactionCategories: [],
+      });
+    } else {
+      updateFilters({
+        dataTypes: [value as "task" | "note" | "transaction"],
+        // Clear type-specific filters when changing data type
+        taskStatus: [],
+        taskPriorities: [],
+        transactionTypes: [],
+        transactionCategories: [],
+      });
+    }
   }
-}
 
-function handleTransactionTypeChange(e: Event) {
-  const value = (e.target as HTMLSelectElement).value;
-  if (value === '') {
-    updateFilters({ transactionTypes: [] });
-  } else {
-    updateFilters({ transactionTypes: [value as 'income' | 'expense'] });
+  function handleTaskStatusChange(e: Event) {
+    const value = (e.target as HTMLSelectElement).value;
+    if (value === "") {
+      updateFilters({ taskStatus: [] });
+    } else {
+      updateFilters({ taskStatus: [value as "completed" | "pending"] });
+    }
   }
-}
 
-function handleCategoryChange(e: Event) {
-  const value = (e.target as HTMLSelectElement).value;
-  if (value === '') {
-    updateFilters({ transactionCategories: [] });
-  } else {
-    updateFilters({ transactionCategories: [value as TransactionCategory] });
+  function handlePriorityChange(e: Event) {
+    const value = (e.target as HTMLSelectElement).value;
+    console.log("Priority changed to:", value); // Debug log
+    if (value === "") {
+      updateFilters({ taskPriorities: [] });
+    } else {
+      updateFilters({ taskPriorities: [value as TaskPriority] });
+    }
   }
-}
 
-// Check if any filters are active
-const hasActiveFilters = $derived.by(() => {
-  return (
-    filters.dataTypes.length > 0 ||
-    filters.taskStatus.length > 0 ||
-    filters.taskPriorities.length > 0 ||
-    filters.transactionTypes.length > 0 ||
-    filters.transactionCategories.length > 0 ||
-    filters.dateRange.start ||
-    filters.dateRange.end
-  );
-});
-
-// Count active filters
-const activeFilterCount = $derived.by(() => {
-  let count = 0;
-  if (filters.dataTypes.length > 0) count++;
-  if (filters.taskStatus.length > 0) count++;
-  if (filters.taskPriorities.length > 0) count++;
-  if (filters.transactionTypes.length > 0) count++;
-  if (filters.transactionCategories.length > 0) count++;
-  if (filters.dateRange.start || filters.dateRange.end) count++;
-  return count;
-});
-
-// Determine which filters to show based on EXACT selected data type
-const shouldShowTaskFilters = $derived.by(() => {
-  console.log('Selected data type:', selectedDataType); // Debug log
-  console.log('Should show task filters:', selectedDataType === 'task'); // Debug log
-  return selectedDataType === 'task'; // ONLY show when specifically "task" is selected
-});
-
-const shouldShowTransactionFilters = $derived.by(() => {
-  return selectedDataType === 'transaction'; // ONLY show when specifically "transaction" is selected
-});
-
-const shouldShowDateFilters = $derived.by(() => {
-  return true; // Date filters are always relevant
-});
-
-// Get display text for current filter state
-const filterStatusText = $derived.by(() => {
-  if (selectedDataType === 'all') {
-    return 'Filtering all data';
-  } else if (selectedDataType === 'task') {
-    return 'Filtering tasks';
-  } else if (selectedDataType === 'note') {
-    return 'Filtering notes';
-  } else if (selectedDataType === 'transaction') {
-    return 'Filtering transactions';
+  function handleTransactionTypeChange(e: Event) {
+    const value = (e.target as HTMLSelectElement).value;
+    if (value === "") {
+      updateFilters({ transactionTypes: [] });
+    } else {
+      updateFilters({ transactionTypes: [value as "income" | "expense"] });
+    }
   }
-  return 'Filters active';
-});
 
-// Debug reactive values
-$effect(() => {
-  console.log('Current filters:', filters);
-  console.log('Selected data type:', selectedDataType);
-  console.log('Should show task filters:', shouldShowTaskFilters);
-  console.log('Task priorities:', filters.taskPriorities);
-});
+  function handleCategoryChange(e: Event) {
+    const value = (e.target as HTMLSelectElement).value;
+    if (value === "") {
+      updateFilters({ transactionCategories: [] });
+    } else {
+      updateFilters({ transactionCategories: [value as TransactionCategory] });
+    }
+  }
+
+  // Check if any filters are active
+  const hasActiveFilters = $derived.by(() => {
+    return (
+      filters.dataTypes.length > 0 ||
+      filters.taskStatus.length > 0 ||
+      filters.taskPriorities.length > 0 ||
+      filters.transactionTypes.length > 0 ||
+      filters.transactionCategories.length > 0 ||
+      filters.dateRange.start ||
+      filters.dateRange.end
+    );
+  });
+
+  // Count active filters
+  const activeFilterCount = $derived.by(() => {
+    let count = 0;
+    if (filters.dataTypes.length > 0) count++;
+    if (filters.taskStatus.length > 0) count++;
+    if (filters.taskPriorities.length > 0) count++;
+    if (filters.transactionTypes.length > 0) count++;
+    if (filters.transactionCategories.length > 0) count++;
+    if (filters.dateRange.start || filters.dateRange.end) count++;
+    return count;
+  });
+
+  // Determine which filters to show based on EXACT selected data type
+  const shouldShowTaskFilters = $derived.by(() => {
+    console.log("Selected data type:", selectedDataType); // Debug log
+    console.log("Should show task filters:", selectedDataType === "task"); // Debug log
+    return selectedDataType === "task"; // ONLY show when specifically "task" is selected
+  });
+
+  const shouldShowTransactionFilters = $derived.by(() => {
+    return selectedDataType === "transaction"; // ONLY show when specifically "transaction" is selected
+  });
+
+  const shouldShowDateFilters = $derived.by(() => {
+    return true; // Date filters are always relevant
+  });
+
+  // Get display text for current filter state
+  const filterStatusText = $derived.by(() => {
+    if (selectedDataType === "all") {
+      return "Filtering all data";
+    } else if (selectedDataType === "task") {
+      return "Filtering tasks";
+    } else if (selectedDataType === "note") {
+      return "Filtering notes";
+    } else if (selectedDataType === "transaction") {
+      return "Filtering transactions";
+    }
+    return "Filters active";
+  });
+
+  // Debug reactive values
+  $inspect("Current filters:", filters);
+  $inspect("Selected data type:", selectedDataType);
+  $inspect("Should show task filters:", shouldShowTaskFilters);
+  $inspect("Task priorities:", filters.taskPriorities);
 </script>
 
 <!-- Filter Bar -->
@@ -180,7 +181,9 @@ $effect(() => {
       <div class="flex-shrink-0 w-32">
         <label class="block text-xs font-medium text-gray-700 mb-1">Type</label>
         <select
-          value={selectedDataType === 'all' ? 'all' : filters.dataTypes[0] || 'all'}
+          value={selectedDataType === "all"
+            ? "all"
+            : filters.dataTypes[0] || "all"}
           onchange={handleDataTypeChange}
           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white
             {filters.dataTypes.length > 0 ? 'border-blue-300 bg-blue-50' : ''}"
@@ -196,12 +199,16 @@ $effect(() => {
       {#if shouldShowTaskFilters}
         <!-- Status Filter -->
         <div class="flex-shrink-0 w-32">
-          <label class="block text-xs font-medium text-gray-700 mb-1">Status</label>
+          <label class="block text-xs font-medium text-gray-700 mb-1"
+            >Status</label
+          >
           <select
-            value={filters.taskStatus[0] || ''}
+            value={filters.taskStatus[0] || ""}
             onchange={handleTaskStatusChange}
             class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white
-              {filters.taskStatus.length > 0 ? 'border-orange-300 bg-orange-50' : ''}"
+              {filters.taskStatus.length > 0
+              ? 'border-orange-300 bg-orange-50'
+              : ''}"
           >
             <option value="">All status</option>
             <option value="pending">⏳ Pending</option>
@@ -211,12 +218,16 @@ $effect(() => {
 
         <!-- Priority Filter -->
         <div class="flex-shrink-0 w-32">
-          <label class="block text-xs font-medium text-gray-700 mb-1">Priority</label>
+          <label class="block text-xs font-medium text-gray-700 mb-1"
+            >Priority</label
+          >
           <select
-            value={filters.taskPriorities[0] || ''}
+            value={filters.taskPriorities[0] || ""}
             onchange={handlePriorityChange}
             class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white
-              {filters.taskPriorities.length > 0 ? 'border-purple-300 bg-purple-50' : ''}"
+              {filters.taskPriorities.length > 0
+              ? 'border-purple-300 bg-purple-50'
+              : ''}"
           >
             <option value="">All priorities</option>
             {#each PRIORITY_OPTIONS as priority}
@@ -231,12 +242,16 @@ $effect(() => {
       {#if shouldShowTransactionFilters}
         <!-- Transaction Type Filter -->
         <div class="flex-shrink-0 w-32">
-          <label class="block text-xs font-medium text-gray-700 mb-1">Money Type</label>
+          <label class="block text-xs font-medium text-gray-700 mb-1"
+            >Money Type</label
+          >
           <select
-            value={filters.transactionTypes[0] || ''}
+            value={filters.transactionTypes[0] || ""}
             onchange={handleTransactionTypeChange}
             class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white
-              {filters.transactionTypes.length > 0 ? 'border-green-300 bg-green-50' : ''}"
+              {filters.transactionTypes.length > 0
+              ? 'border-green-300 bg-green-50'
+              : ''}"
           >
             <option value="">All money</option>
             <option value="income">📈 Income</option>
@@ -246,12 +261,16 @@ $effect(() => {
 
         <!-- Category Filter -->
         <div class="flex-shrink-0 w-40">
-          <label class="block text-xs font-medium text-gray-700 mb-1">Category</label>
+          <label class="block text-xs font-medium text-gray-700 mb-1"
+            >Category</label
+          >
           <select
-            value={filters.transactionCategories[0] || ''}
+            value={filters.transactionCategories[0] || ""}
             onchange={handleCategoryChange}
             class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white
-              {filters.transactionCategories.length > 0 ? 'border-indigo-300 bg-indigo-50' : ''}"
+              {filters.transactionCategories.length > 0
+              ? 'border-indigo-300 bg-indigo-50'
+              : ''}"
           >
             <option value="">All categories</option>
             {#each CATEGORY_OPTIONS as category}
@@ -265,32 +284,38 @@ $effect(() => {
       <!-- Date Range Filters - Always shown as they're relevant to all data types -->
       {#if shouldShowDateFilters}
         <div class="flex-shrink-0 w-36">
-          <label class="block text-xs font-medium text-gray-700 mb-1">From Date</label>
+          <label class="block text-xs font-medium text-gray-700 mb-1"
+            >From Date</label
+          >
           <input
             type="date"
-            value={filters.dateRange.start || ''}
-            onchange={(e) => updateFilters({ 
-              dateRange: { 
-                ...filters.dateRange, 
-                start: (e.target as HTMLInputElement).value || null 
-              } 
-            })}
+            value={filters.dateRange.start || ""}
+            onchange={(e) =>
+              updateFilters({
+                dateRange: {
+                  ...filters.dateRange,
+                  start: (e.target as HTMLInputElement).value || null,
+                },
+              })}
             class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white
               {filters.dateRange.start ? 'border-blue-300 bg-blue-50' : ''}"
           />
         </div>
 
         <div class="flex-shrink-0 w-36">
-          <label class="block text-xs font-medium text-gray-700 mb-1">To Date</label>
+          <label class="block text-xs font-medium text-gray-700 mb-1"
+            >To Date</label
+          >
           <input
             type="date"
-            value={filters.dateRange.end || ''}
-            onchange={(e) => updateFilters({ 
-              dateRange: { 
-                ...filters.dateRange, 
-                end: (e.target as HTMLInputElement).value || null 
-              } 
-            })}
+            value={filters.dateRange.end || ""}
+            onchange={(e) =>
+              updateFilters({
+                dateRange: {
+                  ...filters.dateRange,
+                  end: (e.target as HTMLInputElement).value || null,
+                },
+              })}
             class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white
               {filters.dateRange.end ? 'border-blue-300 bg-blue-50' : ''}"
           />
@@ -306,21 +331,21 @@ $effect(() => {
     scrollbar-width: thin;
     scrollbar-color: #d1d5db #f3f4f6;
   }
-  
+
   .overflow-x-auto::-webkit-scrollbar {
     height: 6px;
   }
-  
+
   .overflow-x-auto::-webkit-scrollbar-track {
     background: #f3f4f6;
     border-radius: 3px;
   }
-  
+
   .overflow-x-auto::-webkit-scrollbar-thumb {
     background: #d1d5db;
     border-radius: 3px;
   }
-  
+
   .overflow-x-auto::-webkit-scrollbar-thumb:hover {
     background: #9ca3af;
   }

@@ -67,7 +67,7 @@ class SearchStore {
   async performSearch(searchQuery: string, searchFilters?: SearchFilters): Promise<void> {
     const trimmedQuery = searchQuery.trim();
     const filtersToUse = searchFilters || this.filters;
-    
+
     // Clear results if query is empty
     if (!trimmedQuery) {
       this.clearResults();
@@ -80,29 +80,17 @@ class SearchStore {
     this.filters = filtersToUse;
 
     try {
-      // Fetch all data in parallel
-      const [allTasks, allNotes, allTransactions] = await Promise.all([
-        db.tasks.toArray(),
-        db.notes.toArray(),
-        db.transactions.toArray(),
-      ]);
-
-      // Apply date range filter to all data first
-      const filteredTasks = this.applyDateRangeFilter(allTasks, filtersToUse.dateRange);
-      const filteredNotes = this.applyDateRangeFilter(allNotes, filtersToUse.dateRange);
-      const filteredTransactions = this.applyDateRangeFilter(allTransactions, filtersToUse.dateRange);
-
-      // Search and filter each data type
-      const taskResults = this.shouldIncludeDataType('task', filtersToUse) 
-        ? this.searchTasks(filteredTasks, trimmedQuery, filtersToUse)
+      // Search and filter each data type using Dexie.js indexes
+      const taskResults = this.shouldIncludeDataType('task', filtersToUse)
+        ? await this.searchTasks(trimmedQuery, filtersToUse)
         : [];
-      
+
       const noteResults = this.shouldIncludeDataType('note', filtersToUse)
-        ? this.searchNotes(filteredNotes, trimmedQuery, filtersToUse)
+        ? await this.searchNotes(trimmedQuery, filtersToUse)
         : [];
-      
+
       const transactionResults = this.shouldIncludeDataType('transaction', filtersToUse)
-        ? this.searchTransactions(filteredTransactions, trimmedQuery, filtersToUse)
+        ? await this.searchTransactions(trimmedQuery, filtersToUse)
         : [];
 
       // Update results
@@ -151,132 +139,142 @@ class SearchStore {
   }
 
   /**
-   * Apply date range filter to any array of data with date property
-   */
-  private applyDateRangeFilter<T extends { date: string }>(data: T[], dateRange: SearchFilters['dateRange']): T[] {
-    if (!dateRange.start && !dateRange.end) return data;
-
-    return data.filter(item => {
-      const itemDate = new Date(item.date);
-      
-      if (dateRange.start) {
-        const startDate = new Date(dateRange.start);
-        if (itemDate < startDate) return false;
-      }
-      
-      if (dateRange.end) {
-        const endDate = new Date(dateRange.end);
-        if (itemDate > endDate) return false;
-      }
-      
-      return true;
-    });
-  }
-
-  /**
    * Search through tasks with filters
    */
-  private searchTasks(tasks: Task[], query: string, filters: SearchFilters): SearchResult[] {
+  private async searchTasks(query: string, filters: SearchFilters): Promise<SearchResult[]> {
     const lowerQuery = query.toLowerCase();
-    
-    return tasks
+    let collection;
+    if (filters.dateRange.start || filters.dateRange.end) {
+      collection = db.tasks.where('date').between(
+        filters.dateRange.start || '',
+        filters.dateRange.end || '9999-12-31',
+        true,
+        true
+      );
+    } else {
+      collection = db.tasks.toCollection();
+    }
+    return await collection
+      .filter(task => task.description.toLowerCase().includes(lowerQuery))
       .filter(task => {
-        // Text search
-        if (!task.description.toLowerCase().includes(lowerQuery)) return false;
-        
         // Status filter
         if (filters.taskStatus.length > 0) {
-          const status = task.completed ? 'completed' : 'pending';
+          const status = task.completed === true ? 'completed' : 'pending';
           if (!filters.taskStatus.includes(status)) return false;
         }
-        
+
         // Priority filter
         if (filters.taskPriorities.length > 0) {
           if (!filters.taskPriorities.includes(task.priority)) return false;
         }
-        
+
         return true;
       })
-      .map(task => {
-        const priorityConfig = getPriorityConfig(task.priority);
-        const statusText = task.completed ? 'Completed' : 'Pending';
-        const priorityText = `${priorityConfig.icon} ${priorityConfig.label}`;
-        
-        return {
-          id: task.id,
-          type: 'task' as const,
-          title: task.description,
-          content: `${statusText} • ${priorityText}`,
-          date: task.date,
-          priority: priorityText,
-          matchedText: this.highlightMatch(task.description, query),
-          data: task,
-        };
-      })
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      .toArray()
+      .then(tasks => tasks.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()))
+      .then(tasks =>
+        tasks.map(task => {
+          const priorityConfig = getPriorityConfig(task.priority);
+          const statusText = task.completed ? 'Completed' : 'Pending';
+          const priorityText = `${priorityConfig.icon} ${priorityConfig.label}`;
+
+          return {
+            id: task.id,
+            type: 'task' as const,
+            title: task.description,
+            content: `${statusText} • ${priorityText}`,
+            date: task.date,
+            priority: priorityText,
+            matchedText: this.highlightMatch(task.description, query),
+            data: task,
+          };
+        })
+      );
   }
 
   /**
    * Search through notes with filters
    */
-  private searchNotes(notes: Note[], query: string, filters: SearchFilters): SearchResult[] {
+  private async searchNotes(query: string, filters: SearchFilters): Promise<SearchResult[]> {
     const lowerQuery = query.toLowerCase();
-    
-    return notes
-      .filter(note => 
-        note.content.toLowerCase().includes(lowerQuery)
-      )
-      .map(note => ({
-        id: note.id,
-        type: 'note' as const,
-        title: 'Daily Note',
-        content: this.truncateText(note.content, 100),
-        date: note.date,
-        matchedText: this.highlightMatch(note.content, query),
-        data: note,
-      }))
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    let collection;
+    if (filters.dateRange.start || filters.dateRange.end) {
+      collection = db.notes.where('date').between(
+        filters.dateRange.start || '',
+        filters.dateRange.end || '9999-12-31',
+        true,
+        true
+      );
+    } else {
+      collection = db.notes.toCollection();
+    }
+    return await collection
+      .filter(note => note.content.toLowerCase().includes(lowerQuery))
+      .toArray()
+      .then(notes => notes.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()))
+      .then(notes =>
+        notes.map(note => ({
+          id: note.id,
+          type: 'note' as const,
+          title: 'Daily Note',
+          content: this.truncateText(note.content, 100),
+          date: note.date,
+          matchedText: this.highlightMatch(note.content, query),
+          data: note,
+        }))
+      );
   }
 
   /**
    * Search through transactions with filters
    */
-  private searchTransactions(transactions: Transaction[], query: string, filters: SearchFilters): SearchResult[] {
+  private async searchTransactions(query: string, filters: SearchFilters): Promise<SearchResult[]> {
     const lowerQuery = query.toLowerCase();
-    
-    return transactions
+    let collection;
+    if (filters.dateRange.start || filters.dateRange.end) {
+      collection = db.transactions.where('date').between(
+        filters.dateRange.start || '',
+        filters.dateRange.end || '9999-12-31',
+        true,
+        true
+      );
+    } else {
+      collection = db.transactions.toCollection();
+    }
+    return await collection
+      .filter(transaction => transaction.description.toLowerCase().includes(lowerQuery))
       .filter(transaction => {
-        // Text search
-        if (!transaction.description.toLowerCase().includes(lowerQuery)) return false;
-        
         // Transaction type filter
         if (filters.transactionTypes.length > 0) {
           if (!filters.transactionTypes.includes(transaction.type)) return false;
         }
-        
+
         // Category filter
         if (filters.transactionCategories.length > 0) {
           if (!filters.transactionCategories.includes(transaction.category)) return false;
         }
-        
+
         return true;
       })
-      .map(transaction => {
-        const categoryConfig = getCategoryConfig(transaction.category);
-        const categoryText = `${categoryConfig.icon} ${categoryConfig.label}`;
-        
-        return {
-          id: transaction.id,
-          type: 'transaction' as const,
-          title: transaction.description,
-          content: `${transaction.type === 'income' ? '+' : '-'}$${transaction.amount.toFixed(2)} • ${categoryText}`,
-          date: transaction.date,
-          category: categoryText,
-          matchedText: this.highlightMatch(transaction.description, query),
-          data: transaction,
-        };
-      })
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      .toArray()
+      .then(transactions => transactions.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()))
+      .then(transactions =>
+        transactions.map(transaction => {
+          const categoryConfig = getCategoryConfig(transaction.category);
+          const categoryText = `${categoryConfig.icon} ${categoryConfig.label}`;
+
+          return {
+            id: transaction.id,
+            type: 'transaction' as const,
+            title: transaction.description,
+            content: `${transaction.type === 'income' ? '+' : '-'}$${transaction.amount.toFixed(2)} • ${categoryText}`,
+            date: transaction.date,
+            category: categoryText,
+            matchedText: this.highlightMatch(transaction.description, query),
+            data: transaction,
+          };
+        })
+      );
   }
 
   /**
@@ -347,8 +345,8 @@ class SearchStore {
       this.filters.taskPriorities.length > 0 ||
       this.filters.transactionTypes.length > 0 ||
       this.filters.transactionCategories.length > 0 ||
-      this.filters.dateRange.start ||
-      this.filters.dateRange.end
+      !!this.filters.dateRange.start ||
+      !!this.filters.dateRange.end
     );
   }
 }
