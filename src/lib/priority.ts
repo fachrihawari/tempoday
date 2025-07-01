@@ -72,13 +72,13 @@ export function sortTasksByPriority<T extends { priority: TaskPriority }>(tasks:
  */
 export function sortTasksComprehensive<T extends { 
   priority: TaskPriority; 
-  completed: boolean; 
+  completed: 0 | 1; 
   createdAt: number 
 }>(tasks: T[]): T[] {
   return [...tasks].sort((a, b) => {
     // First, sort by completion status (incomplete tasks first)
     if (a.completed !== b.completed) {
-      return a.completed ? 1 : -1;
+      return a.completed === 1 ? 1 : -1;
     }
     
     // Then by priority (urgent first) - handle undefined priorities gracefully
@@ -107,7 +107,7 @@ export function filterTasksByPriority<T extends { priority: TaskPriority }>(
 /**
  * Get priority statistics for a list of tasks
  */
-export function getPriorityStats<T extends { priority: TaskPriority; completed: boolean }>(
+export function getPriorityStats<T extends { priority: TaskPriority; completed: 0 | 1 }>(
   tasks: T[]
 ): Record<TaskPriority, { total: number; completed: number; pending: number }> {
   const stats: Record<TaskPriority, { total: number; completed: number; pending: number }> = {
@@ -121,7 +121,7 @@ export function getPriorityStats<T extends { priority: TaskPriority; completed: 
     // Handle undefined or invalid priorities gracefully
     const priority = PRIORITY_CONFIG[task.priority] ? task.priority : 'medium';
     stats[priority].total++;
-    if (task.completed) {
+    if (task.completed === 1) {
       stats[priority].completed++;
     } else {
       stats[priority].pending++;

@@ -78,7 +78,7 @@ export class ReactiveTasks {
       const newTask: Task = {
         ...input,
         priority: input.priority || 'medium', // Default to medium priority
-        completed: false,
+        completed: 0 as 0,
         id: uuid(),
         createdAt: now,
         updatedAt: now,
@@ -110,7 +110,7 @@ export class ReactiveTasks {
       }
 
       const updatedCount = await db.tasks.update(taskId, {
-        completed: !task.completed,
+        completed: task.completed === 1 ? 0 as 0 : 1 as 1,
         updatedAt: Date.now(),
       });
 
@@ -120,7 +120,7 @@ export class ReactiveTasks {
 
       // Update the local task state and re-sort
       const updatedTasks = this.tasks.map((t) =>
-        t.id === taskId ? { ...t, completed: !t.completed, updatedAt: Date.now() } : t,
+        t.id === taskId ? { ...t, completed: t.completed === 1 ? 0 as 0 : 1 as 1, updatedAt: Date.now() } : t,
       );
       this.tasks = sortTasksComprehensive(updatedTasks);
     } catch (err) {
@@ -237,7 +237,7 @@ export class ReactiveTasks {
     date: string,
   ): Promise<{ total: number; completed: number; pending: number }> {
     const tasks = await db.tasks.where('date').equals(date).toArray();
-    const completed = tasks.filter((task) => task.completed).length;
+    const completed = tasks.filter((task) => task.completed === 1).length;
 
     return {
       total: tasks.length,
@@ -250,7 +250,7 @@ export class ReactiveTasks {
    * Get completed tasks count (reactive derived value)
    */
   get completedCount(): number {
-    return this.filteredTasks.filter((task) => task.completed).length;
+    return this.filteredTasks.filter((task) => task.completed === 1).length;
   }
 
   /**
@@ -264,21 +264,21 @@ export class ReactiveTasks {
    * Get pending tasks count (reactive derived value)
    */
   get pendingCount(): number {
-    return this.filteredTasks.filter((task) => !task.completed).length;
+    return this.filteredTasks.filter((task) => task.completed === 0).length;
   }
 
   /**
    * Get urgent tasks count (reactive derived value)
    */
   get urgentCount(): number {
-    return this.filteredTasks.filter((task) => task.priority === 'urgent' && !task.completed).length;
+    return this.filteredTasks.filter((task) => task.priority === 'urgent' && task.completed === 0).length;
   }
 
   /**
    * Get high priority tasks count (reactive derived value)
    */
   get highPriorityCount(): number {
-    return this.filteredTasks.filter((task) => task.priority === 'high' && !task.completed).length;
+    return this.filteredTasks.filter((task) => task.priority === 'high' && task.completed === 0).length;
   }
 
   /**

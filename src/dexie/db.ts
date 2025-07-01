@@ -15,7 +15,7 @@ export class TempoDayDexie extends Dexie {
       transactions: 'id, date, type',
       settings: 'id',
     });
-    
+
     // Version 2: Add priority field to tasks
     this.version(2).stores({
       tasks: 'id, date, completed, priority',
@@ -27,6 +27,12 @@ export class TempoDayDexie extends Dexie {
       return tx.table('tasks').toCollection().modify(task => {
         if (!task.priority) {
           task.priority = 'medium';
+        }
+        // Normalize completed field to 0/1, with fallback for missing/invalid
+        if (typeof task.completed === 'boolean') {
+          task.completed = task.completed ? 1 : 0;
+        } else if (task.completed !== 0 && task.completed !== 1) {
+          task.completed = 0;
         }
       });
     });
@@ -46,13 +52,20 @@ export class TempoDayDexie extends Dexie {
         }
       });
     });
-  }
 
+    // Version 4: Add compound indexes for efficient multi-field queries
+    this.version(4).stores({
+      tasks: 'id, date, description, completed, priority, [date+priority+completed], [date+priority], [date+completed], [priority+completed]',
+      notes: 'id, date, content',
+      transactions: 'id, date, description, type, category, [date+type+category], [date+type], [date+category], [type+category]',
+      settings: 'id',
+    });
+  }
   /**
    * Get the current schema version
    */
   getCurrentSchemaVersion(): number {
-    return 3; // Current schema version
+    return 4; // Current schema version
   }
 
   /**
@@ -77,7 +90,7 @@ export class TempoDayDexie extends Dexie {
             id: 'test-1',
             date: new Date().toISOString().split('T')[0],
             description: 'Test completed task',
-            completed: true,
+            completed: 1 as 1, // Use 1 for completed
             priority: 'medium' as const,
             createdAt: Date.now(),
             updatedAt: Date.now()
@@ -86,7 +99,7 @@ export class TempoDayDexie extends Dexie {
             id: 'test-2',
             date: new Date().toISOString().split('T')[0],
             description: 'Test incomplete task',
-            completed: false,
+            completed: 0 as 0, // Use 0 for incomplete
             priority: 'high' as const,
             createdAt: Date.now(),
             updatedAt: Date.now()
@@ -95,7 +108,7 @@ export class TempoDayDexie extends Dexie {
             id: 'test-3',
             date: new Date().toISOString().split('T')[0],
             description: 'Another incomplete task',
-            completed: false,
+            completed: 0 as 0, // Use 0 for incomplete
             priority: 'low' as const,
             createdAt: Date.now(),
             updatedAt: Date.now()
@@ -108,8 +121,8 @@ export class TempoDayDexie extends Dexie {
 
       // Test boolean index queries (IndexedDB stores booleans as 1/0)
       console.log('\n--- Testing Boolean Index Queries ---');
-      const completedViaIndex = await this.tasks.where('completed').equals(1).count();
-      const incompleteViaIndex = await this.tasks.where('completed').equals(0).count();
+      const completedViaIndex = await this.tasks.where('completed').equals(1 as 1).count();
+      const incompleteViaIndex = await this.tasks.where('completed').equals(0 as 0).count();
       console.log('✅ Index query with numbers (1=true, 0=false):');
       console.log('   - Completed tasks:', completedViaIndex);
       console.log('   - Incomplete tasks:', incompleteViaIndex);
@@ -117,8 +130,8 @@ export class TempoDayDexie extends Dexie {
       // Alternative: Test without using index (filter after retrieval)
       console.log('\n--- Testing In-Memory Filter (No Index) ---');
       const allTasksData = await this.tasks.toArray();
-      const completedCount = allTasksData.filter(task => task.completed === true).length;
-      const incompleteCount = allTasksData.filter(task => task.completed === false).length;
+      const completedCount = allTasksData.filter(task => task.completed === 1).length;
+      const incompleteCount = allTasksData.filter(task => task.completed === 0).length;
       const allTasksCount = allTasksData.length;
 
       console.log('✅ In-memory filter results:');

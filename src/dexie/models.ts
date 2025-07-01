@@ -4,7 +4,7 @@ export interface Task {
   id: string; // UUID
   date: string; // YYYY-MM-DD
   description: string;
-  completed: boolean;
+  completed: 0 | 1; // Use 0/1 for boolean for IndexedDB compatibility
   priority: 'low' | 'medium' | 'high' | 'urgent'; // New priority field
   createdAt: number; // epoch ms
   updatedAt: number; // epoch ms

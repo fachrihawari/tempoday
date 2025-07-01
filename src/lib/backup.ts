@@ -65,7 +65,7 @@ export class BackupManager {
       const testBlob = new Blob(['test'], { type: 'text/plain' });
       const testFile = new File([testBlob], 'test.txt', { type: 'text/plain' });
       const testData = { files: [testFile] };
-      
+
       return navigator.canShare ? navigator.canShare(testData) : true;
     } catch (error) {
       return false;
@@ -102,7 +102,7 @@ export class BackupManager {
       }
 
       await navigator.share(shareData);
-      
+
       return {
         success: true,
         method: 'share',
@@ -110,7 +110,7 @@ export class BackupManager {
       };
     } catch (error) {
       console.error('File share failed:', error);
-      
+
       // Check if user cancelled the share
       if (error instanceof Error && error.name === 'AbortError') {
         return {
@@ -119,7 +119,7 @@ export class BackupManager {
           message: 'Share cancelled by user',
         };
       }
-      
+
       // For any other error, just throw it - no fallback
       throw error;
     }
@@ -138,7 +138,7 @@ export class BackupManager {
       }
 
       await navigator.clipboard.writeText(backupText);
-      
+
       return {
         success: true,
         method: 'clipboard',
@@ -160,7 +160,7 @@ export class BackupManager {
       const fileName = `tempoday-backup-${new Date().toISOString().split('T')[0]}.json`;
 
       this.downloadFile(backupText, fileName);
-      
+
       return {
         success: true,
         method: 'download',
@@ -199,10 +199,10 @@ export class BackupManager {
     if (!data || typeof data !== 'object') return false;
     if (data.app !== 'TempoDay') return false;
     if (!data.version || !data.exportDate || !data.data) return false;
-    
+
     const { tasks, notes, transactions, settings } = data.data;
-    if (!Array.isArray(tasks) || !Array.isArray(notes) || 
-        !Array.isArray(transactions) || !Array.isArray(settings)) {
+    if (!Array.isArray(tasks) || !Array.isArray(notes) ||
+      !Array.isArray(transactions) || !Array.isArray(settings)) {
       return false;
     }
 
@@ -233,10 +233,11 @@ export class BackupManager {
 
     // Migration from version 1 to 2: Add priority to tasks
     if (backupSchemaVersion < 2) {
-      console.log('Migrating tasks: adding priority field');
+      console.log('Migrating tasks: adding priority field and normalizing completed');
       migratedData.data.tasks = migratedData.data.tasks.map((task: any) => ({
         ...task,
-        priority: task.priority || 'medium'
+        priority: task.priority || 'medium',
+        completed: typeof task.completed === 'boolean' ? (task.completed ? 1 : 0) : (task.completed !== 0 && task.completed !== 1 ? 0 : task.completed)
       }));
     }
 
