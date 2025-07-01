@@ -5,6 +5,7 @@ import type { Note, Settings, Task, Transaction } from '../dexie/models';
 export interface BackupData {
   app: string;
   version: string;
+  schemaVersion?: number; // Add schema version tracking
   exportDate: string;
   data: {
     tasks: Task[];
@@ -36,6 +37,7 @@ export class BackupManager {
       return {
         app: 'TempoDay',
         version: '0.0.1',
+        schemaVersion: db.getCurrentSchemaVersion(), // Get current schema version dynamically
         exportDate: new Date().toISOString(),
         data: {
           tasks,
@@ -204,7 +206,83 @@ export class BackupManager {
       return false;
     }
 
+    // Schema version is optional for backward compatibility
+    if (data.schemaVersion !== undefined && typeof data.schemaVersion !== 'number') {
+      return false;
+    }
+
     return true;
+  }
+
+  /**
+   * Migrate backup data to current schema version
+   */
+  private migrateBackupData(backupData: BackupData): BackupData {
+    const currentSchemaVersion = db.getCurrentSchemaVersion();
+    const backupSchemaVersion = backupData.schemaVersion || 1;
+
+    console.log(`Migrating backup from schema version ${backupSchemaVersion} to ${currentSchemaVersion}`);
+
+    if (backupSchemaVersion >= currentSchemaVersion) {
+      console.log('No migration needed - backup is already up to date');
+      return backupData; // No migration needed
+    }
+
+    // Clone the data to avoid modifying the original
+    const migratedData = JSON.parse(JSON.stringify(backupData));
+
+    // Migration from version 1 to 2: Add priority to tasks
+    if (backupSchemaVersion < 2) {
+      console.log('Migrating tasks: adding priority field');
+      migratedData.data.tasks = migratedData.data.tasks.map((task: any) => ({
+        ...task,
+        priority: task.priority || 'medium'
+      }));
+    }
+
+    // Migration from version 2 to 3: Add category to transactions
+    if (backupSchemaVersion < 3) {
+      console.log('Migrating transactions: adding category field');
+      migratedData.data.transactions = migratedData.data.transactions.map((transaction: any) => ({
+        ...transaction,
+        category: transaction.category || (transaction.type === 'income' ? 'work' : 'other')
+      }));
+    }
+
+    // Update schema version
+    migratedData.schemaVersion = currentSchemaVersion;
+
+    console.log('Migration completed successfully');
+    return migratedData;
+  }
+
+  /**
+   * Check what migrations would be applied to a backup
+   */
+  getMigrationInfo(backupData: BackupData): {
+    currentVersion: number;
+    backupVersion: number;
+    needsMigration: boolean;
+    migrationsNeeded: string[];
+  } {
+    const currentSchemaVersion = db.getCurrentSchemaVersion();
+    const backupSchemaVersion = backupData.schemaVersion || 1;
+    const needsMigration = backupSchemaVersion < currentSchemaVersion;
+    const migrationsNeeded: string[] = [];
+
+    if (backupSchemaVersion < 2) {
+      migrationsNeeded.push('Add priority field to tasks (v1 → v2)');
+    }
+    if (backupSchemaVersion < 3) {
+      migrationsNeeded.push('Add category field to transactions (v2 → v3)');
+    }
+
+    return {
+      currentVersion: currentSchemaVersion,
+      backupVersion: backupSchemaVersion,
+      needsMigration,
+      migrationsNeeded
+    };
   }
 
   /**
@@ -216,6 +294,9 @@ export class BackupManager {
     }
 
     try {
+      // Migrate backup data to current schema version
+      const migratedBackupData = this.migrateBackupData(backupData);
+
       // Clear existing data
       await Promise.all([
         db.tasks.clear(),
@@ -224,12 +305,12 @@ export class BackupManager {
         db.settings.clear(),
       ]);
 
-      // Import new data
+      // Import migrated data
       await Promise.all([
-        db.tasks.bulkAdd(backupData.data.tasks),
-        db.notes.bulkAdd(backupData.data.notes),
-        db.transactions.bulkAdd(backupData.data.transactions),
-        db.settings.bulkAdd(backupData.data.settings),
+        db.tasks.bulkAdd(migratedBackupData.data.tasks),
+        db.notes.bulkAdd(migratedBackupData.data.notes),
+        db.transactions.bulkAdd(migratedBackupData.data.transactions),
+        db.settings.bulkAdd(migratedBackupData.data.settings),
       ]);
     } catch (error) {
       console.error('Error restoring data:', error);

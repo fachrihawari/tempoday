@@ -47,6 +47,13 @@ export class TempoDayDexie extends Dexie {
       });
     });
   }
+
+  /**
+   * Get the current schema version
+   */
+  getCurrentSchemaVersion(): number {
+    return 3; // Current schema version
+  }
 }
 
 export const db = new TempoDayDexie();
