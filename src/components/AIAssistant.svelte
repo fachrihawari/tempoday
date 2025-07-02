@@ -6,6 +6,7 @@ import {
   type ParsedCommand,
   parseNaturalLanguage,
 } from '../lib/nlp';
+import { getDefaultCategory } from '../lib/categories';
 import { appState } from '../stores/app.svelte';
 import { reactiveNotes } from '../stores/notes.svelte';
 import { settingsStore } from '../stores/settings.svelte';
@@ -52,6 +53,7 @@ async function processCommand() {
         await reactiveTasks.createTask({
           description: parsed.content,
           date: currentDate,
+          priority: parsed.priority || 'medium', // Use parsed priority or default to medium
         });
         toastStore.success(`Task created: "${parsed.content}"`);
         break;
@@ -71,6 +73,7 @@ async function processCommand() {
             amount: parsed.amount,
             type: parsed.transactionType,
             date: currentDate,
+            category: getDefaultCategory(parsed.transactionType), // Use default category based on transaction type
           });
           const symbol = parsed.transactionType === 'income' ? '+' : '-';
           toastStore.success(`${parsed.transactionType === 'income' ? 'Income' : 'Expense'} added: ${symbol}${formatAmount(parsed.amount)} for "${parsed.content}"`);
@@ -228,6 +231,18 @@ const categorizedExamples = {
         
         <p class="text-sm text-gray-800 mt-2">
           <strong>"{preview.content}"</strong>
+          {#if preview.priority && preview.type === 'task'}
+            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ml-2
+              {preview.priority === 'urgent' ? 'bg-red-100 text-red-800' :
+               preview.priority === 'high' ? 'bg-orange-100 text-orange-800' :
+               preview.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+               'bg-gray-100 text-gray-800'}">
+              {preview.priority === 'urgent' ? '🔴' :
+               preview.priority === 'high' ? '🟡' :
+               preview.priority === 'medium' ? '🟢' :
+               '⚪'} {preview.priority}
+            </span>
+          {/if}
           {#if preview.amount}
             <span class="font-medium ml-1 {preview.transactionType === 'income' ? 'text-green-600' : 'text-red-600'}">
               {preview.transactionType === 'income' ? '+' : '-'}{formatAmount(preview.amount)}
@@ -317,6 +332,10 @@ const categorizedExamples = {
               <li class="flex items-start gap-2">
                 <span class="text-blue-500 font-bold">•</span>
                 <span><strong>Tasks:</strong> Start with action verbs like "call", "buy", "schedule", "finish"</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-blue-500 font-bold">•</span>
+                <span><strong>Priority:</strong> Use words like "urgent", "important", "soon" for higher priority tasks</span>
               </li>
               <li class="flex items-start gap-2">
                 <span class="text-purple-500 font-bold">•</span>

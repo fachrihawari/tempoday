@@ -1,33 +1,35 @@
 <script lang="ts">
 import { getCategoryConfig, getCategoriesForType, type TransactionCategory } from '../../lib/categories';
-import Button from './Button.svelte';
 import Icon from './Icon.svelte';
 
 interface Props {
-  value: TransactionCategory;
+  value?: TransactionCategory;
   transactionType: 'income' | 'expense';
-  onSelect: (category: TransactionCategory) => void;
+  onSelect?: (category: TransactionCategory) => void;
   disabled?: boolean;
   size?: 'sm' | 'md' | 'lg';
   class?: string;
+  id?: string;
 }
 
 let {
-  value,
+  value = $bindable(),
   transactionType,
   onSelect,
   disabled = false,
   size = 'md',
   class: className = '',
+  id,
 }: Props = $props();
 
 let isOpen = $state(false);
 
-const currentConfig = $derived(getCategoryConfig(value));
+const currentConfig = $derived(getCategoryConfig(value || 'other'));
 const availableCategories = $derived(getCategoriesForType(transactionType));
 
 function handleSelect(category: TransactionCategory) {
-  onSelect(category);
+  value = category;
+  onSelect?.(category);
   isOpen = false;
 }
 
@@ -69,6 +71,7 @@ const buttonSizes = {
   <!-- Current Category Button -->
   <button
     type="button"
+    {id}
     onclick={toggleOpen}
     {disabled}
     class="inline-flex items-center gap-2 rounded-lg border transition-colors {currentConfig.bgColor} {currentConfig.color} {currentConfig.borderColor} {buttonSizes[size]}

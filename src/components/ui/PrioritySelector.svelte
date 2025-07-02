@@ -9,6 +9,7 @@ interface Props {
   disabled?: boolean;
   size?: 'sm' | 'md' | 'lg';
   class?: string;
+  id?: string;
 }
 
 let {
@@ -17,6 +18,7 @@ let {
   disabled = false,
   size = 'md',
   class: className = '',
+  id,
 }: Props = $props();
 
 let isOpen = $state(false);
@@ -66,6 +68,7 @@ const buttonSizes = {
   <!-- Current Priority Button -->
   <button
     type="button"
+    {id}
     onclick={toggleOpen}
     {disabled}
     class="inline-flex items-center gap-2 rounded-lg border transition-colors {currentConfig.bgColor} {currentConfig.color} {currentConfig.borderColor} {buttonSizes[size]}

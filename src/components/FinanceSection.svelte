@@ -261,13 +261,14 @@ function resetForm() {
 
           <!-- Category Selection -->
           <div class="space-y-2">
-            <label class="block text-sm font-medium text-gray-700">
+            <label for="new-transaction-category" class="block text-sm font-medium text-gray-700">
               Category
             </label>
             <CategorySelector
-              bind:value={category}
+              id="new-transaction-category"
+              value={category}
               transactionType={type}
-              onSelect={(selectedCategory) => category = selectedCategory}
+              onSelect={(selectedCategory: TransactionCategory) => category = selectedCategory}
               size="md"
               class="w-full"
             />

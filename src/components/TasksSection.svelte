@@ -147,7 +147,7 @@ function handlePriorityChange(taskId: string, priority: TaskPriority) {
               <div class="flex-shrink-0">
                 <PrioritySelector
                   value={task.priority}
-                  onSelect={(priority) => handlePriorityChange(task.id, priority)}
+                  onSelect={(priority: TaskPriority) => handlePriorityChange(task.id, priority)}
                   disabled={isUpdatingPriority[task.id]}
                   size="sm"
                 />
@@ -196,12 +196,13 @@ function handlePriorityChange(taskId: string, priority: TaskPriority) {
           
           <!-- Priority Selection -->
           <div class="space-y-2">
-            <label class="block text-sm font-medium text-gray-700">
+            <label for="new-task-priority" class="block text-sm font-medium text-gray-700">
               Priority Level
             </label>
             <PrioritySelector
+              id="new-task-priority"
               value={newTaskPriority}
-              onSelect={(priority) => newTaskPriority = priority}
+              onSelect={(priority: TaskPriority) => newTaskPriority = priority}
               size="md"
               class="w-full"
             />

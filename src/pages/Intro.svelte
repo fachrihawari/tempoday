@@ -1,7 +1,7 @@
 <script lang="ts">
 import { onMount } from 'svelte';
 import Button from '../components/ui/Button.svelte';
-import Icon from '../components/ui/Icon.svelte';
+import Icon, { type IconName } from '../components/ui/Icon.svelte';
 
 // Svelte 5 approach: Use callback props instead of createEventDispatcher
 interface Props {
@@ -13,7 +13,18 @@ let { onIntroCompleted }: Props = $props();
 let currentSlide = $state(0);
 let isAutoPlaying = $state(true);
 
-const slides = [
+interface Slide {
+  icon: IconName;
+  title: string;
+  subtitle: string;
+  description: string;
+  gradient: string;
+  bgGradient: string;
+  customStyle: string;
+  customBgStyle: string;
+}
+
+const slides: Slide[] = [
   {
     icon: 'calendar',
     title: 'Calendar-Centric',
