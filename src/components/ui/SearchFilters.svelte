@@ -11,7 +11,6 @@
   } from "../../lib/priority";
   import { type SearchFilters } from "../../stores/search.svelte";
   import Icon from "./Icon.svelte";
-
   interface Props {
     filters: SearchFilters;
     onFiltersChange: (filters: SearchFilters) => void;

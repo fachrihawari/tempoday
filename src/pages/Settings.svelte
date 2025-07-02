@@ -8,28 +8,8 @@ import Icon from '../components/ui/Icon.svelte';
 import PageHeader from '../components/ui/PageHeader.svelte';
 import { toastStore } from '../stores/toast.svelte';
 import { reactiveRouter } from '../stores/router.svelte';
-import { db } from '../dexie/db'; // Add database import for testing
 
 let showDonationModal = $state(false);
-
-// Test function for database indexes
-async function testDatabaseIndexes() {
-  try {
-    await db.testIndexes();
-    toastStore.add({
-      type: 'success',
-      message: 'Index test completed - check console for results',
-      duration: 3000
-    });
-  } catch (error) {
-    console.error('Index test failed:', error);
-    toastStore.add({
-      type: 'error',
-      message: 'Index test failed - check console for details',
-      duration: 3000
-    });
-  }
-}
 
 // GitHub repository URL
 const GITHUB_REPO_URL = 'https://github.com/fachrihawari/tempoday';
@@ -159,14 +139,15 @@ async function handleShare() {
             {/snippet}
           </Button>
 
-          <div class="grid grid-cols-3 gap-3 mt-4">
+          <!-- Alternative Support Options -->
+          <div class="grid grid-cols-2 gap-3">
             <button
-              onclick={testDatabaseIndexes}
+              onclick={handleRateUs}
               class="bg-white rounded-lg p-3 border border-gray-200 text-center hover:bg-gray-50 transition-colors"
             >
-              <div class="text-2xl mb-1">🔍</div>
-              <div class="text-xs font-medium text-gray-900">Test DB</div>
-              <div class="text-xs text-gray-600">Debug indexes</div>
+              <div class="text-2xl mb-1">⭐</div>
+              <div class="text-xs font-medium text-gray-900">Star us</div>
+              <div class="text-xs text-gray-600">GitHub</div>
             </button>
             <button
               onclick={handleShare}
