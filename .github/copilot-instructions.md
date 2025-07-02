@@ -1,112 +1,200 @@
-You are an expert Full-stack Engineer. Your task is to generate the core structure and features for a Minimum Viable Product (MVP) of a calendar-centric personal management mobile application. The app allows users to manage to-do lists, daily notes (diary-like), and basic financial records, all linked to specific dates on a calendar.
+You are an expert Full-stack Engineer working on "TempoDay" - a privacy-focused, calendar-centric personal management web application. The app allows users to manage to-do lists, daily notes (diary-like), and financial records, all linked to specific dates on a calendar.
 
-Project Goal: Create a simple, intuitive mobile app where users can see and manage their tasks, notes, and finances for any given day within a calendar interface. The MVP should focus on core functionality and a clean user experience, prioritizing local data storage for simplicity.
+**Current Project Status:** Production-ready application with advanced features, AI integration, and optimized performance.
 
-Core App Name: "TempoDay"
+**Core App Name:** "TempoDay"
 
-Target Platform (Specify one for MVP focus, e.g., iOS with Swift, Android with Kotlin/Java, or React Native for cross-platform): I want it to be cross platform, maybe start with responsive web first. For the stack, we can use Svelte 5 and tailwindcss.
+**Technology Stack:**
+- **Frontend:** Svelte 5 (with runes) + TypeScript
+- **Styling:** Tailwind CSS 4.x
+- **Database:** IndexedDB via Dexie.js (v4.0.11)
+- **Build Tool:** Vite 6.x with bundle analysis
+- **PWA:** Vite PWA plugin with offline support
+- **Donations:** RevenueCat integration for voluntary donations
+- **Performance:** Code-splitting with dynamic imports and lazy loading
 
-# MVP: Calendar-Centric Personal Management App ("TempoDay" or Chosen Name)
+**Architecture Principles:**
+- Privacy-first (all data stored locally)
+- Progressive Web App (PWA) with offline capabilities
+- Modern Svelte 5 patterns (runes, snippets, event attributes)
+- Code-splitting and lazy loading for optimal performance
+- Bundle optimization with vite-bundle-analyzer
+- Responsive design optimized for mobile-first
 
-**Primary MVP Goals:**
-* Validate the core concept: Do users find value in seeing to-dos, notes, and financial entries within a single daily calendar view?
-* Gather initial user feedback for future iterations.
-* Keep the development scope small for a quick launch.
+# TempoDay: Production-Ready Calendar-Centric Personal Management App
 
----
+**Current Status:** Feature-complete application with sophisticated NLP assistant, advanced search capabilities, and comprehensive data management.
 
-## I. Core App Structure & Navigation
-
-1.  **Main Calendar View (Month View):**
-    * Standard month display for date navigation.
-    * Users can tap on any date in the month view.
-    * Tapping a date navigates the user to the **Day View** for the selected date.
-    * Clear indication of the current date (today).
-    * Ability to navigate to previous/next months.
-
-2.  **Day View:**
-    * Accessed by tapping a date on the Main Calendar View.
-    * Clearly displays the selected date (e.g., "June 4, 2025").
-    * This view will be vertically scrollable if content exceeds screen height.
-    * Must be divided into three (3) distinct and clearly delineated sections:
-        * To-Do List Section
-        * Daily Note Section (Diary-like)
-        * Financial Records Section
-
----
-
-## II. Feature Specifications per Section in Day View
-
-### A. To-Do List Section
-
-* **Display:** Shows a list of to-do items for the selected date.
-* **Add Task:**
-    * A button (e.g., "+ Add Task") to add a new to-do item.
-    * Simple text input for the task description.
-    * Action: Adds the task to the list for the current Day View.
-* **Task Item:**
-    * Each task item displays its text description.
-    * Checkbox: Tapping the checkbox marks the task as completed (e.g., text strikethrough, checkmark appears). Tapping again unmarks it.
-* **Data Persistence:** To-do items and their completion status are saved locally for each date.
-
-### B. Daily Note Section (Diary-like)
-
-* **Display:** A dedicated text area to display/write a multi-line note for the selected date.
-* **Edit/Add Note:**
-    * If no note exists for the day, this area can be an empty text field or show a prompt like "+ Add Note."
-    * Users can tap into this area to type or edit their daily note.
-    * Input: Simple, multi-line text input (no rich text formatting for MVP).
-* **Data Persistence:** Note content is saved locally for each date. Changes should ideally be auto-saved or have a clear save action.
-
-### C. Financial Records Section (Manual Entry)
-
-* **Display:** Shows a list of financial transactions (income and expenses) for the selected date.
-* **Add Transaction:**
-    * A button (e.g., "+ Add Transaction") to add a new financial entry.
-    * Input Fields:
-        * Description (text, e.g., "Lunch," "Salary").
-        * Amount (numeric input).
-        * Type (simple selection: "Income" or "Expense" - e.g., using a toggle or radio buttons).
-    * Action: Adds the transaction to the list for the current Day View.
-* **Transaction Item:**
-    * Each transaction in the list displays its description, amount (clearly formatted if simple, otherwise just the number), and an indication of Income/Expense (e.g., color-coding or a simple label).
-* **Daily Summary (Optional, but highly desirable for MVP):**
-    * Total Income for the day.
-    * Total Expenses for the day.
-    * Net balance for the day (Income - Expenses).
-* **Data Persistence:** All financial entries are saved locally for each date.
+**Key Features Implemented:**
+- **Natural Language Interface:** Advanced NLP for intuitive data entry
+- **Smart Calendar System:** Date-centric organization with seamless navigation
+- **Task Management:** Priority-based tasks and completion tracking
+- **Rich Note-Taking:** Auto-save diary-like notes with search capabilities
+- **Financial Tracking:** Comprehensive expense/income tracking with categories
+- **Global Search:** Advanced search across all data types with filtering
+- **Performance Optimized:** Code-splitting, lazy loading, and bundle optimization
+- **PWA Ready:** Full offline support with service workers
+- **Donation Support:** Optional donation system to support development
+- **Data Management:** Backup/restore functionality with local storage
+- **Modern UI:** Responsive design with Tailwind CSS and custom components
 
 ---
 
-## III. Data Storage
+## I. Current App Structure & Navigation
 
-* All data (to-dos, notes, financial records) must be stored **locally on the user's device**.
-* No cloud sync or user accounts are required for this MVP.
+### **Main Navigation (Bottom Navigation):**
+- **Dashboard (`/`):** NLP assistant and overview with today's summary
+- **Calendar (`/calendar`):** Full calendar view with date-specific data management
+- **Search (`/search`):** Global search with advanced filtering capabilities
+- **Settings (`/settings`):** App configuration, donation options, and data management
+
+### **Page Components (Code-Split for Performance):**
+1. **Dashboard View (`/`):**
+   - Natural Language Assistant for creating tasks, notes, and transactions through text input
+   - Pending Tasks preview (up to 3 tasks with priority indicators)
+   - Recent Expenses preview (last 3 expenses with amounts)
+
+2. **Calendar View (`/calendar`):**
+   - Interactive calendar with date selection
+   - Day-specific tasks, notes, and transactions
+   - Inline editing and real-time updates
+   - Quick add functionality for all data types
+
+3. **Search View (`/search`):**
+   - Global search across tasks, notes, and transactions
+   - Advanced filtering by date range, category, type, and priority
+   - Real-time search with debouncing
+   - Quick navigation to search results
+
+4. **Settings View (`/settings`):**
+   - Currency and locale preferences
+   - Voluntary donation options to support development
+   - Data backup/restore functionality
+   - App information and sharing options
+
+### **Additional Pages:**
+- **Intro (`/intro`):** First-time user onboarding
+- **Terms (`/terms`):** Terms of service
+- **Thanks (`/thanks`):** Thank you page for supporters
 
 ---
 
-## IV. UI/UX Considerations (Simple for MVP)
+## II. Advanced Feature Specifications
 
-* **Clarity & Simplicity:** The design must be clean, intuitive, and uncluttered.
-* **Visual Distinction:** Clearly differentiate between the To-Do, Note, and Financial sections in the Day View.
-* **Easy Navigation:** Users should easily understand how to move between dates and access functionalities.
-* Use standard platform UI components where possible.
+### A. Natural Language Data Entry
+
+* **Natural Language Processing:** Sophisticated NLP engine that understands:
+    * Task creation: "Call John tomorrow", "Buy groceries high priority"
+    * Note entries: "Today I felt...", "Meeting went well"
+    * Transaction logging: "Spent $15 on lunch", "Received $500 salary"
+* **Smart Categorization:** Automatic category and priority assignment
+* **Context Understanding:** Date-aware processing with intelligent defaults
+* **Multi-format Support:** Currency detection, priority keywords, category inference
+
+### B. Enhanced Task Management
+
+* **Priority System:** Four levels (low, medium, high, urgent) with visual indicators
+* **Smart Completion:** One-tap completion with visual feedback
+* **Date Association:** Tasks linked to specific dates with easy rescheduling
+* **Real-time Updates:** Instant saving and synchronization with visual feedback
+* **Completion Tracking:** Progress indicators and completion statistics
+
+### C. Advanced Note-Taking
+
+* **Search Integration:** Full-text search across all notes
+* **Date Linking:** Notes automatically associated with selected dates
+* **Quick Entry:** Streamlined interface for rapid note capture
+
+### D. Comprehensive Financial Tracking
+
+* **Transaction Categories:** 12 predefined categories (food, transport, shopping, etc.)
+* **Income/Expense Tracking:** Clear distinction with visual indicators
+* **Daily Summaries:** Automatic calculation of income, expenses, and net balance
+
+### E. Global Search & Filtering
+
+* **Universal Search:** Search across tasks, notes, and transactions simultaneously
+* **Advanced Filters:** Filter by date range, type, category, priority, and completion status
+* **Real-time Results:** Instant search with debounced input
+* **Quick Navigation:** Direct navigation to search result context
 
 ---
 
-## V. Features **NOT** Included in the Initial MVP:
+## III. Technical Architecture & Performance
 
-* Cross-device synchronization.
-* Notifications or reminders.
-* Collaboration or sharing features.
-* Complex financial categorization, budgeting, or in-depth financial reporting.
-* Bank account synchronization.
-* Advanced to-do features (sub-tasks, priorities, recurring tasks).
-* Rich text formatting or image attachments for notes.
-* Complex global search functionality.
-* Dark mode or theme customization.
-* Complex user registration.
+### A. Data Storage
+* **Local-First Architecture:** All data stored in IndexedDB via Dexie.js
+* **Schema Management:** Versioned database schema with automatic migrations
+* **Privacy-Focused:** No cloud sync, all data remains on device
+* **Backup/Restore:** JSON-based export/import functionality
+
+### B. Performance Optimizations
+* **Code Splitting:** All pages lazy-loaded using dynamic imports
+* **Bundle Analysis:** Integrated vite-bundle-analyzer for optimization insights
+* **Lazy Components:** LazyPage wrapper for dynamic component loading
+* **Efficient Stores:** Svelte 5 reactive stores with fine-grained reactivity
+
+### C. Progressive Web App (PWA)
+* **Offline Support:** Full offline functionality with service workers
+* **Installable:** Native app-like experience on mobile and desktop
+* **Performance:** Optimized loading and caching strategies
+* **Responsive Design:** Mobile-first approach with adaptive layouts
+
+## IV. Donation System & Support
+
+### A. RevenueCat Integration (Demo Mode)
+* **Voluntary Donations:** No premium features - donations are purely supportive
+* **Demo Mode:** Currently configured in demo mode for development
+* **Donation Tiers:** Multiple donation amounts ($3, $5, $10, $25) for flexibility
+* **No Feature Unlocking:** All features remain free regardless of donation status
+
+### B. What Donations Support
+* **Development Time:** More time for new features and improvements
+* **Bug Fixes:** Ongoing maintenance and issue resolution
+* **Performance:** Continued optimization and enhancement
+* **Free Access:** Keeping the app completely free for everyone
+
+### C. Alternative Support Options
+* **GitHub Stars:** Users can star the repository to show support
+* **Sharing:** Built-in sharing functionality to spread awareness
+* **Community:** Non-monetary ways to support the project
 
 ---
 
-**MVP Focus:** Functionality over aesthetics. The goal is a working prototype to demonstrate the core concept.
+## V. Development Guidelines
+
+### A. Code Quality & Standards
+* **TypeScript:** Strict typing throughout the codebase
+* **Svelte 5 Patterns:** Use runes ($state, $derived, $effect) over legacy patterns
+* **Component Architecture:** Reusable UI components in `components/ui/`
+* **Error Handling:** Comprehensive error boundaries and user feedback
+
+### B. Performance Best Practices
+* **Lazy Loading:** Use LazyPage for route-level code splitting
+* **Bundle Optimization:** Regular analysis with vite-bundle-analyzer
+* **Reactive Patterns:** Efficient state management with Svelte stores
+* **Memory Management:** Proper cleanup of subscriptions and effects
+
+### C. User Experience
+* **Accessibility:** ARIA labels and semantic HTML
+* **Mobile-First:** Touch-friendly interfaces and responsive design
+* **Loading States:** Consistent loading indicators and feedback
+* **Error Recovery:** Graceful error handling with user guidance
+
+## VI. Future Development Considerations
+
+### A. Scalability
+* **Data Migration:** Robust schema evolution strategies
+* **Feature Flags:** Gradual feature rollout capabilities
+* **Performance Monitoring:** Bundle size and runtime performance tracking
+* **User Feedback:** In-app feedback collection and analytics
+
+### B. Platform Expansion
+* **Desktop PWA:** Enhanced desktop experience
+* **Mobile Optimization:** Platform-specific optimizations
+* **Offline Sync:** Future cloud sync capabilities (optional)
+* **API Integration:** Extensibility for third-party services
+
+---
+
+**Current Focus:** Production-ready application with emphasis on performance, user experience, and maintainable code architecture. The application has moved well beyond MVP status and now focuses on optimization, advanced features, and user engagement.
