@@ -1,11 +1,14 @@
 // Enhanced NLP Parser for TempoDay - NO MORE REGEX HELL!
 // Using proper tokenization and semantic analysis
 
+import type { TransactionCategory } from './categories';
+
 export interface ParsedCommand {
   type: 'task' | 'note' | 'transaction' | 'unknown';
   content: string;
   amount?: number;
   transactionType?: 'income' | 'expense';
+  category?: TransactionCategory;
   priority?: 'low' | 'medium' | 'high' | 'urgent';
   confidence: number;
 }
@@ -168,6 +171,71 @@ const KEYWORDS = {
       'freelance',
       'commission',
     ]),
+    // Category keywords for automatic detection
+    categories: {
+      food: new Set([
+        'food', 'lunch', 'dinner', 'breakfast', 'snack', 'coffee', 'restaurant', 'cafe',
+        'grocery', 'groceries', 'pizza', 'burger', 'sushi', 'takeout', 'delivery',
+        'starbucks', 'mcdonalds', 'uber eats', 'doordash', 'grubhub', 'meal', 'drink',
+        'sandwich', 'salad', 'chicken', 'beef', 'fish', 'vegetable', 'fruit', 'bread',
+        'milk', 'juice', 'beer', 'wine', 'alcohol', 'bar', 'pub', 'dining', 'eat',
+      ]),
+      transport: new Set([
+        'gas', 'fuel', 'uber', 'taxi', 'bus', 'train', 'metro', 'subway', 'flight',
+        'airline', 'airport', 'parking', 'toll', 'car', 'bike', 'scooter', 'rideshare',
+        'lyft', 'transport', 'commute', 'travel', 'trip', 'drive', 'ride', 'public transport',
+      ]),
+      shopping: new Set([
+        'amazon', 'shopping', 'clothes', 'shirt', 'shoes', 'pants', 'dress', 'jacket',
+        'electronics', 'phone', 'laptop', 'computer', 'tv', 'tablet', 'headphones',
+        'furniture', 'home', 'household', 'cleaning', 'laundry', 'store', 'mall',
+        'target', 'walmart', 'costco', 'ebay', 'online', 'purchase', 'buy', 'bought',
+        'cashback', 'refund', 'return', 'exchange', 'discount', 'sale', 'deals',
+      ]),
+      entertainment: new Set([
+        'movie', 'cinema', 'theater', 'netflix', 'spotify', 'subscription', 'game',
+        'gaming', 'xbox', 'playstation', 'steam', 'book', 'magazine', 'music',
+        'concert', 'show', 'event', 'ticket', 'streaming', 'youtube', 'disney',
+        'entertainment', 'fun', 'hobby', 'art', 'craft',
+      ]),
+      bills: new Set([
+        'rent', 'mortgage', 'electricity', 'electric', 'gas bill', 'water', 'internet',
+        'phone bill', 'cable', 'insurance', 'utility', 'utilities', 'bill', 'payment',
+        'monthly', 'subscription', 'service', 'maintenance', 'repair', 'fix',
+      ]),
+      health: new Set([
+        'doctor', 'hospital', 'medical', 'medicine', 'pharmacy', 'prescription',
+        'dentist', 'dental', 'gym', 'fitness', 'yoga', 'massage', 'therapy',
+        'health', 'healthcare', 'checkup', 'appointment', 'clinic', 'wellness',
+        'vitamin', 'supplement', 'surgery', 'treatment',
+      ]),
+      education: new Set([
+        'school', 'university', 'college', 'course', 'class', 'tuition', 'book',
+        'textbook', 'education', 'learning', 'training', 'certification', 'exam',
+        'study', 'student', 'teacher', 'professor', 'degree', 'diploma',
+      ]),
+      work: new Set([
+        'office', 'supplies', 'business', 'work', 'meeting', 'conference', 'client',
+        'project', 'equipment', 'software', 'tools', 'professional', 'salary',
+        'freelance', 'contract', 'commission', 'bonus', 'income', 'wage',
+        'tip', 'tips', 'payment', 'paycheck', 'earnings',
+      ]),
+      travel: new Set([
+        'hotel', 'flight', 'vacation', 'holiday', 'trip', 'travel', 'booking',
+        'airbnb', 'resort', 'cruise', 'tour', 'sightseeing', 'tourist', 'visa',
+        'passport', 'luggage', 'souvenir', 'adventure', 'explore',
+      ]),
+      gifts: new Set([
+        'gift', 'present', 'birthday', 'anniversary', 'wedding', 'christmas',
+        'holiday', 'donation', 'charity', 'tip', 'gratuity', 'surprise',
+        'celebration', 'party', 'valentine', 'mother', 'father', 'giving',
+      ]),
+      other: new Set([
+        'miscellaneous', 'misc', 'other', 'various', 'general', 'random',
+        'stuff', 'things', 'item', 'purchase', 'expense', 'cost',
+        'reimbursement', 'settlement', 'lottery', 'prize', 'reward', 'credit',
+      ]),
+    },
   },
 };
 
@@ -190,19 +258,27 @@ export function parseNaturalLanguage(input: string): ParsedCommand {
   // Step 3: Extract priority indicators
   const priority = extractPriorityFromTokens(tokens);
 
-  // Step 4: Calculate semantic scores (using lowercase for comparison)
+  // Step 4: Extract category for transactions
+  const category = extractCategoryFromTokens(tokens);
+
+  // Step 5: Calculate semantic scores (using lowercase for comparison)
   const scores = calculateSemanticScores(tokens);
 
-  // Step 5: Determine type based on scores and context
-  const result = determineType(tokens, amounts, scores);
+  // Step 6: Determine type based on scores and context
+  const result = determineType(tokens, amounts, scores) as ParsedCommand;
 
-  // Step 6: Add priority if detected
+  // Step 7: Add priority if detected (for tasks)
   if (priority && result.type === 'task') {
     result.priority = priority;
   }
 
-  // Step 7: Clean and format the content using original casing
-  result.content = cleanContentFromTokens(tokens, result.type, amounts[0]);
+  // Step 8: Add category if detected (for transactions)
+  if (category && result.type === 'transaction') {
+    result.category = category;
+  }
+
+  // Step 9: Clean and format the content using original casing
+  result.content = cleanContentFromTokens(tokens, result.type, amounts[0], result.category);
 
   return result;
 }
@@ -325,6 +401,51 @@ function extractPriorityFromTokens(tokens: Token[]): 'low' | 'medium' | 'high' |
   }
 
   return null; // Default to medium (will be set in the component)
+}
+
+/**
+ * CATEGORY EXTRACTION - Extract transaction category from tokens
+ */
+function extractCategoryFromTokens(tokens: Token[]): TransactionCategory | null {
+  const words = tokens.filter((t) => t.type === 'word').map((t) => t.text);
+  const allText = words.join(' ').toLowerCase();
+
+  // Score each category based on keyword matches
+  const categoryScores: Partial<Record<TransactionCategory, number>> = {};
+
+  // Check each category's keywords
+  for (const [category, keywords] of Object.entries(KEYWORDS.transaction.categories)) {
+    let score = 0;
+    
+    // Check for exact word matches
+    for (const word of words) {
+      if (keywords.has(word)) {
+        score += 1;
+      }
+    }
+    
+    // Check for phrase matches in the full text
+    for (const keyword of keywords) {
+      if (keyword.includes(' ') && allText.includes(keyword)) {
+        score += 1.5; // Boost for phrase matches
+      }
+    }
+    
+    if (score > 0) {
+      categoryScores[category as TransactionCategory] = score;
+    }
+  }
+
+  // Return the category with the highest score
+  if (Object.keys(categoryScores).length > 0) {
+    const bestCategory = Object.entries(categoryScores).reduce((a, b) => 
+      (categoryScores[a[0] as TransactionCategory] || 0) > (categoryScores[b[0] as TransactionCategory] || 0) ? a : b
+    )[0] as TransactionCategory;
+    
+    return bestCategory;
+  }
+
+  return null; // Will use default category in the component
 }
 
 /**
@@ -530,6 +651,7 @@ function cleanContentFromTokens(
   tokens: Token[],
   type: string,
   amount?: number,
+  detectedCategory?: TransactionCategory,
 ): string {
   const filteredTokens: Token[] = [];
 
@@ -554,7 +676,34 @@ function cleanContentFromTokens(
     }
   }
 
-  // Step 2: Filter out amount-related tokens and priority keywords
+  // Create a set of category keywords to filter out if a category was detected
+  const categoryKeywordsToFilter = new Set<string>();
+  if (type === 'transaction' && detectedCategory) {
+    // Only filter out generic/redundant category keywords, not specific product names
+    const genericKeywords = new Set([
+      // Generic category terms that don't add value to description
+      'shopping', 'purchase', 'buy', 'bought', 'online', 'store', 'mall', 'amazon',
+      'entertainment', 'fun', 'hobby', 'bills', 'payment', 'service', 'subscription',
+      'transport', 'travel', 'trip', 'food', 'meal', 'eat', 'dining',
+      'health', 'medical', 'healthcare', 'education', 'learning', 'work', 'business',
+      'gifts', 'miscellaneous', 'misc', 'other', 'various', 'general', 'stuff', 'things',
+      // Generic product categories (but keep specific product names)
+      'electronics', 'clothes', 'furniture', 'household', 'cleaning', 'laundry',
+      'supplies', 'equipment', 'tools', 'items', 'products'
+    ]);
+    
+    const categoryKeywords = KEYWORDS.transaction.categories[detectedCategory];
+    if (categoryKeywords) {
+      for (const keyword of categoryKeywords) {
+        // Only filter out generic keywords, keep specific product names
+        if (genericKeywords.has(keyword)) {
+          categoryKeywordsToFilter.add(keyword);
+        }
+      }
+    }
+  }
+
+  // Step 2: Filter out amount-related tokens, priority keywords, and category keywords
   for (let i = startIndex; i < tokens.length; i++) {
     const token = tokens[i];
 
@@ -585,6 +734,29 @@ function cleanContentFromTokens(
       
       if (isPriorityKeyword) {
         continue;
+      }
+    }
+
+    // Skip category keywords for transactions (only if they were used for detection)
+    // BUT: Don't filter out words that are part of compound product names
+    if (type === 'transaction' && token.type === 'word' && categoryKeywordsToFilter.has(token.text)) {
+      // Check if this word might be part of a compound product name
+      // by looking at adjacent tokens
+      const prevToken = filteredTokens[filteredTokens.length - 1];
+      const nextToken = tokens[i + 1];
+      
+      // If the previous or next token suggests this is part of a product name, keep it
+      const isProbablyPartOfProductName = 
+        (prevToken && prevToken.type === 'word' && 
+         (prevToken.originalText.toLowerCase() === 'apple' || 
+          prevToken.originalText.toLowerCase() === 'samsung' ||
+          prevToken.originalText.toLowerCase() === 'google' ||
+          /^[A-Z]/.test(prevToken.originalText))) || // Previous word is capitalized (brand name)
+        (nextToken && nextToken.type === 'word' && 
+         /^[A-Z]/.test(nextToken.originalText)); // Next word is capitalized
+      
+      if (!isProbablyPartOfProductName) {
+        continue; // Skip generic category words
       }
     }
 
@@ -680,6 +852,5 @@ export const EXAMPLE_COMMANDS = [
   'Bought apple TV $300000',
   'Bought iPhone $1200',
   'Bought Apple TV 1000000000000',
-  'TV 40000000000000000',
   'Bought TV 40000000000000000',
 ];

@@ -6,7 +6,7 @@ import {
   type ParsedCommand,
   parseNaturalLanguage,
 } from '../lib/nlp';
-import { getDefaultCategory } from '../lib/categories';
+import { getDefaultCategory, getCategoryConfig } from '../lib/categories';
 import { appState } from '../stores/app.svelte';
 import { reactiveNotes } from '../stores/notes.svelte';
 import { settingsStore } from '../stores/settings.svelte';
@@ -73,7 +73,7 @@ async function processCommand() {
             amount: parsed.amount,
             type: parsed.transactionType,
             date: currentDate,
-            category: getDefaultCategory(parsed.transactionType), // Use default category based on transaction type
+            category: parsed.category || getDefaultCategory(parsed.transactionType), // Use parsed category or fallback to default
           });
           const symbol = parsed.transactionType === 'income' ? '+' : '-';
           toastStore.success(`${parsed.transactionType === 'income' ? 'Income' : 'Expense'} added: ${symbol}${formatAmount(parsed.amount)} for "${parsed.content}"`);
@@ -246,6 +246,12 @@ const categorizedExamples = {
           {#if preview.amount}
             <span class="font-medium ml-1 {preview.transactionType === 'income' ? 'text-green-600' : 'text-red-600'}">
               {preview.transactionType === 'income' ? '+' : '-'}{formatAmount(preview.amount)}
+            </span>
+          {/if}
+          {#if preview.category && preview.type === 'transaction'}
+            {@const categoryConfig = getCategoryConfig(preview.category)}
+            <span class="ml-2 px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-700">
+              {categoryConfig.icon} {categoryConfig.label}
             </span>
           {/if}
         </p>
