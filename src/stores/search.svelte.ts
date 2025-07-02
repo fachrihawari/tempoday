@@ -316,19 +316,6 @@ class SearchStore {
   }
 
   /**
-   * Get all results in a single array, sorted by date
-   */
-  get allResults(): SearchResult[] {
-    const all = [
-      ...this.results.tasks,
-      ...this.results.notes,
-      ...this.results.transactions,
-    ];
-    
-    return all.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-  }
-
-  /**
    * Check if there are any results
    */
   get hasResults(): boolean {
