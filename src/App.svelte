@@ -2,31 +2,29 @@
 import { onMount } from 'svelte';
 import BottomNavigation from './components/ui/BottomNavigation.svelte';
 import ToastContainer from './components/ui/ToastContainer.svelte';
-import Calendar from './pages/Calendar.svelte';
-import Dashboard from './pages/Dashboard.svelte';
-import Intro from './pages/Intro.svelte';
-import Search from './pages/Search.svelte';
-import Settings from './pages/Settings.svelte';
-import Terms from './pages/Terms.svelte';
-import Thanks from './pages/Thanks.svelte';
 import { reactiveRouter } from './stores/router.svelte';
+import LazyPage from './components/ui/LazyPage.svelte';
 
 const router = $derived(reactiveRouter);
-
 let showIntro = $state(false);
 
-// Initialize router on mount and check if intro should be shown
+// Lazy loader functions for each page
+const loadCalendar = () => import('./pages/Calendar.svelte');
+const loadDashboard = () => import('./pages/Dashboard.svelte');
+const loadIntro = () => import('./pages/Intro.svelte');
+const loadSearch = () => import('./pages/Search.svelte');
+const loadSettings = () => import('./pages/Settings.svelte');
+const loadTerms = () => import('./pages/Terms.svelte');
+const loadThanks = () => import('./pages/Thanks.svelte');
+
 onMount(() => {
   router.initialize();
-  
-  // Check if user has seen the intro before
   const hasSeenIntro = localStorage.getItem('tempoday-intro-seen');
   if (!hasSeenIntro) {
     showIntro = true;
   }
 });
 
-// Handle intro completion using Svelte 5 callback props
 function handleIntroCompleted() {
   showIntro = false;
 }
@@ -34,34 +32,28 @@ function handleIntroCompleted() {
 
 <div class="h-screen flex flex-col relative">
   {#if showIntro && router.activePath !== "/terms" && router.activePath !== "/thanks"}
-    <!-- Show intro page for new users - using callback prop (Svelte 5 way) -->
-    <Intro onIntroCompleted={handleIntroCompleted} />
+    <LazyPage loader={loadIntro} onIntroCompleted={handleIntroCompleted} />
   {:else}
-    <!-- Main App Content -->
     <div class="flex-1 overflow-y-auto {router.activePath === '/terms' || router.activePath === '/thanks' || router.activePath === '/search' ? '' : 'pb-16'}">
       {#if router.activePath === "/"}
-        <Dashboard />
+        <LazyPage loader={loadDashboard} />
       {:else if router.activePath === "/calendar"}
-        <Calendar />
+        <LazyPage loader={loadCalendar} />
       {:else if router.activePath === "/search"}
-        <Search />
+        <LazyPage loader={loadSearch} />
       {:else if router.activePath === "/settings"}
-        <Settings />
+        <LazyPage loader={loadSettings} />
       {:else if router.activePath === "/terms"}
-        <Terms />
+        <LazyPage loader={loadTerms} />
       {:else if router.activePath === "/thanks"}
-        <Thanks />
+        <LazyPage loader={loadThanks} />
       {:else}
-        <Dashboard />
+        <LazyPage loader={loadDashboard} />
       {/if}
     </div>
-
-    <!-- Bottom Navigation - Hide on Terms, Thanks, and Search pages -->
     {#if router.activePath !== "/terms" && router.activePath !== "/thanks" && router.activePath !== "/search"}
       <BottomNavigation />
     {/if}
   {/if}
-
-  <!-- Toast Container - Always visible -->
   <ToastContainer />
 </div>
