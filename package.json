@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:analyze": "analyze",
     "preview": "vite preview",
     "check": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json",
     "format": "biome check --fix",
@@ -20,6 +21,7 @@
     "svelte-check": "^4.1.6",
     "typescript": "~5.8.3",
     "vite": "^6.3.5",
+    "vite-bundle-analyzer": "^1.0.0",
     "vite-plugin-pwa": "^1.0.0"
   },
   "dependencies": {
