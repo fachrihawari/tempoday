@@ -49,6 +49,8 @@ export interface TempoDaySettings {
   currency: string;
   currencySymbol: string;
   locale: string;
+  // Appearance theme: 'light' | 'dark' | 'system'
+  theme: 'light' | 'dark' | 'system';
 }
 
 export interface Settings {

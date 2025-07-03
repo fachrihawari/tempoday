@@ -45,7 +45,7 @@ function toggleExpanded() {
 }
 </script>
 
-<section class="bg-white border-b border-gray-200 {className}">
+<section class="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 {className}">
   {#if title}
     <!-- Header Section -->
     <div class="flex items-center justify-between pb-4 {paddings[padding]}">
@@ -55,15 +55,15 @@ function toggleExpanded() {
         class="flex items-center gap-2 {collapsible ? 'py-1 rounded-lg transition-all duration-200 cursor-pointer' : 'cursor-default'} flex-1"
       >
         {#if icon}
-          <Icon name={icon} class={iconColor} />
+          <Icon name={icon} class={iconColor + ' dark:text-gray-300'} />
         {/if}
-        <h2 class="text-lg font-semibold text-gray-900">{title}</h2>
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">{title}</h2>
         
         {#if collapsible}
           <div class="ml-auto transition-transform duration-300 ease-in-out {isExpanded ? 'rotate-180' : 'rotate-0'}">
             <Icon 
               name="chevron-down" 
-              class="text-gray-500" 
+              class="text-gray-500 dark:text-gray-400" 
               size="sm" 
             />
           </div>
@@ -88,7 +88,7 @@ function toggleExpanded() {
   <!-- Content Section with Smooth Animation -->
   {#if !collapsible || isExpanded}
     <div 
-      class="{title ? (collapsible ? 'px-4 pb-4' : 'pt-0 ' + paddings[padding]) : paddings[padding]}"
+      class="{title ? (collapsible ? 'px-4 pb-4' : 'pt-0 ' + paddings[padding]) : paddings[padding]} bg-white dark:bg-gray-900"
       transition:slide={{ duration: 300, axis: 'y' }}
     >
       {@render children()}

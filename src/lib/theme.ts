@@ -42,3 +42,53 @@ export const sectionThemes = {
 } as const;
 
 export type SectionTheme = keyof typeof sectionThemes;
+
+/**
+ * Sets up theme management for Tailwind v4 darkMode: 'class'.
+ * Listens to settingsStore and system theme changes.
+ */
+export function initThemeWatcher(settingsStore: any) {
+  let systemDarkListener: MediaQueryList | null = null;
+
+  function applyTheme(theme: 'light' | 'dark' | 'system') {
+    const html = document.documentElement;
+    // Clean up previous listener
+    if (systemDarkListener) {
+      systemDarkListener.removeEventListener('change', handleSystemThemeChange);
+      systemDarkListener = null;
+    }
+    if (theme === 'dark') {
+      html.classList.add('dark');
+    } else if (theme === 'light') {
+      html.classList.remove('dark');
+    } else {
+      // System: follow OS
+      const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (isDark) {
+        html.classList.add('dark');
+      } else {
+        html.classList.remove('dark');
+      }
+      // Listen for system changes
+      systemDarkListener = window.matchMedia('(prefers-color-scheme: dark)');
+      systemDarkListener.addEventListener('change', handleSystemThemeChange);
+    }
+  }
+
+  function handleSystemThemeChange(e: MediaQueryListEvent) {
+    if (settingsStore.settings.theme === 'system') {
+      if (e.matches) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    }
+  }
+
+  // Svelte 5: use $effect in the caller, or subscribe here if using a store
+  return () => {
+    // Only run if settings are loaded and theme is not undefined
+    if (settingsStore.settings.theme === undefined) return;
+    applyTheme(settingsStore.settings.theme ?? 'system');
+  };
+}

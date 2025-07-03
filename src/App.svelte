@@ -4,6 +4,8 @@ import BottomNavigation from './components/ui/BottomNavigation.svelte';
 import ToastContainer from './components/ui/ToastContainer.svelte';
 import { reactiveRouter } from './stores/router.svelte';
 import LazyPage from './components/ui/LazyPage.svelte';
+import { settingsStore } from './stores/settings.svelte';
+import { initThemeWatcher } from './lib/theme';
 
 const router = $derived(reactiveRouter);
 let showIntro = $state(false);
@@ -19,11 +21,15 @@ const loadThanks = () => import('./pages/Thanks.svelte');
 
 onMount(() => {
   router.initialize();
+  settingsStore.loadSettings()
   const hasSeenIntro = localStorage.getItem('tempoday-intro-seen');
   if (!hasSeenIntro) {
     showIntro = true;
   }
 });
+
+const themeEffect = initThemeWatcher(settingsStore);
+$effect(themeEffect);
 
 function handleIntroCompleted() {
   showIntro = false;

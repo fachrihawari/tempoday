@@ -22,7 +22,10 @@ export type IconName =
   | 'chevron-down'
   | 'chevron-right'
   | 'chevron-left'
-  | 'search';
+  | 'search'
+  | 'sun'
+  | 'moon'
+  | 'monitor';
 export type IconSize = 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl';
 
 interface Props {
@@ -69,6 +72,9 @@ const icons = {
   'chevron-right': `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>`,
   'chevron-left': `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>`,
   search: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>`,
+  sun: `<circle cx="12" cy="12" r="5" stroke="currentColor" stroke-width="2" fill="none"/><path stroke="currentColor" stroke-width="2" d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>`,
+  moon: `<path stroke="currentColor" stroke-width="2" fill="none" d="M21 12.79A9 9 0 1111.21 3a7 7 0 109.79 9.79z"/>`,
+  monitor: `<rect x="3" y="5" width="18" height="12" rx="2" stroke="currentColor" stroke-width="2" fill="none"/><path stroke="currentColor" stroke-width="2" d="M8 21h8M12 17v4"/>`,
 };
 </script>
 

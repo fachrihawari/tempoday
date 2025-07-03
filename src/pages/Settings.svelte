@@ -8,6 +8,7 @@ import Icon from '../components/ui/Icon.svelte';
 import PageHeader from '../components/ui/PageHeader.svelte';
 import { toastStore } from '../stores/toast.svelte';
 import { reactiveRouter } from '../stores/router.svelte';
+import AppearanceSettings from '../components/AppearanceSettings.svelte';
 
 let showDonationModal = $state(false);
 
@@ -86,6 +87,19 @@ async function handleShare() {
 
   <!-- Settings Content -->
   <div class="flex-1 overflow-y-auto">
+    <!-- Appearance Section -->
+    <Card 
+      title="Appearance" 
+      icon="sun" 
+      iconColor="text-yellow-500"
+      collapsible={true}
+      defaultExpanded={true}
+    >
+      {#snippet children()}
+        <AppearanceSettings />
+      {/snippet}
+    </Card>
+
     <!-- Support TempoDay Section -->
     <Card 
       title="Support TempoDay" 
