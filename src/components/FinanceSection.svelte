@@ -1,9 +1,12 @@
 <!-- Enhanced FinanceSection using reusable UI components -->
 <script lang="ts">
 import { onMount } from 'svelte';
+import {
+  type TransactionCategory,
+  getDefaultCategory,
+} from '../lib/categories';
 import { formatCurrency } from '../lib/currency';
 import { formatDateKey } from '../lib/date';
-import { getDefaultCategory, type TransactionCategory } from '../lib/categories';
 import { appState } from '../stores/app.svelte';
 import { settingsStore } from '../stores/settings.svelte';
 import { toastStore } from '../stores/toast.svelte';
@@ -88,7 +91,9 @@ async function handleAddTransaction(event?: Event) {
       category,
       date: dateKey,
     });
-    toastStore.success(`${type === 'income' ? 'Income' : 'Expense'} added successfully`);
+    toastStore.success(
+      `${type === 'income' ? 'Income' : 'Expense'} added successfully`,
+    );
     resetForm();
   } catch (err) {
     console.error('Failed to add transaction:', err);

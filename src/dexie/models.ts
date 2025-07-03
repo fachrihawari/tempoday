@@ -20,7 +20,7 @@ export interface Note {
 
 export type TransactionType = 'income' | 'expense';
 
-export type TransactionCategory = 
+export type TransactionCategory =
   | 'food'
   | 'transport'
   | 'shopping'

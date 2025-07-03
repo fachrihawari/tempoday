@@ -1,8 +1,9 @@
-import { toastStore } from '../stores/toast.svelte';
 import { reactiveRouter } from '../stores/router.svelte';
+import { toastStore } from '../stores/toast.svelte';
 
 // RevenueCat configuration from environment variables
-const REVENUECAT_API_KEY = import.meta.env.VITE_REVENUECAT_API_KEY || 'YOUR_REVENUECAT_WEB_API_KEY';
+const REVENUECAT_API_KEY =
+  import.meta.env.VITE_REVENUECAT_API_KEY || 'YOUR_REVENUECAT_WEB_API_KEY';
 const DEBUG_MODE = import.meta.env.VITE_DEBUG_REVENUECAT === 'true';
 
 export interface DonationTier {
@@ -59,7 +60,10 @@ class RevenueCatService {
       }
 
       // Check if we have a valid API key
-      if (!REVENUECAT_API_KEY || REVENUECAT_API_KEY === 'YOUR_REVENUECAT_WEB_API_KEY') {
+      if (
+        !REVENUECAT_API_KEY ||
+        REVENUECAT_API_KEY === 'YOUR_REVENUECAT_WEB_API_KEY'
+      ) {
         if (DEBUG_MODE) {
           console.warn('RevenueCat: API key not configured. Using demo mode.');
         }
@@ -70,10 +74,10 @@ class RevenueCatService {
       // Try to initialize RevenueCat with the provided API key
       try {
         const { Purchases } = await import('@revenuecat/purchases-js');
-        
+
         // Generate a unique anonymous user ID
         const anonymousUserId = `anonymous_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-        
+
         this.purchasesInstance = Purchases.configure({
           apiKey: REVENUECAT_API_KEY,
           appUserId: anonymousUserId,
@@ -83,7 +87,10 @@ class RevenueCatService {
         console.log('RevenueCat initialized successfully with API key');
         return true;
       } catch (revenueCatError) {
-        console.error('Failed to initialize RevenueCat, falling back to demo mode:', revenueCatError);
+        console.error(
+          'Failed to initialize RevenueCat, falling back to demo mode:',
+          revenueCatError,
+        );
         this.isDemo = true;
         return true;
       }
@@ -99,7 +106,11 @@ class RevenueCatService {
       if (this.isDemo) {
         // Demo mode - simulate successful donation
         if (DEBUG_MODE) {
-          console.log('Demo mode: Simulating donation for', tier.title, tier.price);
+          console.log(
+            'Demo mode: Simulating donation for',
+            tier.title,
+            tier.price,
+          );
         }
 
         // Navigate to thanks page after successful donation
@@ -147,7 +158,7 @@ class RevenueCatService {
 
       // Find the product for this tier
       const product = offerings.current.availablePackages.find(
-        (pkg: any) => pkg.identifier === tier.identifier
+        (pkg: any) => pkg.identifier === tier.identifier,
       );
 
       if (!product) {
@@ -156,14 +167,14 @@ class RevenueCatService {
 
       // Make the purchase
       const purchaseResult = await this.purchasesInstance.purchase({
-        rcPackage: product
+        rcPackage: product,
       });
 
       if (purchaseResult.customerInfo.entitlements.active) {
         setTimeout(() => {
           reactiveRouter.navigate('/thanks');
         }, 1000); // Small delay to let user see the toast
-        
+
         return true;
       } else {
         throw new Error('Purchase was not successful');
@@ -174,13 +185,14 @@ class RevenueCatService {
     }
   }
 
-
-
   // For future RevenueCat integration
   async setupRevenueCat(apiKey: string): Promise<boolean> {
     try {
       // This would be implemented when you're ready to use real RevenueCat
-      console.log('Setting up RevenueCat with API key:', apiKey.substring(0, 10) + '...');
+      console.log(
+        'Setting up RevenueCat with API key:',
+        apiKey.substring(0, 10) + '...',
+      );
 
       // Import and configure RevenueCat dynamically
       const { Purchases } = await import('@revenuecat/purchases-js');
@@ -218,7 +230,7 @@ export const revenueCatService = new RevenueCatService();
 
 // Initialize on module load
 if (typeof window !== 'undefined') {
-  revenueCatService.initialize().catch(error => {
+  revenueCatService.initialize().catch((error) => {
     console.error('Failed to auto-initialize RevenueCat:', error);
   });
 }

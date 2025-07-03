@@ -29,51 +29,66 @@ const slides: Slide[] = [
     icon: 'calendar',
     title: 'Calendar-Centric',
     subtitle: 'Everything organized by date',
-    description: 'Navigate through your days with an intuitive calendar interface. See all your tasks, notes, and finances in one place.',
+    description:
+      'Navigate through your days with an intuitive calendar interface. See all your tasks, notes, and finances in one place.',
     gradient: 'from-[#dfaea0] to-[#d4a394]', // Beautiful TempoDay peach
     bgGradient: 'from-[#faf8f7] to-[#f5f1ef]', // Soft peach background
-    customStyle: 'background: linear-gradient(135deg, rgb(223, 174, 160), rgb(212, 163, 148))',
-    customBgStyle: 'background: linear-gradient(135deg, rgb(250, 248, 247), rgb(245, 241, 239))',
+    customStyle:
+      'background: linear-gradient(135deg, rgb(223, 174, 160), rgb(212, 163, 148))',
+    customBgStyle:
+      'background: linear-gradient(135deg, rgb(250, 248, 247), rgb(245, 241, 239))',
   },
   {
     icon: 'clipboard',
     title: 'Smart Tasks',
     subtitle: 'Get things done efficiently',
-    description: 'Create, organize, and track your daily tasks with simple taps. Mark them complete and stay productive.',
+    description:
+      'Create, organize, and track your daily tasks with simple taps. Mark them complete and stay productive.',
     gradient: 'from-blue-400 to-blue-600', // Blue for tasks
     bgGradient: 'from-blue-50 to-blue-100',
-    customStyle: 'background: linear-gradient(135deg, rgb(96, 165, 250), rgb(37, 99, 235))',
-    customBgStyle: 'background: linear-gradient(135deg, rgb(239, 246, 255), rgb(219, 234, 254))',
+    customStyle:
+      'background: linear-gradient(135deg, rgb(96, 165, 250), rgb(37, 99, 235))',
+    customBgStyle:
+      'background: linear-gradient(135deg, rgb(239, 246, 255), rgb(219, 234, 254))',
   },
   {
     icon: 'edit',
     title: 'Daily Notes',
     subtitle: 'Capture your thoughts',
-    description: 'Write reflections, memories, and ideas in your personal diary. Your thoughts, safely stored.',
+    description:
+      'Write reflections, memories, and ideas in your personal diary. Your thoughts, safely stored.',
     gradient: 'from-purple-400 to-purple-600', // Purple for notes
     bgGradient: 'from-purple-50 to-purple-100',
-    customStyle: 'background: linear-gradient(135deg, rgb(196, 181, 253), rgb(147, 51, 234))',
-    customBgStyle: 'background: linear-gradient(135deg, rgb(250, 245, 255), rgb(243, 232, 255))',
+    customStyle:
+      'background: linear-gradient(135deg, rgb(196, 181, 253), rgb(147, 51, 234))',
+    customBgStyle:
+      'background: linear-gradient(135deg, rgb(250, 245, 255), rgb(243, 232, 255))',
   },
   {
     icon: 'dollar',
     title: 'Finance Tracking',
     subtitle: 'Monitor your money',
-    description: 'Track income and expenses with instant daily summaries. Keep your finances organized and visible.',
+    description:
+      'Track income and expenses with instant daily summaries. Keep your finances organized and visible.',
     gradient: 'from-green-400 to-green-600', // Green for finance
     bgGradient: 'from-green-50 to-green-100',
-    customStyle: 'background: linear-gradient(135deg, rgb(74, 222, 128), rgb(22, 163, 74))',
-    customBgStyle: 'background: linear-gradient(135deg, rgb(240, 253, 244), rgb(220, 252, 231))',
+    customStyle:
+      'background: linear-gradient(135deg, rgb(74, 222, 128), rgb(22, 163, 74))',
+    customBgStyle:
+      'background: linear-gradient(135deg, rgb(240, 253, 244), rgb(220, 252, 231))',
   },
   {
     icon: 'check-circle',
     title: 'Private & Secure',
     subtitle: 'Your data stays yours',
-    description: 'Everything stored locally on your device. No cloud sync, no tracking, complete privacy.',
+    description:
+      'Everything stored locally on your device. No cloud sync, no tracking, complete privacy.',
     gradient: 'from-gray-400 to-gray-600',
     bgGradient: 'from-gray-50 to-gray-100',
-    customStyle: 'background: linear-gradient(135deg, rgb(156, 163, 175), rgb(75, 85, 99))',
-    customBgStyle: 'background: linear-gradient(135deg, rgb(249, 250, 251), rgb(243, 244, 246))',
+    customStyle:
+      'background: linear-gradient(135deg, rgb(156, 163, 175), rgb(75, 85, 99))',
+    customBgStyle:
+      'background: linear-gradient(135deg, rgb(249, 250, 251), rgb(243, 244, 246))',
   },
 ];
 

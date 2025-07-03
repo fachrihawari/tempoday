@@ -1,6 +1,10 @@
 <script lang="ts">
 import { formatDateKey } from '../lib/date';
-import { getPriorityConfig, PRIORITY_OPTIONS, type TaskPriority } from '../lib/priority';
+import {
+  PRIORITY_OPTIONS,
+  type TaskPriority,
+  getPriorityConfig,
+} from '../lib/priority';
 import { appState } from '../stores/app.svelte';
 import { reactiveTasks } from '../stores/tasks.svelte';
 import { toastStore } from '../stores/toast.svelte';
@@ -14,17 +18,17 @@ import Loading from './ui/Loading.svelte';
 import PrioritySelector from './ui/PrioritySelector.svelte';
 
 // Reactive values from the store
-let { 
-  tasks, 
-  isLoading, 
-  isCreating, 
+let {
+  tasks,
+  isLoading,
+  isCreating,
   isUpdatingPriority,
-  error, 
-  completedCount, 
-  totalCount, 
+  error,
+  completedCount,
+  totalCount,
   pendingCount,
   urgentCount,
-  highPriorityCount
+  highPriorityCount,
 } = $derived(reactiveTasks);
 
 let showAddForm = $state(false);
@@ -50,10 +54,10 @@ async function handleAddTask(event?: Event) {
 
   const text = newTaskText.trim();
   const dateKey = formatDateKey(appState.selectedDate);
-  await reactiveTasks.createTask({ 
-    description: text, 
+  await reactiveTasks.createTask({
+    description: text,
     date: dateKey,
-    priority: newTaskPriority 
+    priority: newTaskPriority,
   });
   toastStore.success('Task added successfully');
   resetForm();
@@ -67,7 +71,9 @@ function resetForm() {
 
 function handlePriorityChange(taskId: string, priority: TaskPriority) {
   reactiveTasks.updateTaskPriority(taskId, priority);
-  toastStore.success(`Priority updated to ${getPriorityConfig(priority).label}`);
+  toastStore.success(
+    `Priority updated to ${getPriorityConfig(priority).label}`,
+  );
 }
 </script>
 

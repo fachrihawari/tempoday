@@ -1,4 +1,5 @@
 <script lang="ts">
+import { getCategoryConfig, getDefaultCategory } from '../lib/categories';
 import { formatCurrency } from '../lib/currency';
 import { formatDateKey } from '../lib/date';
 import {
@@ -6,7 +7,6 @@ import {
   type ParsedCommand,
   parseNaturalLanguage,
 } from '../lib/nlp';
-import { getDefaultCategory, getCategoryConfig } from '../lib/categories';
 import { appState } from '../stores/app.svelte';
 import { reactiveNotes } from '../stores/notes.svelte';
 import { settingsStore } from '../stores/settings.svelte';
@@ -63,7 +63,9 @@ async function processCommand() {
           content: parsed.content,
           date: currentDate,
         });
-        toastStore.success(`Note saved: "${parsed.content.substring(0, 50)}${parsed.content.length > 50 ? '...' : ''}"`);
+        toastStore.success(
+          `Note saved: "${parsed.content.substring(0, 50)}${parsed.content.length > 50 ? '...' : ''}"`,
+        );
         break;
 
       case 'transaction':
@@ -73,10 +75,13 @@ async function processCommand() {
             amount: parsed.amount,
             type: parsed.transactionType,
             date: currentDate,
-            category: parsed.category || getDefaultCategory(parsed.transactionType), // Use parsed category or fallback to default
+            category:
+              parsed.category || getDefaultCategory(parsed.transactionType), // Use parsed category or fallback to default
           });
           const symbol = parsed.transactionType === 'income' ? '+' : '-';
-          toastStore.success(`${parsed.transactionType === 'income' ? 'Income' : 'Expense'} added: ${symbol}${formatAmount(parsed.amount)} for "${parsed.content}"`);
+          toastStore.success(
+            `${parsed.transactionType === 'income' ? 'Income' : 'Expense'} added: ${symbol}${formatAmount(parsed.amount)} for "${parsed.content}"`,
+          );
         } else {
           throw new Error('Could not extract amount or transaction type');
         }
@@ -91,7 +96,7 @@ async function processCommand() {
   } catch (error) {
     console.error('Error processing command:', error);
     toastStore.error(
-      error instanceof Error ? error.message : 'Failed to process command'
+      error instanceof Error ? error.message : 'Failed to process command',
     );
   } finally {
     isProcessing = false;

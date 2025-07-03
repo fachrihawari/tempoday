@@ -29,7 +29,13 @@ let progressWidth = $state(100);
 
 const typeConfig: Record<
   Props['type'],
-  { classes: string; icon: IconName; iconColor: string; defaultTitle: string; bgColor: string }
+  {
+    classes: string;
+    icon: IconName;
+    iconColor: string;
+    defaultTitle: string;
+    bgColor: string;
+  }
 > = {
   info: {
     classes: 'bg-white text-blue-800 border-blue-200 shadow-blue-100',
@@ -79,19 +85,19 @@ onMount(() => {
   if (duration > 0) {
     // Start progress bar animation
     const startTime = Date.now();
-    
+
     const updateProgress = () => {
       const elapsed = Date.now() - startTime;
       const remaining = Math.max(0, duration - elapsed);
       progressWidth = (remaining / duration) * 100;
-      
+
       if (remaining > 0) {
         requestAnimationFrame(updateProgress);
       }
     };
-    
+
     requestAnimationFrame(updateProgress);
-    
+
     // Set timeout for auto-dismiss
     timeoutId = setTimeout(() => {
       dismiss();

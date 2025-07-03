@@ -29,6 +29,7 @@ let {
   onclick,
   class: className = '',
   children,
+  ...restProps
 }: Props = $props();
 
 const baseVariants = {
@@ -79,10 +80,16 @@ const sizes = {
   {type}
   {onclick}
   {disabled}
-  class="flex justify-center items-center font-medium rounded-lg transition-colors {variantClass} {sizes[size]} {className}
-    {dashed ? 'border-2 border-dashed bg-transparent' : ''}
-    {disabled ? 'opacity-50 cursor-not-allowed' : ''}"
-  class:w-full={fullWidth}
+  class={[
+    "flex justify-center items-center font-medium rounded-lg transition-colors",
+    variantClass,
+    sizes[size],
+    className,
+    dashed ? "border-2 border-dashed bg-transparent" : "",
+    disabled ? "opacity-50 cursor-not-allowed" : "",
+    fullWidth ? "w-full" : "",
+  ]}
+  {...restProps}
 >
   {@render children()}
 </button>

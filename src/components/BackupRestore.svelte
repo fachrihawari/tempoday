@@ -1,11 +1,11 @@
 <script lang="ts">
-import { formatDateKey } from '../lib/date';
 import { backupManager } from '../lib/backup';
+import { formatDateKey } from '../lib/date';
 import { appState } from '../stores/app.svelte';
-import { reactiveTasks } from '../stores/tasks.svelte';
 import { reactiveNotes } from '../stores/notes.svelte';
-import { reactiveTransactions } from '../stores/transactions.svelte';
 import { settingsStore } from '../stores/settings.svelte';
+import { reactiveTasks } from '../stores/tasks.svelte';
+import { reactiveTransactions } from '../stores/transactions.svelte';
 import BottomSheet from './ui/BottomSheet.svelte';
 import Button from './ui/Button.svelte';
 import Icon from './ui/Icon.svelte';
@@ -58,21 +58,24 @@ function checkFileShareSupport() {
 async function forceRefetchCurrentData() {
   try {
     const currentDateKey = formatDateKey(appState.selectedDate);
-    
+
     // Clear the current date cache to force reload
     reactiveTasks.currentDate = '';
     reactiveNotes.currentDate = '';
     reactiveTransactions.currentDate = '';
-    
+
     // Force reload all data for the current selected date
     await Promise.all([
       reactiveTasks.loadTasks(currentDateKey),
       reactiveNotes.loadNote(currentDateKey),
       reactiveTransactions.loadTransactions(currentDateKey),
-      settingsStore.loadSettings()
+      settingsStore.loadSettings(),
     ]);
-    
-    console.log('Successfully force refetched data for current date:', currentDateKey);
+
+    console.log(
+      'Successfully force refetched data for current date:',
+      currentDateKey,
+    );
   } catch (error) {
     console.error('Failed to force refetch current data:', error);
   }
@@ -84,16 +87,16 @@ async function handleShareBackupFile() {
 
   try {
     const result = await backupManager.shareBackupFile();
-    
+
     // Handle cancellation gracefully - don't show as error
     if (result.method === 'cancelled') {
       // Just close the modal without showing error state
       showBackupModal = false;
       return;
     }
-    
+
     backupResult = result;
-    
+
     // Only show success in the bottom sheet - no toast needed
     if (result.success) {
       // Auto-close modal after success
@@ -104,11 +107,12 @@ async function handleShareBackupFile() {
     }
   } catch (error) {
     console.error('File share failed:', error);
-    const message = error instanceof Error ? error.message : 'File sharing failed';
+    const message =
+      error instanceof Error ? error.message : 'File sharing failed';
     backupResult = {
       success: false,
       method: 'error',
-      message
+      message,
     };
   } finally {
     isBackingUp = false;
@@ -122,7 +126,7 @@ async function handleCopyBackupText() {
   try {
     const result = await backupManager.copyBackupText();
     backupResult = result;
-    
+
     // Only show success in the bottom sheet - no toast needed
     if (result.success) {
       // Auto-close modal after success
@@ -133,11 +137,12 @@ async function handleCopyBackupText() {
     }
   } catch (error) {
     console.error('Copy backup failed:', error);
-    const message = error instanceof Error ? error.message : 'Copy to clipboard failed';
+    const message =
+      error instanceof Error ? error.message : 'Copy to clipboard failed';
     backupResult = {
       success: false,
       method: 'error',
-      message
+      message,
     };
   } finally {
     isBackingUp = false;
@@ -151,7 +156,7 @@ async function handleDownloadBackup() {
   try {
     const result = await backupManager.createDownloadBackup();
     backupResult = result;
-    
+
     // Only show success in the bottom sheet - no toast needed
     if (result.success) {
       // Auto-close modal after success
@@ -162,11 +167,12 @@ async function handleDownloadBackup() {
     }
   } catch (error) {
     console.error('Download backup failed:', error);
-    const message = error instanceof Error ? error.message : 'Download backup failed';
+    const message =
+      error instanceof Error ? error.message : 'Download backup failed';
     backupResult = {
       success: false,
       method: 'error',
-      message
+      message,
     };
   } finally {
     isBackingUp = false;
@@ -182,15 +188,15 @@ async function handleRestoreFromClipboard() {
     // Only show success in the bottom sheet - no toast needed
     restoreResult = {
       success: true,
-      message: 'Data restored successfully from clipboard!'
+      message: 'Data restored successfully from clipboard!',
     };
-    
+
     // Reload backup stats after restore
     await loadBackupStats();
-    
+
     // Force refetch current data to show restored content
     await forceRefetchCurrentData();
-    
+
     // Auto-close modal after success
     setTimeout(() => {
       showRestoreModal = false;
@@ -201,7 +207,7 @@ async function handleRestoreFromClipboard() {
     const message = error instanceof Error ? error.message : 'Restore failed';
     restoreResult = {
       success: false,
-      message
+      message,
     };
   } finally {
     isRestoring = false;
@@ -212,7 +218,7 @@ async function handleRestoreFromFile() {
   const input = document.createElement('input');
   input.type = 'file';
   input.accept = '.json,application/json';
-  
+
   input.onchange = async (event) => {
     const file = (event.target as HTMLInputElement).files?.[0];
     if (!file) return;
@@ -225,15 +231,15 @@ async function handleRestoreFromFile() {
       // Only show success in the bottom sheet - no toast needed
       restoreResult = {
         success: true,
-        message: 'Data restored successfully from file!'
+        message: 'Data restored successfully from file!',
       };
-      
+
       // Reload backup stats after restore
       await loadBackupStats();
-      
+
       // Force refetch current data to show restored content
       await forceRefetchCurrentData();
-      
+
       // Auto-close modal after success
       setTimeout(() => {
         showRestoreModal = false;
@@ -244,7 +250,7 @@ async function handleRestoreFromFile() {
       const message = error instanceof Error ? error.message : 'Restore failed';
       restoreResult = {
         success: false,
-        message
+        message,
       };
     } finally {
       isRestoring = false;
@@ -256,19 +262,27 @@ async function handleRestoreFromFile() {
 
 function getBackupMethodIcon(method: string): string {
   switch (method) {
-    case 'share': return '📤';
-    case 'clipboard': return '📋';
-    case 'download': return '💾';
-    default: return '✅';
+    case 'share':
+      return '📤';
+    case 'clipboard':
+      return '📋';
+    case 'download':
+      return '💾';
+    default:
+      return '✅';
   }
 }
 
 function getBackupMethodTitle(method: string): string {
   switch (method) {
-    case 'share': return 'File Shared Successfully!';
-    case 'clipboard': return 'Copied to Clipboard!';
-    case 'download': return 'File Downloaded!';
-    default: return 'Backup Complete!';
+    case 'share':
+      return 'File Shared Successfully!';
+    case 'clipboard':
+      return 'Copied to Clipboard!';
+    case 'download':
+      return 'File Downloaded!';
+    default:
+      return 'Backup Complete!';
   }
 }
 </script>

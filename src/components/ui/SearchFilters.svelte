@@ -1,158 +1,158 @@
 <script lang="ts">
-  import {
-    getCategoryConfig,
-    CATEGORY_OPTIONS,
-    type TransactionCategory,
-  } from "../../lib/categories";
-  import {
-    getPriorityConfig,
-    PRIORITY_OPTIONS,
-    type TaskPriority,
-  } from "../../lib/priority";
-  import { type SearchFilters } from "../../stores/search.svelte";
-  import Icon from "./Icon.svelte";
-  interface Props {
-    filters: SearchFilters;
-    onFiltersChange: (filters: SearchFilters) => void;
-    onClearFilters: () => void;
-    isOpen: boolean;
-    onToggle: () => void;
+import {
+  CATEGORY_OPTIONS,
+  type TransactionCategory,
+  getCategoryConfig,
+} from '../../lib/categories';
+import {
+  PRIORITY_OPTIONS,
+  type TaskPriority,
+  getPriorityConfig,
+} from '../../lib/priority';
+import { type SearchFilters } from '../../stores/search.svelte';
+import Icon from './Icon.svelte';
+interface Props {
+  filters: SearchFilters;
+  onFiltersChange: (filters: SearchFilters) => void;
+  onClearFilters: () => void;
+  isOpen: boolean;
+  onToggle: () => void;
+}
+
+let { filters, onFiltersChange, onClearFilters, isOpen, onToggle }: Props =
+  $props();
+
+// Helper function to update filters
+function updateFilters(updates: Partial<SearchFilters>) {
+  onFiltersChange({ ...filters, ...updates });
+}
+
+// Get the current selected data type
+const selectedDataType = $derived.by(() => {
+  if (filters.dataTypes.length === 0) return 'all';
+  return filters.dataTypes[0];
+});
+
+// Handle filter changes
+function handleDataTypeChange(e: Event) {
+  const value = (e.target as HTMLSelectElement).value;
+  if (value === 'all') {
+    updateFilters({
+      dataTypes: [],
+      // Clear type-specific filters when changing to "all"
+      taskStatus: [],
+      taskPriorities: [],
+      transactionTypes: [],
+      transactionCategories: [],
+    });
+  } else {
+    updateFilters({
+      dataTypes: [value as 'task' | 'note' | 'transaction'],
+      // Clear type-specific filters when changing data type
+      taskStatus: [],
+      taskPriorities: [],
+      transactionTypes: [],
+      transactionCategories: [],
+    });
   }
+}
 
-  let { filters, onFiltersChange, onClearFilters, isOpen, onToggle }: Props =
-    $props();
-
-  // Helper function to update filters
-  function updateFilters(updates: Partial<SearchFilters>) {
-    onFiltersChange({ ...filters, ...updates });
+function handleTaskStatusChange(e: Event) {
+  const value = (e.target as HTMLSelectElement).value;
+  if (value === '') {
+    updateFilters({ taskStatus: [] });
+  } else {
+    updateFilters({ taskStatus: [value as 'completed' | 'pending'] });
   }
+}
 
-  // Get the current selected data type
-  const selectedDataType = $derived.by(() => {
-    if (filters.dataTypes.length === 0) return "all";
-    return filters.dataTypes[0];
-  });
-
-  // Handle filter changes
-  function handleDataTypeChange(e: Event) {
-    const value = (e.target as HTMLSelectElement).value;
-    if (value === "all") {
-      updateFilters({
-        dataTypes: [],
-        // Clear type-specific filters when changing to "all"
-        taskStatus: [],
-        taskPriorities: [],
-        transactionTypes: [],
-        transactionCategories: [],
-      });
-    } else {
-      updateFilters({
-        dataTypes: [value as "task" | "note" | "transaction"],
-        // Clear type-specific filters when changing data type
-        taskStatus: [],
-        taskPriorities: [],
-        transactionTypes: [],
-        transactionCategories: [],
-      });
-    }
+function handlePriorityChange(e: Event) {
+  const value = (e.target as HTMLSelectElement).value;
+  console.log('Priority changed to:', value); // Debug log
+  if (value === '') {
+    updateFilters({ taskPriorities: [] });
+  } else {
+    updateFilters({ taskPriorities: [value as TaskPriority] });
   }
+}
 
-  function handleTaskStatusChange(e: Event) {
-    const value = (e.target as HTMLSelectElement).value;
-    if (value === "") {
-      updateFilters({ taskStatus: [] });
-    } else {
-      updateFilters({ taskStatus: [value as "completed" | "pending"] });
-    }
+function handleTransactionTypeChange(e: Event) {
+  const value = (e.target as HTMLSelectElement).value;
+  if (value === '') {
+    updateFilters({ transactionTypes: [] });
+  } else {
+    updateFilters({ transactionTypes: [value as 'income' | 'expense'] });
   }
+}
 
-  function handlePriorityChange(e: Event) {
-    const value = (e.target as HTMLSelectElement).value;
-    console.log("Priority changed to:", value); // Debug log
-    if (value === "") {
-      updateFilters({ taskPriorities: [] });
-    } else {
-      updateFilters({ taskPriorities: [value as TaskPriority] });
-    }
+function handleCategoryChange(e: Event) {
+  const value = (e.target as HTMLSelectElement).value;
+  if (value === '') {
+    updateFilters({ transactionCategories: [] });
+  } else {
+    updateFilters({ transactionCategories: [value as TransactionCategory] });
   }
+}
 
-  function handleTransactionTypeChange(e: Event) {
-    const value = (e.target as HTMLSelectElement).value;
-    if (value === "") {
-      updateFilters({ transactionTypes: [] });
-    } else {
-      updateFilters({ transactionTypes: [value as "income" | "expense"] });
-    }
+// Check if any filters are active
+const hasActiveFilters = $derived.by(() => {
+  return (
+    filters.dataTypes.length > 0 ||
+    filters.taskStatus.length > 0 ||
+    filters.taskPriorities.length > 0 ||
+    filters.transactionTypes.length > 0 ||
+    filters.transactionCategories.length > 0 ||
+    filters.dateRange.start ||
+    filters.dateRange.end
+  );
+});
+
+// Count active filters
+const activeFilterCount = $derived.by(() => {
+  let count = 0;
+  if (filters.dataTypes.length > 0) count++;
+  if (filters.taskStatus.length > 0) count++;
+  if (filters.taskPriorities.length > 0) count++;
+  if (filters.transactionTypes.length > 0) count++;
+  if (filters.transactionCategories.length > 0) count++;
+  if (filters.dateRange.start || filters.dateRange.end) count++;
+  return count;
+});
+
+// Determine which filters to show based on EXACT selected data type
+const shouldShowTaskFilters = $derived.by(() => {
+  console.log('Selected data type:', selectedDataType); // Debug log
+  console.log('Should show task filters:', selectedDataType === 'task'); // Debug log
+  return selectedDataType === 'task'; // ONLY show when specifically "task" is selected
+});
+
+const shouldShowTransactionFilters = $derived.by(() => {
+  return selectedDataType === 'transaction'; // ONLY show when specifically "transaction" is selected
+});
+
+const shouldShowDateFilters = $derived.by(() => {
+  return true; // Date filters are always relevant
+});
+
+// Get display text for current filter state
+const filterStatusText = $derived.by(() => {
+  if (selectedDataType === 'all') {
+    return 'Filtering all data';
+  } else if (selectedDataType === 'task') {
+    return 'Filtering tasks';
+  } else if (selectedDataType === 'note') {
+    return 'Filtering notes';
+  } else if (selectedDataType === 'transaction') {
+    return 'Filtering transactions';
   }
+  return 'Filters active';
+});
 
-  function handleCategoryChange(e: Event) {
-    const value = (e.target as HTMLSelectElement).value;
-    if (value === "") {
-      updateFilters({ transactionCategories: [] });
-    } else {
-      updateFilters({ transactionCategories: [value as TransactionCategory] });
-    }
-  }
-
-  // Check if any filters are active
-  const hasActiveFilters = $derived.by(() => {
-    return (
-      filters.dataTypes.length > 0 ||
-      filters.taskStatus.length > 0 ||
-      filters.taskPriorities.length > 0 ||
-      filters.transactionTypes.length > 0 ||
-      filters.transactionCategories.length > 0 ||
-      filters.dateRange.start ||
-      filters.dateRange.end
-    );
-  });
-
-  // Count active filters
-  const activeFilterCount = $derived.by(() => {
-    let count = 0;
-    if (filters.dataTypes.length > 0) count++;
-    if (filters.taskStatus.length > 0) count++;
-    if (filters.taskPriorities.length > 0) count++;
-    if (filters.transactionTypes.length > 0) count++;
-    if (filters.transactionCategories.length > 0) count++;
-    if (filters.dateRange.start || filters.dateRange.end) count++;
-    return count;
-  });
-
-  // Determine which filters to show based on EXACT selected data type
-  const shouldShowTaskFilters = $derived.by(() => {
-    console.log("Selected data type:", selectedDataType); // Debug log
-    console.log("Should show task filters:", selectedDataType === "task"); // Debug log
-    return selectedDataType === "task"; // ONLY show when specifically "task" is selected
-  });
-
-  const shouldShowTransactionFilters = $derived.by(() => {
-    return selectedDataType === "transaction"; // ONLY show when specifically "transaction" is selected
-  });
-
-  const shouldShowDateFilters = $derived.by(() => {
-    return true; // Date filters are always relevant
-  });
-
-  // Get display text for current filter state
-  const filterStatusText = $derived.by(() => {
-    if (selectedDataType === "all") {
-      return "Filtering all data";
-    } else if (selectedDataType === "task") {
-      return "Filtering tasks";
-    } else if (selectedDataType === "note") {
-      return "Filtering notes";
-    } else if (selectedDataType === "transaction") {
-      return "Filtering transactions";
-    }
-    return "Filters active";
-  });
-
-  // Debug reactive values
-  $inspect("Current filters:", filters);
-  $inspect("Selected data type:", selectedDataType);
-  $inspect("Should show task filters:", shouldShowTaskFilters);
-  $inspect("Task priorities:", filters.taskPriorities);
+// Debug reactive values
+$inspect('Current filters:', filters);
+$inspect('Selected data type:', selectedDataType);
+$inspect('Should show task filters:', shouldShowTaskFilters);
+$inspect('Task priorities:', filters.taskPriorities);
 </script>
 
 <!-- Filter Bar -->

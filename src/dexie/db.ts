@@ -17,41 +17,52 @@ export class TempoDayDexie extends Dexie {
     });
 
     // Version 2: Add priority field to tasks
-    this.version(2).stores({
-      tasks: 'id, date, completed, priority',
-      notes: 'id, date',
-      transactions: 'id, date, type',
-      settings: 'id',
-    }).upgrade(tx => {
-      // Migrate existing tasks to have default 'medium' priority
-      return tx.table('tasks').toCollection().modify(task => {
-        if (!task.priority) {
-          task.priority = 'medium';
-        }
-        // Normalize completed field to 0/1, with fallback for missing/invalid
-        if (typeof task.completed === 'boolean') {
-          task.completed = task.completed ? 1 : 0;
-        } else if (task.completed !== 0 && task.completed !== 1) {
-          task.completed = 0;
-        }
+    this.version(2)
+      .stores({
+        tasks: 'id, date, completed, priority',
+        notes: 'id, date',
+        transactions: 'id, date, type',
+        settings: 'id',
+      })
+      .upgrade((tx) => {
+        // Migrate existing tasks to have default 'medium' priority
+        return tx
+          .table('tasks')
+          .toCollection()
+          .modify((task) => {
+            if (!task.priority) {
+              task.priority = 'medium';
+            }
+            // Normalize completed field to 0/1, with fallback for missing/invalid
+            if (typeof task.completed === 'boolean') {
+              task.completed = task.completed ? 1 : 0;
+            } else if (task.completed !== 0 && task.completed !== 1) {
+              task.completed = 0;
+            }
+          });
       });
-    });
 
     // Version 3: Add category field to transactions
-    this.version(3).stores({
-      tasks: 'id, date, description, completed, priority',
-      notes: 'id, date, content',
-      transactions: 'id, date, description, type, category',
-      settings: 'id',
-    }).upgrade(tx => {
-      // Migrate existing transactions to have default category
-      return tx.table('transactions').toCollection().modify(transaction => {
-        if (!transaction.category) {
-          // Set default category based on transaction type
-          transaction.category = transaction.type === 'income' ? 'work' : 'other';
-        }
+    this.version(3)
+      .stores({
+        tasks: 'id, date, description, completed, priority',
+        notes: 'id, date, content',
+        transactions: 'id, date, description, type, category',
+        settings: 'id',
+      })
+      .upgrade((tx) => {
+        // Migrate existing transactions to have default category
+        return tx
+          .table('transactions')
+          .toCollection()
+          .modify((transaction) => {
+            if (!transaction.category) {
+              // Set default category based on transaction type
+              transaction.category =
+                transaction.type === 'income' ? 'work' : 'other';
+            }
+          });
       });
-    });
   }
   /**
    * Get the current schema version

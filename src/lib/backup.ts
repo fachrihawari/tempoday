@@ -106,7 +106,8 @@ export class BackupManager {
       return {
         success: true,
         method: 'share',
-        message: 'Backup file shared successfully! Choose your preferred app to save it.',
+        message:
+          'Backup file shared successfully! Choose your preferred app to save it.',
       };
     } catch (error) {
       console.error('File share failed:', error);
@@ -142,7 +143,8 @@ export class BackupManager {
       return {
         success: true,
         method: 'clipboard',
-        message: 'Backup copied to clipboard! Paste it in your notes app or email to save.',
+        message:
+          'Backup copied to clipboard! Paste it in your notes app or email to save.',
       };
     } catch (error) {
       console.error('Clipboard copy failed:', error);
@@ -164,14 +166,16 @@ export class BackupManager {
       return {
         success: true,
         method: 'download',
-        message: 'Backup file downloaded successfully! Check your Downloads folder.',
+        message:
+          'Backup file downloaded successfully! Check your Downloads folder.',
       };
     } catch (error) {
       console.error('Download backup failed:', error);
       return {
         success: false,
         method: 'download',
-        message: error instanceof Error ? error.message : 'Download backup failed',
+        message:
+          error instanceof Error ? error.message : 'Download backup failed',
       };
     }
   }
@@ -201,13 +205,20 @@ export class BackupManager {
     if (!data.version || !data.exportDate || !data.data) return false;
 
     const { tasks, notes, transactions, settings } = data.data;
-    if (!Array.isArray(tasks) || !Array.isArray(notes) ||
-      !Array.isArray(transactions) || !Array.isArray(settings)) {
+    if (
+      !Array.isArray(tasks) ||
+      !Array.isArray(notes) ||
+      !Array.isArray(transactions) ||
+      !Array.isArray(settings)
+    ) {
       return false;
     }
 
     // Schema version is optional for backward compatibility
-    if (data.schemaVersion !== undefined && typeof data.schemaVersion !== 'number') {
+    if (
+      data.schemaVersion !== undefined &&
+      typeof data.schemaVersion !== 'number'
+    ) {
       return false;
     }
 
@@ -221,7 +232,9 @@ export class BackupManager {
     const currentSchemaVersion = db.getCurrentSchemaVersion();
     const backupSchemaVersion = backupData.schemaVersion || 1;
 
-    console.log(`Migrating backup from schema version ${backupSchemaVersion} to ${currentSchemaVersion}`);
+    console.log(
+      `Migrating backup from schema version ${backupSchemaVersion} to ${currentSchemaVersion}`,
+    );
 
     if (backupSchemaVersion >= currentSchemaVersion) {
       console.log('No migration needed - backup is already up to date');
@@ -233,21 +246,34 @@ export class BackupManager {
 
     // Migration from version 1 to 2: Add priority to tasks
     if (backupSchemaVersion < 2) {
-      console.log('Migrating tasks: adding priority field and normalizing completed');
+      console.log(
+        'Migrating tasks: adding priority field and normalizing completed',
+      );
       migratedData.data.tasks = migratedData.data.tasks.map((task: any) => ({
         ...task,
         priority: task.priority || 'medium',
-        completed: typeof task.completed === 'boolean' ? (task.completed ? 1 : 0) : (task.completed !== 0 && task.completed !== 1 ? 0 : task.completed)
+        completed:
+          typeof task.completed === 'boolean'
+            ? task.completed
+              ? 1
+              : 0
+            : task.completed !== 0 && task.completed !== 1
+              ? 0
+              : task.completed,
       }));
     }
 
     // Migration from version 2 to 3: Add category to transactions
     if (backupSchemaVersion < 3) {
       console.log('Migrating transactions: adding category field');
-      migratedData.data.transactions = migratedData.data.transactions.map((transaction: any) => ({
-        ...transaction,
-        category: transaction.category || (transaction.type === 'income' ? 'work' : 'other')
-      }));
+      migratedData.data.transactions = migratedData.data.transactions.map(
+        (transaction: any) => ({
+          ...transaction,
+          category:
+            transaction.category ||
+            (transaction.type === 'income' ? 'work' : 'other'),
+        }),
+      );
     }
 
     // Update schema version
@@ -282,7 +308,7 @@ export class BackupManager {
       currentVersion: currentSchemaVersion,
       backupVersion: backupSchemaVersion,
       needsMigration,
-      migrationsNeeded
+      migrationsNeeded,
     };
   }
 

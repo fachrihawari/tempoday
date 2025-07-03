@@ -1,6 +1,6 @@
 <script lang="ts">
-import Icon from '../components/ui/Icon.svelte';
 import Button from '../components/ui/Button.svelte';
+import Icon from '../components/ui/Icon.svelte';
 import { reactiveRouter } from '../stores/router.svelte';
 
 function goBack() {

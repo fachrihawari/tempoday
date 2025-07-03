@@ -1,6 +1,6 @@
 <script lang="ts">
-import Icon from './ui/Icon.svelte';
 import { settingsStore } from '../stores/settings.svelte';
+import Icon from './ui/Icon.svelte';
 
 // Use $derived for selectedTheme to always reflect the store
 const selectedTheme = $derived(settingsStore.settings.theme);

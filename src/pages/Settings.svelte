@@ -1,4 +1,5 @@
 <script lang="ts">
+import AppearanceSettings from '../components/AppearanceSettings.svelte';
 import BackupRestore from '../components/BackupRestore.svelte';
 import DonationModal from '../components/DonationModal.svelte';
 import Settings from '../components/Settings.svelte';
@@ -6,9 +7,8 @@ import Button from '../components/ui/Button.svelte';
 import Card from '../components/ui/Card.svelte';
 import Icon from '../components/ui/Icon.svelte';
 import PageHeader from '../components/ui/PageHeader.svelte';
-import { toastStore } from '../stores/toast.svelte';
 import { reactiveRouter } from '../stores/router.svelte';
-import AppearanceSettings from '../components/AppearanceSettings.svelte';
+import { toastStore } from '../stores/toast.svelte';
 
 let showDonationModal = $state(false);
 
@@ -19,7 +19,7 @@ const GITHUB_REPO_URL = 'https://github.com/fachrihawari/tempoday';
 const SHARE_CONTENT = {
   title: 'TempoDay - Calendar-Centric Personal Management',
   text: 'Check out TempoDay, a privacy-focused personal management app that helps you organize tasks, notes, and finances by date!',
-  url: 'https://tempoday.site'
+  url: 'https://tempoday.site',
 };
 
 function navigateToTerms() {
@@ -38,15 +38,19 @@ async function handleRateUs() {
 async function handleShare() {
   try {
     // Try Web Share API first
-    if (navigator.share && navigator.canShare && navigator.canShare(SHARE_CONTENT)) {
+    if (
+      navigator.share &&
+      navigator.canShare &&
+      navigator.canShare(SHARE_CONTENT)
+    ) {
       await navigator.share(SHARE_CONTENT);
       toastStore.success('Content shared successfully!');
       return;
     }
-    
+
     // Fallback to clipboard
     const shareText = `${SHARE_CONTENT.title}\n\n${SHARE_CONTENT.text}\n\n${SHARE_CONTENT.url}`;
-    
+
     if (navigator.clipboard && navigator.clipboard.writeText) {
       await navigator.clipboard.writeText(shareText);
       toastStore.success('Share content copied to clipboard!');
@@ -70,7 +74,7 @@ async function handleShare() {
       // User canceled the share dialog - this is expected behavior, don't show error
       return;
     }
-    
+
     console.error('Failed to share:', error);
     toastStore.error('Failed to share content');
   }

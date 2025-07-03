@@ -1,5 +1,8 @@
 <script lang="ts">
-import { getCategoryConfig, type TransactionCategory } from '../../lib/categories';
+import {
+  type TransactionCategory,
+  getCategoryConfig,
+} from '../../lib/categories';
 
 interface Props {
   category: TransactionCategory;

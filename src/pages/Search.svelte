@@ -1,11 +1,16 @@
 <script lang="ts">
 import { onMount } from 'svelte';
-import { setSelectedDate } from '../stores/app.svelte';
-import { reactiveRouter } from '../stores/router.svelte';
-import { searchStore, type SearchResult, type SearchFilters } from '../stores/search.svelte';
 import Button from '../components/ui/Button.svelte';
 import Icon from '../components/ui/Icon.svelte';
+import PageHeader from '../components/ui/PageHeader.svelte';
 import SearchFiltersComponent from '../components/ui/SearchFilters.svelte';
+import { setSelectedDate } from '../stores/app.svelte';
+import { reactiveRouter } from '../stores/router.svelte';
+import {
+  type SearchFilters,
+  type SearchResult,
+  searchStore,
+} from '../stores/search.svelte';
 
 let searchInput = $state('');
 let searchTimeout: ReturnType<typeof setTimeout> | null = null;
@@ -14,30 +19,39 @@ let searchInputElement: HTMLInputElement = $state()!;
 let showMoreCategories = $state(false);
 
 // Reactive values from search store
-let { query, results, isSearching, error, hasSearched, hasResults, filters, hasActiveFilters } = $derived(searchStore);
+let {
+  query,
+  results,
+  isSearching,
+  error,
+  hasSearched,
+  hasResults,
+  filters,
+  hasActiveFilters,
+} = $derived(searchStore);
 
 // Improved debounced search function
 function handleSearchInput() {
   const trimmedInput = searchInput.trim();
-  
+
   // Clear any existing timeout
   if (searchTimeout) {
     clearTimeout(searchTimeout);
     searchTimeout = null;
   }
-  
+
   // If input is empty, clear results immediately
   if (!trimmedInput) {
     searchStore.clearResults();
     lastSearchQuery = '';
     return;
   }
-  
+
   // Don't search if it's the same as the last query
   if (trimmedInput === lastSearchQuery) {
     return;
   }
-  
+
   // Set up new debounced search
   searchTimeout = setTimeout(() => {
     if (trimmedInput && trimmedInput !== lastSearchQuery) {
@@ -81,7 +95,7 @@ function handleResultClick(result: SearchResult) {
   // Set the selected date to the result's date
   const resultDate = new Date(result.date);
   setSelectedDate(resultDate);
-  
+
   // Navigate to calendar page to show the selected date
   reactiveRouter.navigate('/calendar');
 }
@@ -93,34 +107,45 @@ function formatResultDate(dateString: string): string {
     weekday: 'short',
     month: 'short',
     day: 'numeric',
-    year: 'numeric'
+    year: 'numeric',
   });
 }
 
 // Get icon for result type
-function getResultIcon(type: SearchResult['type']): 'clipboard' | 'edit' | 'dollar' {
+function getResultIcon(
+  type: SearchResult['type'],
+): 'clipboard' | 'edit' | 'dollar' {
   switch (type) {
-    case 'task': return 'clipboard';
-    case 'note': return 'edit';
-    case 'transaction': return 'dollar';
+    case 'task':
+      return 'clipboard';
+    case 'note':
+      return 'edit';
+    case 'transaction':
+      return 'dollar';
   }
 }
 
 // Get color for result type
 function getResultColor(type: SearchResult['type']): string {
   switch (type) {
-    case 'task': return 'text-blue-600';
-    case 'note': return 'text-purple-600';
-    case 'transaction': return 'text-green-600';
+    case 'task':
+      return 'text-blue-600';
+    case 'note':
+      return 'text-purple-600';
+    case 'transaction':
+      return 'text-green-600';
   }
 }
 
 // Get background color for result type
 function getResultBgColor(type: SearchResult['type']): string {
   switch (type) {
-    case 'task': return 'bg-blue-50 border-blue-200';
-    case 'note': return 'bg-purple-50 border-purple-200';
-    case 'transaction': return 'bg-green-50 border-green-200';
+    case 'task':
+      return 'bg-blue-50 border-blue-200';
+    case 'note':
+      return 'bg-purple-50 border-purple-200';
+    case 'transaction':
+      return 'bg-green-50 border-green-200';
   }
 }
 
@@ -146,12 +171,12 @@ function clearSearch() {
     clearTimeout(searchTimeout);
     searchTimeout = null;
   }
-  
+
   // Clear input and results
   searchInput = '';
   lastSearchQuery = '';
   searchStore.clearResults();
-  
+
   // Keep focus on input after clearing
   if (searchInputElement) {
     searchInputElement.focus();
@@ -164,7 +189,7 @@ onMount(() => {
   if (searchInputElement) {
     searchInputElement.focus();
   }
-  
+
   return () => {
     if (searchTimeout) {
       clearTimeout(searchTimeout);
@@ -176,19 +201,7 @@ onMount(() => {
 
 <div class="h-full flex flex-col">
   <!-- Header -->
-  <div class="flex items-center gap-3 p-4 border-b border-gray-200 bg-white">
-    <button
-      onclick={goBack}
-      class="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-      aria-label="Go back"
-    >
-      <Icon name="chevron-left" class="text-gray-600" />
-    </button>
-    <div class="flex-1">
-      <h1 class="text-xl font-semibold text-gray-900">Search</h1>
-      <p class="text-sm text-gray-600">Find tasks, notes, and transactions</p>
-    </div>
-  </div>
+  <PageHeader title="Search" subtitle="Find tasks, notes, and transactions" onBack={goBack} />
 
   <!-- Search Input and Filters -->
   <div class="p-4 bg-white border-b border-gray-200 space-y-3">

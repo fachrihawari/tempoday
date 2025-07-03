@@ -1,5 +1,5 @@
 <script lang="ts">
-import { getPriorityConfig, type TaskPriority } from '../../lib/priority';
+import { type TaskPriority, getPriorityConfig } from '../../lib/priority';
 
 interface Props {
   priority: TaskPriority;

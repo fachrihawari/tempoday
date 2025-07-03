@@ -1,5 +1,9 @@
 <script lang="ts">
-import { getPriorityConfig, PRIORITY_OPTIONS, type TaskPriority } from '../../lib/priority';
+import {
+  PRIORITY_OPTIONS,
+  type TaskPriority,
+  getPriorityConfig,
+} from '../../lib/priority';
 import Button from './Button.svelte';
 import Icon from './Icon.svelte';
 
@@ -34,7 +38,7 @@ function toggleOpen(event: MouseEvent) {
   // Prevent form submission
   event.preventDefault();
   event.stopPropagation();
-  
+
   if (!disabled) {
     isOpen = !isOpen;
   }

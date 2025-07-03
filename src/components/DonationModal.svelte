@@ -1,5 +1,9 @@
 <script lang="ts">
-import { DONATION_TIERS, revenueCatService, type DonationTier } from '../lib/revenuecat';
+import {
+  DONATION_TIERS,
+  type DonationTier,
+  revenueCatService,
+} from '../lib/revenuecat';
 import BottomSheet from './ui/BottomSheet.svelte';
 import Button from './ui/Button.svelte';
 import Icon from './ui/Icon.svelte';
@@ -18,9 +22,9 @@ async function handleDonation(tier: DonationTier) {
   try {
     isProcessing = true;
     selectedTier = tier;
-    
+
     const success = await revenueCatService.makeDonation(tier);
-    
+
     if (success) {
       // Close modal after successful donation
       setTimeout(() => {
@@ -45,7 +49,11 @@ function closeModal() {
 
 // Handle GitHub star
 function handleGitHubStar() {
-  window.open('https://github.com/fachrihawari/tempoday', '_blank', 'noopener,noreferrer');
+  window.open(
+    'https://github.com/fachrihawari/tempoday',
+    '_blank',
+    'noopener,noreferrer',
+  );
 }
 
 // Handle share
@@ -53,11 +61,15 @@ async function handleShare() {
   const shareContent = {
     title: 'TempoDay - Calendar-Centric Personal Management',
     text: 'Check out TempoDay, a privacy-focused personal management app!',
-    url: 'https://tempoday.site'
+    url: 'https://tempoday.site',
   };
 
   try {
-    if (navigator.share && navigator.canShare && navigator.canShare(shareContent)) {
+    if (
+      navigator.share &&
+      navigator.canShare &&
+      navigator.canShare(shareContent)
+    ) {
       await navigator.share(shareContent);
     } else {
       // Fallback to clipboard

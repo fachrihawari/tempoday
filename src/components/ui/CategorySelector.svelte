@@ -1,5 +1,9 @@
 <script lang="ts">
-import { getCategoryConfig, getCategoriesForType, type TransactionCategory } from '../../lib/categories';
+import {
+  type TransactionCategory,
+  getCategoriesForType,
+  getCategoryConfig,
+} from '../../lib/categories';
 import Icon from './Icon.svelte';
 
 interface Props {
@@ -37,7 +41,7 @@ function toggleOpen(event: MouseEvent) {
   // Prevent form submission
   event.preventDefault();
   event.stopPropagation();
-  
+
   if (!disabled) {
     isOpen = !isOpen;
   }
