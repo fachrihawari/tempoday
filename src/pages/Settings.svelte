@@ -3,81 +3,17 @@ import AppearanceSettings from '../components/AppearanceSettings.svelte';
 import BackupRestore from '../components/BackupRestore.svelte';
 import DonationModal from '../components/DonationModal.svelte';
 import Settings from '../components/Settings.svelte';
+import SupportSettings from '../components/SupportSettings.svelte';
 import Button from '../components/ui/Button.svelte';
 import Card from '../components/ui/Card.svelte';
 import Icon from '../components/ui/Icon.svelte';
 import PageHeader from '../components/ui/PageHeader.svelte';
 import { reactiveRouter } from '../stores/router.svelte';
-import { toastStore } from '../stores/toast.svelte';
 
 let showDonationModal = $state(false);
 
-// GitHub repository URL
-const GITHUB_REPO_URL = 'https://github.com/fachrihawari/tempoday';
-
-// Share content
-const SHARE_CONTENT = {
-  title: 'TempoDay - Calendar-Centric Personal Management',
-  text: 'Check out TempoDay, a privacy-focused personal management app that helps you organize tasks, notes, and finances by date!',
-  url: 'https://tempoday.site',
-};
-
 function navigateToTerms() {
   reactiveRouter.navigate('/terms');
-}
-
-async function handleRateUs() {
-  try {
-    window.open(GITHUB_REPO_URL, '_blank', 'noopener,noreferrer');
-  } catch (error) {
-    console.error('Failed to open GitHub repo:', error);
-    toastStore.error('Failed to open GitHub repository');
-  }
-}
-
-async function handleShare() {
-  try {
-    // Try Web Share API first
-    if (
-      navigator.share &&
-      navigator.canShare &&
-      navigator.canShare(SHARE_CONTENT)
-    ) {
-      await navigator.share(SHARE_CONTENT);
-      toastStore.success('Content shared successfully!');
-      return;
-    }
-
-    // Fallback to clipboard
-    const shareText = `${SHARE_CONTENT.title}\n\n${SHARE_CONTENT.text}\n\n${SHARE_CONTENT.url}`;
-
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      await navigator.clipboard.writeText(shareText);
-      toastStore.success('Share content copied to clipboard!');
-    } else {
-      // Final fallback for older browsers
-      const textArea = document.createElement('textarea');
-      textArea.value = shareText;
-      textArea.style.position = 'fixed';
-      textArea.style.left = '-999999px';
-      textArea.style.top = '-999999px';
-      document.body.appendChild(textArea);
-      textArea.focus();
-      textArea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textArea);
-      toastStore.success('Share content copied to clipboard!');
-    }
-  } catch (error) {
-    // Check if the error is an AbortError (user canceled the share)
-    if (error instanceof DOMException && error.name === 'AbortError') {
-      // User canceled the share dialog - this is expected behavior, don't show error
-      return;
-    }
-
-    console.error('Failed to share:', error);
-    toastStore.error('Failed to share content');
-  }
 }
 </script>
 
@@ -113,70 +49,7 @@ async function handleShare() {
       defaultExpanded={false}
     >
       {#snippet children()}
-        <div class="space-y-4">
-          <!-- Support Message -->
-          <div class="bg-gradient-to-r from-red-50 to-pink-50 rounded-lg p-4 border border-red-200">
-            <div class="flex items-start gap-3">
-              <div class="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
-                <span class="text-white text-lg">❤️</span>
-              </div>
-              <div>
-                <h3 class="font-medium text-gray-900 mb-1">Love TempoDay?</h3>
-                <p class="text-sm text-gray-700 leading-relaxed mb-3">
-                  Help us keep TempoDay free and continuously improving. Your support makes a real difference in our development journey.
-                </p>
-                <div class="flex flex-wrap gap-2 text-xs text-gray-600">
-                  <span class="bg-white px-2 py-1 rounded-full">🚀 New features</span>
-                  <span class="bg-white px-2 py-1 rounded-full">🔒 Privacy-first</span>
-                  <span class="bg-white px-2 py-1 rounded-full">💯 Always free</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Donation Button -->
-          <Button
-            variant="primary"
-            fullWidth
-            onclick={() => showDonationModal = true}
-            class="!p-4 !text-left !justify-start !bg-gradient-to-r !from-red-500 !to-pink-500 hover:!from-red-600 hover:!to-pink-600"
-          >
-            {#snippet children()}
-              <div class="flex items-center gap-4 w-full">
-                <div class="w-12 h-12 bg-red-200 rounded-xl flex items-center justify-center">
-                  <span class="text-2xl">💝</span>
-                </div>
-                <div class="flex-1">
-                  <h3 class="font-semibold text-white mb-1">Support TempoDay</h3>
-                  <p class="text-red-100 text-sm">Help keep this app free and growing</p>
-                </div>
-                <div class="text-white">
-                  <Icon name="chevron-right" />
-                </div>
-              </div>
-            {/snippet}
-          </Button>
-
-          <!-- Alternative Support Options -->
-          <div class="grid grid-cols-2 gap-3">
-            <button
-              onclick={handleRateUs}
-              class="bg-white rounded-lg p-3 border border-gray-200 text-center hover:bg-gray-50 transition-colors"
-            >
-              <div class="text-2xl mb-1">⭐</div>
-              <div class="text-xs font-medium text-gray-900">Star us</div>
-              <div class="text-xs text-gray-600">GitHub</div>
-            </button>
-            <button
-              onclick={handleShare}
-              class="bg-white rounded-lg p-3 border border-gray-200 text-center hover:bg-gray-50 transition-colors"
-            >
-              <div class="text-2xl mb-1">📢</div>
-              <div class="text-xs font-medium text-gray-900">Share</div>
-              <div class="text-xs text-gray-600">Tell friends</div>
-            </button>
-          </div>
-        </div>
+        <SupportSettings onDonate={() => showDonationModal = true} />
       {/snippet}
     </Card>
 
