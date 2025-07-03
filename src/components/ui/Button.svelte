@@ -1,7 +1,8 @@
 <script lang="ts">
+import type { HTMLButtonAttributes } from 'svelte/elements';
 import { type SectionTheme, sectionThemes } from '../../lib/theme';
 
-interface Props {
+interface Props extends HTMLButtonAttributes {
   variant?:
     | 'primary'
     | 'secondary'

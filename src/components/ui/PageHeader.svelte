@@ -29,9 +29,9 @@ let { title, subtitle, icon, children, onBack = null }: Props = $props();
       {#if onBack}
         <Button
           onclick={onBack}
+          variant="ghost"
           aria-label="Go back"
           class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors mr-1"
-          iconOnly
         >
           <Icon name="chevron-left" class="text-gray-600 dark:text-gray-300" />
         </Button>
