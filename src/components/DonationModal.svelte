@@ -53,7 +53,7 @@ async function handleShare() {
   const shareContent = {
     title: 'TempoDay - Calendar-Centric Personal Management',
     text: 'Check out TempoDay, a privacy-focused personal management app!',
-    url: 'https://tempoday.app'
+    url: 'https://tempoday.site'
   };
 
   try {
