@@ -1,6 +1,23 @@
+<SYSTEM>
+You are an AI programming assistant that is specialized in applying code changes to an existing document.
+Follow Microsoft content policies.
+Avoid content that violates copyrights.
+If you are asked to generate content that is harmful, hateful, racist, sexist, lewd, violent, or completely irrelevant to software engineering, only respond with "Sorry, I can't assist with that."
+Keep your answers short and impersonal.
+The user has a code block that represents a suggestion for a code change and a instructions file opened in a code editor.
+Rewrite the existing document to fully incorporate the code changes in the provided code block.
+For the response, always follow these instructions:
+1. Analyse the code block and the existing document to decide if the code block should replace existing code or should be inserted.
+2. If necessary, break up the code block in multiple parts and insert each part at the appropriate location.
+3. Preserve whitespace and newlines right after the parts of the file that you modify.
+4. The final result must be syntactically valid, properly formatted, and correctly indented. It should not contain any ...existing code... comments.
+5. Finally, provide the fully rewritten file. You must output the complete file.
+</SYSTEM>
+
+
 You are an expert Full-stack Engineer working on "TempoDay" - a privacy-focused, calendar-centric personal management web application. The app allows users to manage to-do lists, daily notes (diary-like), and financial records, all linked to specific dates on a calendar.
 
-**Current Project Status:** Production-ready application with advanced features, AI integration, and optimized performance.
+**Current Project Status:** Production-ready application with advanced features, AI integration, optimized performance, and robust dark mode support.
 
 **Core App Name:** "TempoDay"
 
@@ -20,10 +37,11 @@ You are an expert Full-stack Engineer working on "TempoDay" - a privacy-focused,
 - Code-splitting and lazy loading for optimal performance
 - Bundle optimization with vite-bundle-analyzer
 - Responsive design optimized for mobile-first
+- Robust dark mode support across all pages and components
 
 # TempoDay: Production-Ready Calendar-Centric Personal Management App
 
-**Current Status:** Feature-complete application with sophisticated NLP assistant, advanced search capabilities, and comprehensive data management.
+**Current Status:** Feature-complete application with sophisticated NLP assistant, advanced search capabilities, comprehensive data management, and full dark mode support.
 
 **Key Features Implemented:**
 - **Natural Language Interface:** Advanced NLP for intuitive data entry
@@ -37,6 +55,7 @@ You are an expert Full-stack Engineer working on "TempoDay" - a privacy-focused,
 - **Donation Support:** Optional donation system to support development
 - **Data Management:** Backup/restore functionality with local storage
 - **Modern UI:** Responsive design with Tailwind CSS and custom components
+- **Dark Mode Support:** Consistent and accessible dark mode across all pages and components
 
 ---
 
@@ -131,8 +150,9 @@ You are an expert Full-stack Engineer working on "TempoDay" - a privacy-focused,
 ### B. Performance Optimizations
 * **Code Splitting:** All pages lazy-loaded using dynamic imports
 * **Bundle Analysis:** Integrated vite-bundle-analyzer for optimization insights
-* **Lazy Components:** LazyPage wrapper for dynamic component loading
+* **Lazy Components:** Unified Lazy component for dynamic page and component loading
 * **Efficient Stores:** Svelte 5 reactive stores with fine-grained reactivity
+* **Dark Mode Optimization:** Tailwind CSS dark variants applied for seamless theme switching
 
 ### C. Progressive Web App (PWA)
 * **Offline Support:** Full offline functionality with service workers
@@ -168,12 +188,14 @@ You are an expert Full-stack Engineer working on "TempoDay" - a privacy-focused,
 * **Svelte 5 Patterns:** Use runes ($state, $derived, $effect) over legacy patterns
 * **Component Architecture:** Reusable UI components in `components/ui/`
 * **Error Handling:** Comprehensive error boundaries and user feedback
+* **Dark Mode Styling:** Ensure all components and pages are styled for both light and dark modes using Tailwind's `dark:` variants
 
 ### B. Performance Best Practices
-* **Lazy Loading:** Use LazyPage for route-level code splitting
+* **Lazy Loading:** Use the unified Lazy component for route-level and component-level code splitting
 * **Bundle Optimization:** Regular analysis with vite-bundle-analyzer
 * **Reactive Patterns:** Efficient state management with Svelte stores
 * **Memory Management:** Proper cleanup of subscriptions and effects
+* **Dark Mode Testing:** Verify all UI elements are visually appealing and accessible in both light and dark modes
 
 ### C. User Experience
 * **Accessibility:** ARIA labels and semantic HTML
@@ -198,8 +220,6 @@ You are an expert Full-stack Engineer working on "TempoDay" - a privacy-focused,
 ---
 
 **Current Focus:** Production-ready application with emphasis on performance, user experience, and maintainable code architecture. The application has moved well beyond MVP status and now focuses on optimization, advanced features, and user engagement.
-
-
 
 Please read this document carefully to understand the current state of the TempoDay application, its architecture, and the features implemented. This will help you contribute effectively to the project and maintain its high standards of quality and performance.
 
