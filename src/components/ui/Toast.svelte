@@ -38,32 +38,32 @@ const typeConfig: Record<
   }
 > = {
   info: {
-    classes: 'bg-white text-blue-800 border-blue-200 shadow-blue-100',
+    classes: 'bg-white dark:bg-gray-800 text-blue-800 dark:text-blue-200 border-blue-200 dark:border-blue-700 shadow-blue-100 dark:shadow-blue-900/20',
     icon: 'info-circle' as IconName,
-    iconColor: 'text-blue-600',
+    iconColor: 'text-blue-600 dark:text-blue-400',
     defaultTitle: 'Info',
-    bgColor: 'bg-blue-500',
+    bgColor: 'bg-blue-500 dark:bg-blue-600',
   },
   success: {
-    classes: 'bg-white text-green-800 border-green-200 shadow-green-100',
+    classes: 'bg-white dark:bg-gray-800 text-green-800 dark:text-green-200 border-green-200 dark:border-green-700 shadow-green-100 dark:shadow-green-900/20',
     icon: 'check-circle' as IconName,
-    iconColor: 'text-green-600',
+    iconColor: 'text-green-600 dark:text-green-400',
     defaultTitle: 'Success',
-    bgColor: 'bg-green-500',
+    bgColor: 'bg-green-500 dark:bg-green-600',
   },
   warning: {
-    classes: 'bg-white text-yellow-800 border-yellow-200 shadow-yellow-100',
+    classes: 'bg-white dark:bg-gray-800 text-yellow-800 dark:text-yellow-200 border-yellow-200 dark:border-yellow-700 shadow-yellow-100 dark:shadow-yellow-900/20',
     icon: 'exclamation-triangle' as IconName,
-    iconColor: 'text-yellow-600',
+    iconColor: 'text-yellow-600 dark:text-yellow-400',
     defaultTitle: 'Warning',
-    bgColor: 'bg-yellow-500',
+    bgColor: 'bg-yellow-500 dark:bg-yellow-600',
   },
   error: {
-    classes: 'bg-white text-red-800 border-red-200 shadow-red-100',
+    classes: 'bg-white dark:bg-gray-800 text-red-800 dark:text-red-200 border-red-200 dark:border-red-700 shadow-red-100 dark:shadow-red-900/20',
     icon: 'alert-circle' as IconName,
-    iconColor: 'text-red-600',
+    iconColor: 'text-red-600 dark:text-red-400',
     defaultTitle: 'Error',
-    bgColor: 'bg-red-500',
+    bgColor: 'bg-red-500 dark:bg-red-600',
   },
 };
 
@@ -121,7 +121,7 @@ onMount(() => {
   >
     <!-- Progress bar -->
     {#if duration > 0}
-      <div class="absolute bottom-0 left-0 right-0 h-1 bg-gray-200 rounded-b-xl overflow-hidden">
+      <div class="absolute bottom-0 left-0 right-0 h-1 bg-gray-200 dark:bg-gray-700 rounded-b-xl overflow-hidden">
         <div 
           class="h-full transition-all duration-100 ease-linear {config.bgColor}"
           style="width: {progressWidth}%"
@@ -139,17 +139,17 @@ onMount(() => {
     <!-- Content -->
     <div class="flex-1 min-w-0">
       <h4 class="text-sm font-semibold leading-tight">{toastTitle}</h4>
-      <p class="text-sm mt-1 leading-relaxed opacity-90">{message}</p>
+      <p class="text-sm mt-1 leading-relaxed opacity-90 text-gray-700 dark:text-gray-300">{message}</p>
     </div>
 
     <!-- Dismiss button with hover animation -->
     {#if dismissible}
       <button
         onclick={dismiss}
-        class="flex-shrink-0 p-1 rounded-md hover:bg-black/5 transition-all duration-200 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-1"
+        class="flex-shrink-0 p-1 rounded-md hover:bg-black/5 dark:hover:bg-white/10 transition-all duration-200 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-500 focus:ring-offset-1 dark:focus:ring-offset-gray-800"
         aria-label="Dismiss notification"
       >
-        <Icon name="close" size="sm" class="text-gray-400 hover:text-gray-600 transition-colors duration-200" />
+        <Icon name="close" size="sm" class="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-200" />
       </button>
     {/if}
   </div>
