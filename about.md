@@ -41,6 +41,8 @@ Oh boy, where do we start? 😅
 
 **Seamless donation integration** - Implementing a smooth donation flow with RevenueCat while maintaining the privacy-first approach. Getting the payment experience just right without being pushy or breaking the user flow took careful UX design.
 
+**Dark mode implementation** - Ensuring a consistent and visually appealing dark mode across all pages and components. Tailwind's `dark:` variants were a lifesaver, but testing and tweaking every element for accessibility and aesthetics took time.
+
 ## Accomplishments that we're proud of
 
 We actually built something pretty awesome! 🎉
@@ -53,6 +55,7 @@ We actually built something pretty awesome! 🎉
 - 💰 **Smart money tracking** - Automatic daily summaries with categorized spending insights
 - 🔍 **Powerful search** - Find any task, note, or transaction instantly across all your data
 - ⭐ **Task prioritization** - Organize your to-dos by importance with visual priority indicators
+- 🌙 **Dark mode support** - Fully implemented dark mode for night owls and aesthetic lovers
 - ☕ **Sustainable funding** - Integrated RevenueCat donations that let supporters contribute while keeping the app free for everyone
 
 ## What we learned
@@ -72,7 +75,6 @@ We actually built something pretty awesome! 🎉
 We're just getting started! 🚀
 
 **Coming soon:**
-- **Dark mode** - For the night owls among us
 - **Recurring tasks** - Set it and forget it
 
 **The bigger picture:**
