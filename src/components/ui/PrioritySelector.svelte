@@ -46,7 +46,7 @@ function toggleOpen(event: MouseEvent) {
 
   if (!disabled) {
     isOpen = !isOpen;
-    
+
     // Calculate dropdown position when opening
     if (isOpen && buttonElement) {
       $effect.root(() => {
@@ -60,19 +60,19 @@ function toggleOpen(event: MouseEvent) {
 
 function calculateDropdownPosition() {
   if (!buttonElement) return;
-  
+
   const buttonRect = buttonElement.getBoundingClientRect();
   const viewportHeight = window.innerHeight;
   const dropdownHeight = dropdownElement?.offsetHeight || 200; // Fallback height for priority dropdown
-  
+
   // Check if we're inside a modal (BottomSheet)
   const isInModal = buttonElement.closest('[role="dialog"]') !== null;
-  
+
   // For modals, use more conservative spacing and prefer showing above if needed
   const buffer = isInModal ? 20 : 10;
   const spaceBelow = viewportHeight - buttonRect.bottom - buffer;
   const spaceAbove = buttonRect.top - buffer;
-  
+
   // In modals, be more aggressive about flipping up to avoid clipping
   if (isInModal) {
     shouldFlipUp = spaceBelow < dropdownHeight * 0.8 && spaceAbove > spaceBelow;

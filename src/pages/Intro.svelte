@@ -117,7 +117,6 @@ function goToSlide(index: number) {
 }
 
 function startApp() {
-  localStorage.setItem('tempoday-intro-seen', 'true');
   onIntroCompleted?.();
 }
 

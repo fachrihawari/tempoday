@@ -1,8 +1,8 @@
 <script lang="ts">
 import AppearanceSettings from '../components/AppearanceSettings.svelte';
 import BackupRestore from '../components/BackupRestore.svelte';
-import DonationModal from '../components/DonationModal.svelte';
 import CurrencySettings from '../components/CurrencySettings.svelte';
+import DonationModal from '../components/DonationModal.svelte';
 import PrivacySettings from '../components/PrivacySettings.svelte';
 import SupportSettings from '../components/SupportSettings.svelte';
 import Button from '../components/ui/Button.svelte';

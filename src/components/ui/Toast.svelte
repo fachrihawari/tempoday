@@ -38,28 +38,32 @@ const typeConfig: Record<
   }
 > = {
   info: {
-    classes: 'bg-white dark:bg-gray-800 text-blue-800 dark:text-blue-200 border-blue-200 dark:border-blue-700 shadow-blue-100 dark:shadow-blue-900/20',
+    classes:
+      'bg-white dark:bg-gray-800 text-blue-800 dark:text-blue-200 border-blue-200 dark:border-blue-700 shadow-blue-100 dark:shadow-blue-900/20',
     icon: 'info-circle' as IconName,
     iconColor: 'text-blue-600 dark:text-blue-400',
     defaultTitle: 'Info',
     bgColor: 'bg-blue-500 dark:bg-blue-600',
   },
   success: {
-    classes: 'bg-white dark:bg-gray-800 text-green-800 dark:text-green-200 border-green-200 dark:border-green-700 shadow-green-100 dark:shadow-green-900/20',
+    classes:
+      'bg-white dark:bg-gray-800 text-green-800 dark:text-green-200 border-green-200 dark:border-green-700 shadow-green-100 dark:shadow-green-900/20',
     icon: 'check-circle' as IconName,
     iconColor: 'text-green-600 dark:text-green-400',
     defaultTitle: 'Success',
     bgColor: 'bg-green-500 dark:bg-green-600',
   },
   warning: {
-    classes: 'bg-white dark:bg-gray-800 text-yellow-800 dark:text-yellow-200 border-yellow-200 dark:border-yellow-700 shadow-yellow-100 dark:shadow-yellow-900/20',
+    classes:
+      'bg-white dark:bg-gray-800 text-yellow-800 dark:text-yellow-200 border-yellow-200 dark:border-yellow-700 shadow-yellow-100 dark:shadow-yellow-900/20',
     icon: 'exclamation-triangle' as IconName,
     iconColor: 'text-yellow-600 dark:text-yellow-400',
     defaultTitle: 'Warning',
     bgColor: 'bg-yellow-500 dark:bg-yellow-600',
   },
   error: {
-    classes: 'bg-white dark:bg-gray-800 text-red-800 dark:text-red-200 border-red-200 dark:border-red-700 shadow-red-100 dark:shadow-red-900/20',
+    classes:
+      'bg-white dark:bg-gray-800 text-red-800 dark:text-red-200 border-red-200 dark:border-red-700 shadow-red-100 dark:shadow-red-900/20',
     icon: 'alert-circle' as IconName,
     iconColor: 'text-red-600 dark:text-red-400',
     defaultTitle: 'Error',

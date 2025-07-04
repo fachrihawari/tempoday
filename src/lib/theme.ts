@@ -18,7 +18,8 @@ export const sectionThemes = {
     colors: {
       icon: 'text-purple-500 dark:text-purple-400',
       button: {
-        solid: 'bg-purple-500 text-white hover:bg-purple-600 dark:bg-purple-600 dark:hover:bg-purple-700',
+        solid:
+          'bg-purple-500 text-white hover:bg-purple-600 dark:bg-purple-600 dark:hover:bg-purple-700',
         dashed:
           'text-purple-600 dark:text-purple-300 border-purple-300 dark:border-purple-600 hover:border-purple-500 dark:hover:border-purple-400 hover:text-purple-700 dark:hover:text-purple-200',
       },

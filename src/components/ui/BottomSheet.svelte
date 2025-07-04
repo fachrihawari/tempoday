@@ -125,7 +125,7 @@ $effect(() => {
   if (open) {
     // Store current scroll position
     const scrollY = window.scrollY;
-    
+
     // Alternative approach: use overflow and margin instead of position fixed
     // This preserves the background better
     const originalBodyStyles = {

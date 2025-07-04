@@ -133,7 +133,10 @@ export class ReactiveTransactions {
   /**
    * Update a transaction
    */
-  async updateTransaction(transactionId: string, updates: Partial<Omit<Transaction, 'id' | 'createdAt'>>): Promise<void> {
+  async updateTransaction(
+    transactionId: string,
+    updates: Partial<Omit<Transaction, 'id' | 'createdAt'>>,
+  ): Promise<void> {
     this.isUpdating[transactionId] = true;
     this.error = null;
 
@@ -155,7 +158,7 @@ export class ReactiveTransactions {
 
       // Update transaction in local state
       this.transactions = this.transactions.map((transaction) =>
-        transaction.id === transactionId ? updatedTransaction : transaction
+        transaction.id === transactionId ? updatedTransaction : transaction,
       );
     } catch (err) {
       if (err instanceof NotFoundError) {

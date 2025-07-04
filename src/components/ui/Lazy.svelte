@@ -13,8 +13,8 @@ interface Props {
   [key: string]: any;
 }
 
-let { 
-  loader, 
+let {
+  loader,
   showLoading = true,
   loadingSize = 'lg',
   loadingMessage = 'Loading...',
@@ -22,7 +22,7 @@ let {
   class: className = '',
   loadingClass = '',
   errorClass = '',
-  ...restProps 
+  ...restProps
 }: Props = $props();
 
 let Component = $state<any>(null);
@@ -37,7 +37,8 @@ $effect(() => {
       Component = mod.default;
     })
     .catch((err: any) => {
-      error = err instanceof Error ? err : new Error('Failed to load component');
+      error =
+        err instanceof Error ? err : new Error('Failed to load component');
       Component = null;
     })
     .finally(() => {

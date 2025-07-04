@@ -37,7 +37,8 @@ let inputElement: HTMLInputElement = $state()!;
 let isFocused = $state(false);
 
 const focusColor = $derived(() => {
-  if (error) return 'focus:ring-red-500 dark:focus:ring-red-400 focus:border-red-500 dark:focus:border-red-400';
+  if (error)
+    return 'focus:ring-red-500 dark:focus:ring-red-400 focus:border-red-500 dark:focus:border-red-400';
   if (theme)
     return sectionThemes[theme].colors.focus + ' focus:border-transparent';
   return 'focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400';
