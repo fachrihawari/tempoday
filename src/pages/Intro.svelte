@@ -22,6 +22,7 @@ interface Slide {
   bgGradient: string;
   customStyle: string;
   customBgStyle: string;
+  darkBgStyle: string;
 }
 
 const slides: Slide[] = [
@@ -29,51 +30,76 @@ const slides: Slide[] = [
     icon: 'calendar',
     title: 'Calendar-Centric',
     subtitle: 'Everything organized by date',
-    description: 'Navigate through your days with an intuitive calendar interface. See all your tasks, notes, and finances in one place.',
+    description:
+      'Navigate through your days with an intuitive calendar interface. See all your tasks, notes, and finances in one place.',
     gradient: 'from-[#dfaea0] to-[#d4a394]', // Beautiful TempoDay peach
     bgGradient: 'from-[#faf8f7] to-[#f5f1ef]', // Soft peach background
-    customStyle: 'background: linear-gradient(135deg, rgb(223, 174, 160), rgb(212, 163, 148))',
-    customBgStyle: 'background: linear-gradient(135deg, rgb(250, 248, 247), rgb(245, 241, 239))',
+    customStyle:
+      'background: linear-gradient(135deg, rgb(180, 130, 115), rgb(160, 115, 100))',
+    customBgStyle:
+      'background: linear-gradient(135deg, rgb(250, 248, 247), rgb(245, 241, 239))',
+    darkBgStyle:
+      'background: linear-gradient(135deg, rgb(31, 41, 55), rgb(17, 24, 39))',
   },
   {
     icon: 'clipboard',
     title: 'Smart Tasks',
     subtitle: 'Get things done efficiently',
-    description: 'Create, organize, and track your daily tasks with simple taps. Mark them complete and stay productive.',
-    gradient: 'from-blue-400 to-blue-600', // Blue for tasks
+    description:
+      'Create, organize, and track your daily tasks with simple taps. Mark them complete and stay productive.',
+    gradient: 'from-blue-600 to-blue-800', // Darker blue for tasks
     bgGradient: 'from-blue-50 to-blue-100',
-    customStyle: 'background: linear-gradient(135deg, rgb(96, 165, 250), rgb(37, 99, 235))',
-    customBgStyle: 'background: linear-gradient(135deg, rgb(239, 246, 255), rgb(219, 234, 254))',
+    customStyle:
+      'background: linear-gradient(135deg, rgb(30, 64, 175), rgb(23, 37, 84))',
+    customBgStyle:
+      'background: linear-gradient(135deg, rgb(239, 246, 255), rgb(219, 234, 254))',
+    darkBgStyle:
+      'background: linear-gradient(135deg, rgb(30, 58, 138), rgb(15, 23, 42))',
   },
   {
     icon: 'edit',
     title: 'Daily Notes',
     subtitle: 'Capture your thoughts',
-    description: 'Write reflections, memories, and ideas in your personal diary. Your thoughts, safely stored.',
-    gradient: 'from-purple-400 to-purple-600', // Purple for notes
+    description:
+      'Write reflections, memories, and ideas in your personal diary. Your thoughts, safely stored.',
+    gradient: 'from-purple-600 to-purple-800', // Darker purple for notes
     bgGradient: 'from-purple-50 to-purple-100',
-    customStyle: 'background: linear-gradient(135deg, rgb(196, 181, 253), rgb(147, 51, 234))',
-    customBgStyle: 'background: linear-gradient(135deg, rgb(250, 245, 255), rgb(243, 232, 255))',
+    customStyle:
+      'background: linear-gradient(135deg, rgb(107, 33, 168), rgb(88, 28, 135))',
+    customBgStyle:
+      'background: linear-gradient(135deg, rgb(250, 245, 255), rgb(243, 232, 255))',
+    darkBgStyle:
+      'background: linear-gradient(135deg, rgb(88, 28, 135), rgb(15, 23, 42))',
   },
   {
     icon: 'dollar',
     title: 'Finance Tracking',
     subtitle: 'Monitor your money',
-    description: 'Track income and expenses with instant daily summaries. Keep your finances organized and visible.',
-    gradient: 'from-green-400 to-green-600', // Green for finance
+    description:
+      'Track income and expenses with instant daily summaries. Keep your finances organized and visible.',
+    gradient: 'from-green-600 to-green-800', // Darker green for finance
     bgGradient: 'from-green-50 to-green-100',
-    customStyle: 'background: linear-gradient(135deg, rgb(74, 222, 128), rgb(22, 163, 74))',
-    customBgStyle: 'background: linear-gradient(135deg, rgb(240, 253, 244), rgb(220, 252, 231))',
+    customStyle:
+      'background: linear-gradient(135deg, rgb(21, 128, 61), rgb(20, 83, 45))',
+    customBgStyle:
+      'background: linear-gradient(135deg, rgb(240, 253, 244), rgb(220, 252, 231))',
+    darkBgStyle:
+      'background: linear-gradient(135deg, rgb(20, 83, 45), rgb(15, 23, 42))',
   },
   {
     icon: 'check-circle',
     title: 'Private & Secure',
     subtitle: 'Your data stays yours',
-    description: 'Everything stored locally on your device. No cloud sync, no tracking, complete privacy.',
-    gradient: 'from-gray-400 to-gray-600',
+    description:
+      'Everything stored locally on your device. No cloud sync, no tracking, complete privacy.',
+    gradient: 'from-gray-600 to-gray-800', // Darker gray
     bgGradient: 'from-gray-50 to-gray-100',
-    customStyle: 'background: linear-gradient(135deg, rgb(156, 163, 175), rgb(75, 85, 99))',
-    customBgStyle: 'background: linear-gradient(135deg, rgb(249, 250, 251), rgb(243, 244, 246))',
+    customStyle:
+      'background: linear-gradient(135deg, rgb(55, 65, 81), rgb(31, 41, 55))',
+    customBgStyle:
+      'background: linear-gradient(135deg, rgb(249, 250, 251), rgb(243, 244, 246))',
+    darkBgStyle:
+      'background: linear-gradient(135deg, rgb(55, 65, 81), rgb(17, 24, 39))',
   },
 ];
 
@@ -91,7 +117,6 @@ function goToSlide(index: number) {
 }
 
 function startApp() {
-  localStorage.setItem('tempoday-intro-seen', 'true');
   onIntroCompleted?.();
 }
 
@@ -141,23 +166,29 @@ const currentSlideData = $derived(slides[currentSlide]);
 </script>
 
 <!-- Beautiful Original Design with Authentic TempoDay Peach -->
-<div class="h-screen flex flex-col transition-all duration-500 overflow-hidden" style={currentSlideData.customBgStyle}>
-  <!-- Header -->
-  <div class="flex items-center justify-between px-6 py-6">
-    <div class="flex items-center gap-3">
-      <div class="w-10 h-10 rounded-2xl flex items-center justify-center shadow-lg" style={currentSlideData.customStyle}>
-        <img src="/logo.png" class="w-6 h-6" alt="TempoDay" />
+<div class="h-screen flex flex-col transition-all duration-500 overflow-hidden">
+  <!-- Dynamic background that respects dark mode -->
+  <div class="absolute inset-0 opacity-90 dark:opacity-95 transition-opacity duration-500" style={currentSlideData.customBgStyle}></div>
+  <div class="absolute inset-0 opacity-0 dark:opacity-90 transition-opacity duration-500" style={currentSlideData.darkBgStyle}></div>
+  
+  <!-- Content overlay -->
+  <div class="relative z-10 h-full flex flex-col">
+    <!-- Header -->
+    <div class="flex items-center justify-between px-6 py-6">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl flex items-center justify-center shadow-lg" style={currentSlideData.customStyle}>
+          <img src="/logo.png" class="w-6 h-6" alt="TempoDay" />
+        </div>
+        <div>
+          <h1 class="text-xl font-bold text-gray-900 dark:text-gray-100">TempoDay</h1>
+          <p class="text-xs text-gray-600 dark:text-gray-400">Personal Management</p>
+        </div>
       </div>
-      <div>
-        <h1 class="text-xl font-bold text-gray-900">TempoDay</h1>
-        <p class="text-xs text-gray-600">Personal Management</p>
-      </div>
+      
+      <Button variant="ghost" onclick={skipIntro} class="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200">
+        {#snippet children()}Skip{/snippet}
+      </Button>
     </div>
-    
-    <Button variant="ghost" onclick={skipIntro} class="text-gray-600 hover:text-gray-800">
-      {#snippet children()}Skip{/snippet}
-    </Button>
-  </div>
 
   <!-- Main Content -->
   <div 
@@ -176,13 +207,13 @@ const currentSlideData = $derived(slides[currentSlide]);
           
           <!-- Content -->
           <div class="max-w-sm space-y-4">
-            <h2 class="text-3xl font-bold text-gray-900 leading-tight">
+            <h2 class="text-3xl font-bold text-gray-900 dark:text-gray-100 leading-tight">
               {slide.title}
             </h2>
-            <p class="text-xl text-gray-700 font-medium">
+            <p class="text-xl text-gray-700 dark:text-gray-300 font-medium">
               {slide.subtitle}
             </p>
-            <p class="text-gray-600 leading-relaxed">
+            <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
               {slide.description}
             </p>
           </div>
@@ -198,15 +229,15 @@ const currentSlideData = $derived(slides[currentSlide]);
       {#each slides as slide, index}
         <button
           onclick={() => goToSlide(index)}
-          class="relative w-4 h-4 rounded-full transition-all duration-300 transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400
+          class="relative w-4 h-4 rounded-full transition-all duration-300 transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 dark:focus:ring-gray-500 dark:focus:ring-offset-gray-800
             {index === currentSlide 
               ? 'scale-125 shadow-lg' 
-              : 'bg-white/80 hover:bg-white shadow-md border-2 border-gray-300'}"
+              : 'bg-white/80 dark:bg-gray-700/80 hover:bg-white dark:hover:bg-gray-600 shadow-md border-2 border-gray-300 dark:border-gray-600'}"
           style={index === currentSlide ? slide.customStyle + '; box-shadow: 0 4px 12px rgba(0,0,0,0.15), 0 0 0 3px rgba(255,255,255,0.8)' : ''}
         >
           <!-- Inner dot for inactive indicators -->
           {#if index !== currentSlide}
-            <div class="absolute inset-1 bg-gray-400 rounded-full"></div>
+            <div class="absolute inset-1 bg-gray-400 dark:bg-gray-500 rounded-full"></div>
           {/if}
         </button>
       {/each}
@@ -215,7 +246,7 @@ const currentSlideData = $derived(slides[currentSlide]);
     <!-- Navigation Buttons -->
     <div class="flex gap-4">
       {#if currentSlide > 0}
-        <Button variant="outline" onclick={prevSlide} class="flex-1 h-14 text-gray-700 border-gray-300">
+        <Button variant="outline" onclick={prevSlide} class="flex-1 h-14 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700">
           {#snippet children()}
             <Icon name="chevron-left" size="sm" class="mr-2" />
             Previous
@@ -246,6 +277,7 @@ const currentSlideData = $derived(slides[currentSlide]);
       {/if}
     </div>
 
+  </div>
   </div>
 </div>
 

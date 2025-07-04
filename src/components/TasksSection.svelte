@@ -1,6 +1,10 @@
 <script lang="ts">
 import { formatDateKey } from '../lib/date';
-import { getPriorityConfig, PRIORITY_OPTIONS, type TaskPriority } from '../lib/priority';
+import {
+  PRIORITY_OPTIONS,
+  type TaskPriority,
+  getPriorityConfig,
+} from '../lib/priority';
 import { appState } from '../stores/app.svelte';
 import { reactiveTasks } from '../stores/tasks.svelte';
 import { toastStore } from '../stores/toast.svelte';
@@ -14,17 +18,17 @@ import Loading from './ui/Loading.svelte';
 import PrioritySelector from './ui/PrioritySelector.svelte';
 
 // Reactive values from the store
-let { 
-  tasks, 
-  isLoading, 
-  isCreating, 
+let {
+  tasks,
+  isLoading,
+  isCreating,
   isUpdatingPriority,
-  error, 
-  completedCount, 
-  totalCount, 
+  error,
+  completedCount,
+  totalCount,
   pendingCount,
   urgentCount,
-  highPriorityCount
+  highPriorityCount,
 } = $derived(reactiveTasks);
 
 let showAddForm = $state(false);
@@ -50,10 +54,10 @@ async function handleAddTask(event?: Event) {
 
   const text = newTaskText.trim();
   const dateKey = formatDateKey(appState.selectedDate);
-  await reactiveTasks.createTask({ 
-    description: text, 
+  await reactiveTasks.createTask({
+    description: text,
     date: dateKey,
-    priority: newTaskPriority 
+    priority: newTaskPriority,
   });
   toastStore.success('Task added successfully');
   resetForm();
@@ -67,7 +71,9 @@ function resetForm() {
 
 function handlePriorityChange(taskId: string, priority: TaskPriority) {
   reactiveTasks.updateTaskPriority(taskId, priority);
-  toastStore.success(`Priority updated to ${getPriorityConfig(priority).label}`);
+  toastStore.success(
+    `Priority updated to ${getPriorityConfig(priority).label}`,
+  );
 }
 </script>
 
@@ -83,19 +89,19 @@ function handlePriorityChange(taskId: string, priority: TaskPriority) {
   {#snippet children()}
     <!-- Priority Summary (if there are urgent/high priority tasks) -->
     {#if (urgentCount > 0 || highPriorityCount > 0) && !isLoading}
-      <div class="bg-gradient-to-r from-red-50 to-orange-50 rounded-lg p-3 mb-4 border border-red-200">
+      <div class="bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-900/20 dark:to-orange-900/20 rounded-lg p-3 mb-4 border border-red-200 dark:border-red-800">
         <div class="flex items-center gap-2 mb-2">
           <span class="text-lg">⚠️</span>
-          <h3 class="font-medium text-gray-900">Priority Alert</h3>
+          <h3 class="font-medium text-gray-900 dark:text-gray-100">Priority Alert</h3>
         </div>
         <div class="flex flex-wrap gap-2 text-sm">
           {#if urgentCount > 0}
-            <span class="bg-red-100 text-red-700 px-2 py-1 rounded-full">
+            <span class="bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 px-2 py-1 rounded-full">
               🔥 {urgentCount} urgent
             </span>
           {/if}
           {#if highPriorityCount > 0}
-            <span class="bg-orange-100 text-orange-700 px-2 py-1 rounded-full">
+            <span class="bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300 px-2 py-1 rounded-full">
               ⚡ {highPriorityCount} high priority
             </span>
           {/if}
@@ -110,7 +116,7 @@ function handlePriorityChange(taskId: string, priority: TaskPriority) {
       {:else}
         {#each tasks as task (task.id)}
           <div
-            class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 group border border-gray-100"
+            class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 group border border-gray-100 dark:border-gray-700"
           >
             <!-- Completion Checkbox -->
             <button
@@ -119,9 +125,9 @@ function handlePriorityChange(taskId: string, priority: TaskPriority) {
               class="flex-shrink-0 w-5 h-5 rounded border-2 flex items-center justify-center transition-colors
               {task.completed
                 ? 'bg-green-500 border-green-500 text-white'
-                : 'border-gray-300 hover:border-green-400'}
+                : 'border-gray-300 dark:border-gray-600 hover:border-green-400 dark:hover:border-green-500'}
               {reactiveTasks.isToggling[task.id]
-                ? 'opacity-50 cursor-not-allowed bg-white border-white hover:border-white hover:bg-white'
+                ? 'opacity-50 cursor-not-allowed bg-white dark:bg-gray-800 border-white dark:border-gray-600 hover:border-white dark:hover:border-gray-600 hover:bg-white dark:hover:bg-gray-800'
                 : ''}"
             >
               {#if reactiveTasks.isToggling[task.id]}
@@ -135,8 +141,8 @@ function handlePriorityChange(taskId: string, priority: TaskPriority) {
             <div class="flex-1 min-w-0">
               <span
                 class="text-sm {task.completed
-                  ? 'line-through text-gray-500'
-                  : 'text-gray-900'}"
+                  ? 'line-through text-gray-500 dark:text-gray-400'
+                  : 'text-gray-900 dark:text-gray-100'}"
               >
                 {task.description}
               </span>
@@ -150,6 +156,7 @@ function handlePriorityChange(taskId: string, priority: TaskPriority) {
                   onSelect={(priority: TaskPriority) => handlePriorityChange(task.id, priority)}
                   disabled={isUpdatingPriority[task.id]}
                   size="sm"
+                  dropdownWidth="auto"
                 />
               </div>
             {/if}
@@ -160,7 +167,7 @@ function handlePriorityChange(taskId: string, priority: TaskPriority) {
               size="sm"
               onclick={() => reactiveTasks.deleteTask(task.id)}
               disabled={reactiveTasks.isDeleting[task.id]}
-              class="!p-1 text-red-500 hover:bg-red-50
+              class="!p-1 text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20
               {reactiveTasks.isDeleting[task.id] ? 'opacity-100' : ''}"
             >
               {#snippet children()}
@@ -196,7 +203,7 @@ function handlePriorityChange(taskId: string, priority: TaskPriority) {
           
           <!-- Priority Selection -->
           <div class="space-y-2">
-            <label for="new-task-priority" class="block text-sm font-medium text-gray-700">
+            <label for="new-task-priority" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Priority Level
             </label>
             <PrioritySelector
@@ -204,7 +211,7 @@ function handlePriorityChange(taskId: string, priority: TaskPriority) {
               value={newTaskPriority}
               onSelect={(priority: TaskPriority) => newTaskPriority = priority}
               size="md"
-              class="w-full"
+              dropdownWidth="full"
             />
           </div>
           

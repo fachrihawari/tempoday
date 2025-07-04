@@ -1,12 +1,13 @@
 <script lang="ts">
 import { onMount } from 'svelte';
-import BottomNavigation from './components/ui/BottomNavigation.svelte';
-import ToastContainer from './components/ui/ToastContainer.svelte';
+import Lazy from './components/ui/Lazy.svelte';
+import { initThemeWatcher } from './lib/theme';
 import { reactiveRouter } from './stores/router.svelte';
-import LazyPage from './components/ui/LazyPage.svelte';
+import { settingsStore } from './stores/settings.svelte';
 
 const router = $derived(reactiveRouter);
-let showIntro = $state(false);
+let showIntro = $state(localStorage.getItem('tempoday-intro-seen') !== 'true');
+$inspect(showIntro, '<<< showIntro');
 
 // Lazy loader functions for each page
 const loadCalendar = () => import('./pages/Calendar.svelte');
@@ -17,43 +18,97 @@ const loadSettings = () => import('./pages/Settings.svelte');
 const loadTerms = () => import('./pages/Terms.svelte');
 const loadThanks = () => import('./pages/Thanks.svelte');
 
+// Lazy loader functions for UI components
+const loadBottomNavigation = () =>
+  import('./components/ui/BottomNavigation.svelte');
+const loadToastContainer = () =>
+  import('./components/ui/ToastContainer.svelte');
+
 onMount(() => {
   router.initialize();
-  const hasSeenIntro = localStorage.getItem('tempoday-intro-seen');
-  if (!hasSeenIntro) {
-    showIntro = true;
-  }
+  settingsStore.loadSettings();
 });
+
+const themeEffect = initThemeWatcher(settingsStore);
+$effect(themeEffect);
 
 function handleIntroCompleted() {
   showIntro = false;
+  localStorage.setItem('tempoday-intro-seen', 'true');
 }
 </script>
 
-<div class="h-screen flex flex-col relative">
+<div class="h-screen flex flex-col relative bg-gray-50 dark:bg-gray-950">
   {#if showIntro && router.activePath !== "/terms" && router.activePath !== "/thanks"}
-    <LazyPage loader={loadIntro} onIntroCompleted={handleIntroCompleted} />
+    <Lazy
+      loader={loadIntro}
+      onIntroCompleted={handleIntroCompleted}
+      loadingSize="3xl"
+      loadingClass="w-full h-full justify-center items-center py-8"
+    />
   {:else}
-    <div class="flex-1 overflow-y-auto {router.activePath === '/terms' || router.activePath === '/thanks' || router.activePath === '/search' ? '' : 'pb-16'}">
+    <div
+      class="flex-1 overflow-y-auto {router.activePath === '/terms' ||
+      router.activePath === '/thanks' ||
+      router.activePath === '/search'
+        ? ''
+        : 'pb-16'}"
+    >
       {#if router.activePath === "/"}
-        <LazyPage loader={loadDashboard} />
+        <Lazy
+          loader={loadDashboard}
+          loadingSize="3xl"
+          loadingClass="w-full h-full justify-center items-center py-8"
+        />
       {:else if router.activePath === "/calendar"}
-        <LazyPage loader={loadCalendar} />
+        <Lazy
+          loader={loadCalendar}
+          loadingSize="3xl"
+          loadingClass="w-full h-full justify-center items-center py-8"
+        />
       {:else if router.activePath === "/search"}
-        <LazyPage loader={loadSearch} />
+        <Lazy
+          loader={loadSearch}
+          loadingSize="3xl"
+          loadingClass="w-full h-full justify-center items-center py-8"
+        />
       {:else if router.activePath === "/settings"}
-        <LazyPage loader={loadSettings} />
+        <Lazy
+          loader={loadSettings}
+          loadingSize="3xl"
+          loadingClass="w-full h-full justify-center items-center py-8"
+        />
       {:else if router.activePath === "/terms"}
-        <LazyPage loader={loadTerms} />
+        <Lazy
+          loader={loadTerms}
+          loadingSize="3xl"
+          loadingClass="w-full h-full justify-center items-center py-8"
+        />
       {:else if router.activePath === "/thanks"}
-        <LazyPage loader={loadThanks} />
+        <Lazy
+          loader={loadThanks}
+          loadingSize="3xl"
+          loadingClass="w-full h-full justify-center items-center py-8"
+        />
       {:else}
-        <LazyPage loader={loadDashboard} />
+        <Lazy
+          loader={loadDashboard}
+          loadingSize="3xl"
+          loadingClass="w-full h-full justify-center items-center py-8"
+        />
       {/if}
     </div>
     {#if router.activePath !== "/terms" && router.activePath !== "/thanks" && router.activePath !== "/search"}
-      <BottomNavigation />
+      <Lazy
+        loader={loadBottomNavigation}
+        showLoading={false}
+        class="fixed bottom-0 left-0 right-0 z-50"
+      />
     {/if}
+    <Lazy
+      loader={loadToastContainer}
+      showLoading={false}
+      class="fixed inset-x-0 bottom-20 z-[9999] pointer-events-none"
+    />
   {/if}
-  <ToastContainer />
 </div>

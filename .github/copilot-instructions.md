@@ -198,3 +198,10 @@ You are an expert Full-stack Engineer working on "TempoDay" - a privacy-focused,
 ---
 
 **Current Focus:** Production-ready application with emphasis on performance, user experience, and maintainable code architecture. The application has moved well beyond MVP status and now focuses on optimization, advanced features, and user engagement.
+
+
+
+Please read this document carefully to understand the current state of the TempoDay application, its architecture, and the features implemented. This will help you contribute effectively to the project and maintain its high standards of quality and performance.
+
+References for further reading:
+- https://svelte.dev/docs/svelte/llms.txt

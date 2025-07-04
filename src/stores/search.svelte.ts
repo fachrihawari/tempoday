@@ -1,7 +1,7 @@
 import { db, getDefaultDateRange } from '../dexie/db';
 import type { Note, Task, Transaction } from '../dexie/models';
-import { getPriorityConfig, type TaskPriority } from '../lib/priority';
-import { getCategoryConfig, type TransactionCategory } from '../lib/categories';
+import { type TransactionCategory, getCategoryConfig } from '../lib/categories';
+import { type TaskPriority, getPriorityConfig } from '../lib/priority';
 
 export interface SearchResult {
   id: string;
@@ -67,12 +67,19 @@ class SearchStore {
   /**
    * Perform full-text search across all data types with filters
    */
-  async performSearch(searchQuery: string, searchFilters?: SearchFilters): Promise<void> {
+  async performSearch(
+    searchQuery: string,
+    searchFilters?: SearchFilters,
+  ): Promise<void> {
     const trimmedQuery = searchQuery.trim();
     let filtersToUse = searchFilters || this.filters;
 
     // Apply default ONLY on first search
-    if (!this.hasAppliedDefault && !filtersToUse.dateRange.start && !filtersToUse.dateRange.end) {
+    if (
+      !this.hasAppliedDefault &&
+      !filtersToUse.dateRange.start &&
+      !filtersToUse.dateRange.end
+    ) {
       const defaultRange = getDefaultDateRange();
       filtersToUse = {
         ...filtersToUse,
@@ -82,7 +89,7 @@ class SearchStore {
       this.filters = filtersToUse;
       this.hasAppliedDefault = true;
     }
-    
+
     // Clear results if query is empty
     if (!trimmedQuery) {
       this.clearResults();
@@ -104,7 +111,10 @@ class SearchStore {
         ? await this.searchNotes(trimmedQuery, filtersToUse)
         : [];
 
-      const transactionResults = this.shouldIncludeDataType('transaction', filtersToUse)
+      const transactionResults = this.shouldIncludeDataType(
+        'transaction',
+        filtersToUse,
+      )
         ? await this.searchTransactions(trimmedQuery, filtersToUse)
         : [];
 
@@ -113,7 +123,8 @@ class SearchStore {
         tasks: taskResults,
         notes: noteResults,
         transactions: transactionResults,
-        total: taskResults.length + noteResults.length + transactionResults.length,
+        total:
+          taskResults.length + noteResults.length + transactionResults.length,
       };
 
       this.hasSearched = true;
@@ -130,7 +141,7 @@ class SearchStore {
    */
   async updateFilters(newFilters: SearchFilters): Promise<void> {
     this.filters = newFilters;
-    
+
     // Re-run search if there's an active query
     if (this.query.trim()) {
       await this.performSearch(this.query, newFilters);
@@ -148,7 +159,10 @@ class SearchStore {
   /**
    * Check if a data type should be included based on filters
    */
-  private shouldIncludeDataType(type: 'task' | 'note' | 'transaction', filters: SearchFilters): boolean {
+  private shouldIncludeDataType(
+    type: 'task' | 'note' | 'transaction',
+    filters: SearchFilters,
+  ): boolean {
     // If no data types are specified, include all
     if (filters.dataTypes.length === 0) return true;
     return filters.dataTypes.includes(type);
@@ -157,7 +171,10 @@ class SearchStore {
   /**
    * Search through tasks with filters
    */
-  private async searchTasks(query: string, filters: SearchFilters): Promise<SearchResult[]> {
+  private async searchTasks(
+    query: string,
+    filters: SearchFilters,
+  ): Promise<SearchResult[]> {
     const lowerQuery = query.toLowerCase();
     const hasDate = !!(filters.dateRange.start || filters.dateRange.end);
     const startDate = filters.dateRange.start || '';
@@ -165,25 +182,35 @@ class SearchStore {
     let results: Task[] = [];
 
     if (hasDate) {
-      results = await db.tasks.where('date').between(startDate, endDate, true, true).toArray();
+      results = await db.tasks
+        .where('date')
+        .between(startDate, endDate, true, true)
+        .toArray();
     } else {
       results = await db.tasks.toArray();
     }
 
     // Filter in-memory for priority and completed
     if (filters.taskPriorities.length > 0) {
-      results = results.filter(task => filters.taskPriorities.includes(task.priority));
+      results = results.filter((task) =>
+        filters.taskPriorities.includes(task.priority),
+      );
     }
     if (filters.taskStatus.length > 0) {
-      results = results.filter(task => {
+      results = results.filter((task) => {
         const status = task.completed === 1 ? 'completed' : 'pending';
         return filters.taskStatus.includes(status);
       });
     }
 
     return results
-      .filter((task: Task) => task.description.toLowerCase().includes(lowerQuery))
-      .sort((a: Task, b: Task) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      .filter((task: Task) =>
+        task.description.toLowerCase().includes(lowerQuery),
+      )
+      .sort(
+        (a: Task, b: Task) =>
+          new Date(b.date).getTime() - new Date(a.date).getTime(),
+      )
       .map((task: Task) => {
         const priorityConfig = getPriorityConfig(task.priority);
         const statusText = task.completed === 1 ? 'Completed' : 'Pending';
@@ -204,25 +231,34 @@ class SearchStore {
   /**
    * Search through notes with filters
    */
-  private async searchNotes(query: string, filters: SearchFilters): Promise<SearchResult[]> {
+  private async searchNotes(
+    query: string,
+    filters: SearchFilters,
+  ): Promise<SearchResult[]> {
     const lowerQuery = query.toLowerCase();
     let collection;
     if (filters.dateRange.start || filters.dateRange.end) {
-      collection = db.notes.where('date').between(
-        filters.dateRange.start || '',
-        filters.dateRange.end || '9999-12-31',
-        true,
-        true
-      );
+      collection = db.notes
+        .where('date')
+        .between(
+          filters.dateRange.start || '',
+          filters.dateRange.end || '9999-12-31',
+          true,
+          true,
+        );
     } else {
       collection = db.notes.toCollection();
     }
     return await collection
-      .filter(note => note.content.toLowerCase().includes(lowerQuery))
+      .filter((note) => note.content.toLowerCase().includes(lowerQuery))
       .toArray()
-      .then(notes => notes.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()))
-      .then(notes =>
-        notes.map(note => ({
+      .then((notes) =>
+        notes.sort(
+          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+        ),
+      )
+      .then((notes) =>
+        notes.map((note) => ({
           id: note.id,
           type: 'note' as const,
           title: 'Daily Note',
@@ -230,14 +266,17 @@ class SearchStore {
           date: note.date,
           matchedText: this.highlightMatch(note.content, query),
           data: note,
-        }))
+        })),
       );
   }
 
   /**
    * Search through transactions with filters
    */
-  private async searchTransactions(query: string, filters: SearchFilters): Promise<SearchResult[]> {
+  private async searchTransactions(
+    query: string,
+    filters: SearchFilters,
+  ): Promise<SearchResult[]> {
     const lowerQuery = query.toLowerCase();
     const hasDate = !!(filters.dateRange.start || filters.dateRange.end);
     const startDate = filters.dateRange.start || '';
@@ -245,22 +284,34 @@ class SearchStore {
     let results: Transaction[] = [];
 
     if (hasDate) {
-      results = await db.transactions.where('date').between(startDate, endDate, true, true).toArray();
+      results = await db.transactions
+        .where('date')
+        .between(startDate, endDate, true, true)
+        .toArray();
     } else {
       results = await db.transactions.toArray();
     }
 
     // Filter in-memory for type and category
     if (filters.transactionTypes.length > 0) {
-      results = results.filter(tx => filters.transactionTypes.includes(tx.type));
+      results = results.filter((tx) =>
+        filters.transactionTypes.includes(tx.type),
+      );
     }
     if (filters.transactionCategories.length > 0) {
-      results = results.filter(tx => filters.transactionCategories.includes(tx.category));
+      results = results.filter((tx) =>
+        filters.transactionCategories.includes(tx.category),
+      );
     }
 
     return results
-      .filter((transaction: Transaction) => transaction.description.toLowerCase().includes(lowerQuery))
-      .sort((a: Transaction, b: Transaction) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      .filter((transaction: Transaction) =>
+        transaction.description.toLowerCase().includes(lowerQuery),
+      )
+      .sort(
+        (a: Transaction, b: Transaction) =>
+          new Date(b.date).getTime() - new Date(a.date).getTime(),
+      )
       .map((transaction: Transaction) => {
         const categoryConfig = getCategoryConfig(transaction.category);
         const categoryText = `${categoryConfig.icon} ${categoryConfig.label}`;

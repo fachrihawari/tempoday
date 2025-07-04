@@ -1,78 +1,20 @@
 <script lang="ts">
+import AppearanceSettings from '../components/AppearanceSettings.svelte';
 import BackupRestore from '../components/BackupRestore.svelte';
+import CurrencySettings from '../components/CurrencySettings.svelte';
 import DonationModal from '../components/DonationModal.svelte';
-import Settings from '../components/Settings.svelte';
+import PrivacySettings from '../components/PrivacySettings.svelte';
+import SupportSettings from '../components/SupportSettings.svelte';
 import Button from '../components/ui/Button.svelte';
 import Card from '../components/ui/Card.svelte';
 import Icon from '../components/ui/Icon.svelte';
 import PageHeader from '../components/ui/PageHeader.svelte';
-import { toastStore } from '../stores/toast.svelte';
 import { reactiveRouter } from '../stores/router.svelte';
 
 let showDonationModal = $state(false);
 
-// GitHub repository URL
-const GITHUB_REPO_URL = 'https://github.com/fachrihawari/tempoday';
-
-// Share content
-const SHARE_CONTENT = {
-  title: 'TempoDay - Calendar-Centric Personal Management',
-  text: 'Check out TempoDay, a privacy-focused personal management app that helps you organize tasks, notes, and finances by date!',
-  url: 'https://tempoday.site'
-};
-
 function navigateToTerms() {
   reactiveRouter.navigate('/terms');
-}
-
-async function handleRateUs() {
-  try {
-    window.open(GITHUB_REPO_URL, '_blank', 'noopener,noreferrer');
-  } catch (error) {
-    console.error('Failed to open GitHub repo:', error);
-    toastStore.error('Failed to open GitHub repository');
-  }
-}
-
-async function handleShare() {
-  try {
-    // Try Web Share API first
-    if (navigator.share && navigator.canShare && navigator.canShare(SHARE_CONTENT)) {
-      await navigator.share(SHARE_CONTENT);
-      toastStore.success('Content shared successfully!');
-      return;
-    }
-    
-    // Fallback to clipboard
-    const shareText = `${SHARE_CONTENT.title}\n\n${SHARE_CONTENT.text}\n\n${SHARE_CONTENT.url}`;
-    
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      await navigator.clipboard.writeText(shareText);
-      toastStore.success('Share content copied to clipboard!');
-    } else {
-      // Final fallback for older browsers
-      const textArea = document.createElement('textarea');
-      textArea.value = shareText;
-      textArea.style.position = 'fixed';
-      textArea.style.left = '-999999px';
-      textArea.style.top = '-999999px';
-      document.body.appendChild(textArea);
-      textArea.focus();
-      textArea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textArea);
-      toastStore.success('Share content copied to clipboard!');
-    }
-  } catch (error) {
-    // Check if the error is an AbortError (user canceled the share)
-    if (error instanceof DOMException && error.name === 'AbortError') {
-      // User canceled the share dialog - this is expected behavior, don't show error
-      return;
-    }
-    
-    console.error('Failed to share:', error);
-    toastStore.error('Failed to share content');
-  }
 }
 </script>
 
@@ -86,79 +28,29 @@ async function handleShare() {
 
   <!-- Settings Content -->
   <div class="flex-1 overflow-y-auto">
+    <!-- Appearance Section -->
+    <Card 
+      title="Appearance" 
+      icon="sun" 
+      iconColor="text-yellow-600 dark:text-yellow-400"
+      collapsible={true}
+      defaultExpanded={true}
+    >
+      {#snippet children()}
+        <AppearanceSettings />
+      {/snippet}
+    </Card>
+
     <!-- Support TempoDay Section -->
     <Card 
       title="Support TempoDay" 
-      icon="check-circle" 
-      iconColor="text-red-500"
+      icon="heart" 
+      iconColor="text-rose-600 dark:text-rose-400"
       collapsible={true}
       defaultExpanded={false}
     >
       {#snippet children()}
-        <div class="space-y-4">
-          <!-- Support Message -->
-          <div class="bg-gradient-to-r from-red-50 to-pink-50 rounded-lg p-4 border border-red-200">
-            <div class="flex items-start gap-3">
-              <div class="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
-                <span class="text-white text-lg">❤️</span>
-              </div>
-              <div>
-                <h3 class="font-medium text-gray-900 mb-1">Love TempoDay?</h3>
-                <p class="text-sm text-gray-700 leading-relaxed mb-3">
-                  Help us keep TempoDay free and continuously improving. Your support makes a real difference in our development journey.
-                </p>
-                <div class="flex flex-wrap gap-2 text-xs text-gray-600">
-                  <span class="bg-white px-2 py-1 rounded-full">🚀 New features</span>
-                  <span class="bg-white px-2 py-1 rounded-full">🔒 Privacy-first</span>
-                  <span class="bg-white px-2 py-1 rounded-full">💯 Always free</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Donation Button -->
-          <Button
-            variant="primary"
-            fullWidth
-            onclick={() => showDonationModal = true}
-            class="!p-4 !text-left !justify-start !bg-gradient-to-r !from-red-500 !to-pink-500 hover:!from-red-600 hover:!to-pink-600"
-          >
-            {#snippet children()}
-              <div class="flex items-center gap-4 w-full">
-                <div class="w-12 h-12 bg-red-200 rounded-xl flex items-center justify-center">
-                  <span class="text-2xl">💝</span>
-                </div>
-                <div class="flex-1">
-                  <h3 class="font-semibold text-white mb-1">Support TempoDay</h3>
-                  <p class="text-red-100 text-sm">Help keep this app free and growing</p>
-                </div>
-                <div class="text-white">
-                  <Icon name="chevron-right" />
-                </div>
-              </div>
-            {/snippet}
-          </Button>
-
-          <!-- Alternative Support Options -->
-          <div class="grid grid-cols-2 gap-3">
-            <button
-              onclick={handleRateUs}
-              class="bg-white rounded-lg p-3 border border-gray-200 text-center hover:bg-gray-50 transition-colors"
-            >
-              <div class="text-2xl mb-1">⭐</div>
-              <div class="text-xs font-medium text-gray-900">Star us</div>
-              <div class="text-xs text-gray-600">GitHub</div>
-            </button>
-            <button
-              onclick={handleShare}
-              class="bg-white rounded-lg p-3 border border-gray-200 text-center hover:bg-gray-50 transition-colors"
-            >
-              <div class="text-2xl mb-1">📢</div>
-              <div class="text-xs font-medium text-gray-900">Share</div>
-              <div class="text-xs text-gray-600">Tell friends</div>
-            </button>
-          </div>
-        </div>
+        <SupportSettings onDonate={() => showDonationModal = true} />
       {/snippet}
     </Card>
 
@@ -166,7 +58,7 @@ async function handleShare() {
     <Card 
       title="Backup & Restore" 
       icon="save" 
-      iconColor="text-blue-500"
+      iconColor="text-blue-600 dark:text-blue-400"
       collapsible={true}
       defaultExpanded={false}
     >
@@ -179,95 +71,109 @@ async function handleShare() {
     <Card 
       title="Currency Settings" 
       icon="dollar" 
-      iconColor="text-green-500"
+      iconColor="text-emerald-600 dark:text-emerald-400"
       collapsible={true}
       defaultExpanded={false}
     >
       {#snippet children()}
-        <Settings />
+        <CurrencySettings />
       {/snippet}
     </Card>
 
     <!-- Privacy & Security Section -->
     <Card 
       title="Privacy & Security" 
-      icon="check-circle" 
-      iconColor="text-blue-500"
+      icon="shield" 
+      iconColor="text-green-600 dark:text-green-400"
       collapsible={true}
       defaultExpanded={false}
     >
       {#snippet children()}
-        <div class="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg p-4 border border-green-200">
-          <div class="flex items-start gap-3">
-            <div class="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
-              <Icon name="check-circle" class="text-white" size="sm" />
-            </div>
-            <div>
-              <h3 class="font-medium text-gray-900 mb-1">100% Local Storage</h3>
-              <p class="text-sm text-gray-700 leading-relaxed">
-                All your data is stored locally on your device. We don't collect, store, or transmit any personal information to external servers.
-              </p>
-            </div>
-          </div>
-        </div>
+        <PrivacySettings />
       {/snippet}
     </Card>
 
-    <!-- App Information Section - Minimalist Design -->
+    <!-- App Information Section - Enhanced Design -->
     <Card 
       title="About" 
       icon="info-circle" 
-      iconColor="text-gray-500"
+      iconColor="text-indigo-600 dark:text-indigo-400"
       collapsible={true}
       defaultExpanded={false}
     >
       {#snippet children()}
-        <!-- Clean App Info -->
-        <div class="text-center py-6">
-          <div class="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
-            <img src='/logo.png' class="w-12 h-12" alt="TempoDay" />
+        <!-- Enhanced App Info with Gradient Background -->
+        <div class="relative overflow-hidden">
+          <!-- Subtle gradient background -->
+          <div class="absolute inset-0 bg-gradient-to-br from-indigo-50/50 to-purple-50/30 dark:from-indigo-950/20 dark:to-purple-950/10 rounded-xl"></div>
+          
+          <div class="relative text-center py-8 px-4">
+            <!-- Enhanced App Logo with better shadow -->
+            <div class="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 rounded-3xl flex items-center justify-center shadow-xl shadow-indigo-500/25 dark:shadow-indigo-900/40 transform hover:scale-105 transition-transform duration-300">
+              <img src='/logo.png' class="w-14 h-14" alt="TempoDay" />
+            </div>
+            
+            <h3 class="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400 bg-clip-text text-transparent mb-2">TempoDay</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-300 mb-8 font-medium">Version 0.0.1 • Privacy First</p>
+            
+            <!-- Enhanced Key Features - Beautiful 2x2 Grid -->
+            <div class="grid grid-cols-2 gap-4 max-w-sm mx-auto mb-8">
+              <div class="group flex flex-col items-center p-4 bg-gradient-to-br from-blue-50 to-blue-100/80 dark:from-blue-900/30 dark:to-blue-800/20 rounded-xl border border-blue-200/50 dark:border-blue-700/30 hover:shadow-lg hover:shadow-blue-500/10 dark:hover:shadow-blue-900/20 transition-all duration-300 hover:-translate-y-1">
+                <div class="w-10 h-10 mb-2 bg-gradient-to-br from-blue-500 to-blue-600 dark:from-blue-400 dark:to-blue-500 rounded-lg flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow duration-300">
+                  <Icon name="clipboard" class="text-white" size="sm" />
+                </div>
+                <span class="text-sm font-semibold text-blue-800 dark:text-blue-200">Tasks</span>
+                <span class="text-xs text-blue-600 dark:text-blue-300 text-center">Smart planning</span>
+              </div>
+              
+              <div class="group flex flex-col items-center p-4 bg-gradient-to-br from-purple-50 to-purple-100/80 dark:from-purple-900/30 dark:to-purple-800/20 rounded-xl border border-purple-200/50 dark:border-purple-700/30 hover:shadow-lg hover:shadow-purple-500/10 dark:hover:shadow-purple-900/20 transition-all duration-300 hover:-translate-y-1">
+                <div class="w-10 h-10 mb-2 bg-gradient-to-br from-purple-500 to-purple-600 dark:from-purple-400 dark:to-purple-500 rounded-lg flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow duration-300">
+                  <Icon name="edit" class="text-white" size="sm" />
+                </div>
+                <span class="text-sm font-semibold text-purple-800 dark:text-purple-200">Notes</span>
+                <span class="text-xs text-purple-600 dark:text-purple-300 text-center">Daily thoughts</span>
+              </div>
+              
+              <div class="group flex flex-col items-center p-4 bg-gradient-to-br from-emerald-50 to-emerald-100/80 dark:from-emerald-900/30 dark:to-emerald-800/20 rounded-xl border border-emerald-200/50 dark:border-emerald-700/30 hover:shadow-lg hover:shadow-emerald-500/10 dark:hover:shadow-emerald-900/20 transition-all duration-300 hover:-translate-y-1">
+                <div class="w-10 h-10 mb-2 bg-gradient-to-br from-emerald-500 to-emerald-600 dark:from-emerald-400 dark:to-emerald-500 rounded-lg flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow duration-300">
+                  <Icon name="dollar" class="text-white" size="sm" />
+                </div>
+                <span class="text-sm font-semibold text-emerald-800 dark:text-emerald-200">Finance</span>
+                <span class="text-xs text-emerald-600 dark:text-emerald-300 text-center">Track expenses</span>
+              </div>
+              
+              <div class="group flex flex-col items-center p-4 bg-gradient-to-br from-slate-50 to-slate-100/80 dark:from-slate-800/50 dark:to-slate-700/30 rounded-xl border border-slate-200/50 dark:border-slate-600/30 hover:shadow-lg hover:shadow-slate-500/10 dark:hover:shadow-slate-900/20 transition-all duration-300 hover:-translate-y-1">
+                <div class="w-10 h-10 mb-2 bg-gradient-to-br from-slate-500 to-slate-600 dark:from-slate-400 dark:to-slate-500 rounded-lg flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow duration-300">
+                  <Icon name="shield" class="text-white" size="sm" />
+                </div>
+                <span class="text-sm font-semibold text-slate-800 dark:text-slate-200">Private</span>
+                <span class="text-xs text-slate-600 dark:text-slate-300 text-center">Local data</span>
+              </div>
+            </div>
+            
+            <!-- Enhanced tagline with better styling -->
+            <div class="mb-6">
+              <p class="text-sm text-gray-600 dark:text-gray-300 font-medium mb-1">
+                📅 Calendar-centric personal management
+              </p>
+              <p class="text-xs text-gray-500 dark:text-gray-400">
+                All your data stays on your device
+              </p>
+            </div>
+            
+            <!-- Enhanced Terms & Conditions Link -->
+            <Button
+              variant="outline"
+              size="sm"
+              onclick={navigateToTerms}
+              class="!w-full !justify-center !text-gray-700 dark:!text-gray-300 hover:!text-indigo-600 dark:hover:!text-indigo-400 !border-gray-300 dark:!border-gray-600 hover:!border-indigo-300 dark:hover:!border-indigo-500 hover:!bg-indigo-50 dark:hover:!bg-indigo-950/30 transition-all duration-200"
+            >
+              {#snippet children()}
+                <Icon name="info-circle" class="text-gray-500 dark:text-gray-400" size="sm" />
+                <span>Terms & Conditions</span>
+              {/snippet}
+            </Button>
           </div>
-          
-          <h3 class="text-xl font-semibold text-gray-900 mb-1">TempoDay</h3>
-          <p class="text-sm text-gray-500 mb-6">Version 0.0.1</p>
-          
-          <!-- Key Features - Complete 2x2 Grid -->
-          <div class="grid grid-cols-2 gap-3 max-w-xs mx-auto mb-6">
-            <div class="flex flex-col items-center p-3 bg-blue-50 rounded-lg">
-              <Icon name="clipboard" class="text-blue-600 mb-1" size="lg" />
-              <span class="text-xs font-medium text-blue-900">Tasks</span>
-            </div>
-            <div class="flex flex-col items-center p-3 bg-purple-50 rounded-lg">
-              <Icon name="edit" class="text-purple-600 mb-1" size="lg" />
-              <span class="text-xs font-medium text-purple-900">Notes</span>
-            </div>
-            <div class="flex flex-col items-center p-3 bg-green-50 rounded-lg">
-              <Icon name="dollar" class="text-green-600 mb-1" size="lg" />
-              <span class="text-xs font-medium text-green-900">Finance</span>
-            </div>
-            <div class="flex flex-col items-center p-3 bg-gray-50 rounded-lg">
-              <Icon name="check-circle" class="text-gray-600 mb-1" size="lg" />
-              <span class="text-xs font-medium text-gray-900">Private</span>
-            </div>
-          </div>
-          
-          <!-- Simple tagline -->
-          <p class="text-xs text-gray-400 mb-4">
-            Calendar-centric personal management
-          </p>
-          
-          <!-- Terms & Conditions Link -->
-          <Button
-            variant="outline"
-            size="sm"
-            onclick={navigateToTerms}
-            class="!w-full !justify-center !text-gray-600 hover:!text-gray-900"
-          >
-            {#snippet children()}
-              <Icon name="info-circle" class="text-gray-500" size="sm" />
-              <span>Terms & Conditions</span>
-            {/snippet}
-          </Button>
         </div>
       {/snippet}
     </Card>

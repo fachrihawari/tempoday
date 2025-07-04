@@ -1,6 +1,6 @@
 // Transaction categories for TempoDay
 
-export type TransactionCategory = 
+export type TransactionCategory =
   | 'food'
   | 'transport'
   | 'shopping'
@@ -82,9 +82,9 @@ export const CATEGORY_CONFIG: Record<TransactionCategory, CategoryConfig> = {
   work: {
     label: 'Work & Business',
     icon: '💼',
-    color: 'text-gray-700',
-    bgColor: 'bg-gray-100',
-    borderColor: 'border-gray-300',
+    color: 'text-gray-700 dark:text-gray-300',
+    bgColor: 'bg-gray-100 dark:bg-gray-700',
+    borderColor: 'border-gray-300 dark:border-gray-600',
     description: 'Office supplies, business expenses',
   },
   travel: {
@@ -152,32 +152,41 @@ export const EXPENSE_CATEGORIES: TransactionCategory[] = [
 /**
  * Get category configuration for a given category
  */
-export function getCategoryConfig(category: TransactionCategory): CategoryConfig {
+export function getCategoryConfig(
+  category: TransactionCategory,
+): CategoryConfig {
   return CATEGORY_CONFIG[category] || CATEGORY_CONFIG.other;
 }
 
 /**
  * Get appropriate categories for transaction type
  */
-export function getCategoriesForType(type: 'income' | 'expense'): TransactionCategory[] {
+export function getCategoriesForType(
+  type: 'income' | 'expense',
+): TransactionCategory[] {
   return type === 'income' ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
 }
 
 /**
  * Get default category for transaction type
  */
-export function getDefaultCategory(type: 'income' | 'expense'): TransactionCategory {
+export function getDefaultCategory(
+  type: 'income' | 'expense',
+): TransactionCategory {
   return type === 'income' ? 'work' : 'other';
 }
 
 /**
  * Filter categories by search term
  */
-export function filterCategories(categories: TransactionCategory[], searchTerm: string): TransactionCategory[] {
+export function filterCategories(
+  categories: TransactionCategory[],
+  searchTerm: string,
+): TransactionCategory[] {
   if (!searchTerm.trim()) return categories;
-  
+
   const lowerSearch = searchTerm.toLowerCase();
-  return categories.filter(category => {
+  return categories.filter((category) => {
     const config = getCategoryConfig(category);
     return (
       config.label.toLowerCase().includes(lowerSearch) ||

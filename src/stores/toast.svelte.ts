@@ -28,7 +28,7 @@ class ToastStore {
   }
 
   remove(id: string): void {
-    this.toasts = this.toasts.filter(toast => toast.id !== id);
+    this.toasts = this.toasts.filter((toast) => toast.id !== id);
   }
 
   clear(): void {

@@ -20,7 +20,7 @@ export interface Note {
 
 export type TransactionType = 'income' | 'expense';
 
-export type TransactionCategory = 
+export type TransactionCategory =
   | 'food'
   | 'transport'
   | 'shopping'
@@ -49,6 +49,8 @@ export interface TempoDaySettings {
   currency: string;
   currencySymbol: string;
   locale: string;
+  // Appearance theme: 'light' | 'dark' | 'system'
+  theme: 'light' | 'dark' | 'system';
 }
 
 export interface Settings {

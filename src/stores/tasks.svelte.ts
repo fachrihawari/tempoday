@@ -1,7 +1,7 @@
 import { db } from '../dexie/db';
 import type { Task } from '../dexie/models';
 import { NotFoundError } from '../lib/error';
-import { sortTasksComprehensive, type TaskPriority } from '../lib/priority';
+import { type TaskPriority, sortTasksComprehensive } from '../lib/priority';
 // Reactive Dexie-based tasks store using Svelte 5 runes
 import { uuid } from '../lib/unique';
 
@@ -50,11 +50,8 @@ export class ReactiveTasks {
     this.error = null;
 
     try {
-      const tasks = await db.tasks
-        .where('date')
-        .equals(date)
-        .toArray();
-      
+      const tasks = await db.tasks.where('date').equals(date).toArray();
+
       // Sort tasks comprehensively (by completion, priority, then date)
       this.tasks = sortTasksComprehensive(tasks);
       this.currentDate = date;
@@ -110,7 +107,7 @@ export class ReactiveTasks {
       }
 
       const updatedCount = await db.tasks.update(taskId, {
-        completed: task.completed === 1 ? 0 as 0 : 1 as 1,
+        completed: task.completed === 1 ? (0 as 0) : (1 as 1),
         updatedAt: Date.now(),
       });
 
@@ -120,7 +117,13 @@ export class ReactiveTasks {
 
       // Update the local task state and re-sort
       const updatedTasks = this.tasks.map((t) =>
-        t.id === taskId ? { ...t, completed: t.completed === 1 ? 0 as 0 : 1 as 1, updatedAt: Date.now() } : t,
+        t.id === taskId
+          ? {
+              ...t,
+              completed: t.completed === 1 ? (0 as 0) : (1 as 1),
+              updatedAt: Date.now(),
+            }
+          : t,
       );
       this.tasks = sortTasksComprehensive(updatedTasks);
     } catch (err) {
@@ -139,7 +142,10 @@ export class ReactiveTasks {
   /**
    * Update task priority
    */
-  async updateTaskPriority(taskId: string, priority: TaskPriority): Promise<void> {
+  async updateTaskPriority(
+    taskId: string,
+    priority: TaskPriority,
+  ): Promise<void> {
     this.isUpdatingPriority[taskId] = true;
     this.error = null;
 
@@ -227,7 +233,9 @@ export class ReactiveTasks {
     if (this.priorityFilter.length === 0) {
       return this.tasks;
     }
-    return this.tasks.filter(task => this.priorityFilter.includes(task.priority));
+    return this.tasks.filter((task) =>
+      this.priorityFilter.includes(task.priority),
+    );
   }
 
   /**
@@ -271,14 +279,18 @@ export class ReactiveTasks {
    * Get urgent tasks count (reactive derived value)
    */
   get urgentCount(): number {
-    return this.filteredTasks.filter((task) => task.priority === 'urgent' && task.completed === 0).length;
+    return this.filteredTasks.filter(
+      (task) => task.priority === 'urgent' && task.completed === 0,
+    ).length;
   }
 
   /**
    * Get high priority tasks count (reactive derived value)
    */
   get highPriorityCount(): number {
-    return this.filteredTasks.filter((task) => task.priority === 'high' && task.completed === 0).length;
+    return this.filteredTasks.filter(
+      (task) => task.priority === 'high' && task.completed === 0,
+    ).length;
   }
 
   /**

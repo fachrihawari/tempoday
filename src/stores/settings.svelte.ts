@@ -7,6 +7,7 @@ export const defaultSettings: TempoDaySettings = {
   currency: 'USD',
   currencySymbol: '$',
   locale: 'en-US',
+  theme: 'system', // Default to system
 };
 
 /**
@@ -123,6 +124,13 @@ class SettingsStore {
    */
   clearError(): void {
     this.error = null;
+  }
+
+  /**
+   * Set the appearance theme and persist it
+   */
+  async setTheme(theme: 'light' | 'dark' | 'system') {
+    await this.updateSettings({ theme });
   }
 }
 

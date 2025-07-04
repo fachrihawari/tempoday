@@ -1,7 +1,10 @@
 import { db } from '../dexie/db';
 import type { Transaction, TransactionType } from '../dexie/models';
+import {
+  type TransactionCategory,
+  getDefaultCategory,
+} from '../lib/categories';
 import { NotFoundError } from '../lib/error';
-import { getDefaultCategory, type TransactionCategory } from '../lib/categories';
 // Reactive Dexie-based transactions store using Svelte 5 runes
 import { uuid } from '../lib/unique';
 
@@ -19,6 +22,7 @@ export class ReactiveTransactions {
   isLoading = $state(false);
   isCreating = $state(false);
   isDeleting = $state<Record<string, boolean>>({});
+  isUpdating = $state<Record<string, boolean>>({});
 
   // Error state
   error = $state<string | null>(null);
@@ -127,6 +131,49 @@ export class ReactiveTransactions {
   }
 
   /**
+   * Update a transaction
+   */
+  async updateTransaction(
+    transactionId: string,
+    updates: Partial<Omit<Transaction, 'id' | 'createdAt'>>,
+  ): Promise<void> {
+    this.isUpdating[transactionId] = true;
+    this.error = null;
+
+    try {
+      const existingTransaction = await this.getTransactionById(transactionId);
+      if (!existingTransaction) {
+        throw new NotFoundError(
+          `Transaction with ID ${transactionId} not found`,
+        );
+      }
+
+      const updatedTransaction: Transaction = {
+        ...existingTransaction,
+        ...updates,
+        updatedAt: Date.now(),
+      };
+
+      await db.transactions.update(transactionId, updatedTransaction);
+
+      // Update transaction in local state
+      this.transactions = this.transactions.map((transaction) =>
+        transaction.id === transactionId ? updatedTransaction : transaction,
+      );
+    } catch (err) {
+      if (err instanceof NotFoundError) {
+        this.error = 'Transaction not found';
+      } else {
+        this.error =
+          err instanceof Error ? err.message : 'Failed to update transaction';
+      }
+      console.error('Error updating transaction:', err);
+    } finally {
+      this.isUpdating[transactionId] = false;
+    }
+  }
+
+  /**
    * Get income transactions (reactive derived value)
    */
   get incomeTransactions(): Transaction[] {
@@ -180,15 +227,15 @@ export class ReactiveTransactions {
    */
   get transactionsByCategory(): Record<TransactionCategory, Transaction[]> {
     const grouped: Record<string, Transaction[]> = {};
-    
-    this.transactions.forEach(transaction => {
+
+    this.transactions.forEach((transaction) => {
       const category = transaction.category || 'other';
       if (!grouped[category]) {
         grouped[category] = [];
       }
       grouped[category].push(transaction);
     });
-    
+
     return grouped as Record<TransactionCategory, Transaction[]>;
   }
 

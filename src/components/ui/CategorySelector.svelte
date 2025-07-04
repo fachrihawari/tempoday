@@ -1,5 +1,9 @@
 <script lang="ts">
-import { getCategoryConfig, getCategoriesForType, type TransactionCategory } from '../../lib/categories';
+import {
+  type TransactionCategory,
+  getCategoriesForType,
+  getCategoryConfig,
+} from '../../lib/categories';
 import Icon from './Icon.svelte';
 
 interface Props {
@@ -10,6 +14,7 @@ interface Props {
   size?: 'sm' | 'md' | 'lg';
   class?: string;
   id?: string;
+  dropdownWidth?: 'auto' | 'full' | 'wide';
 }
 
 let {
@@ -20,9 +25,13 @@ let {
   size = 'md',
   class: className = '',
   id,
+  dropdownWidth = 'auto',
 }: Props = $props();
 
 let isOpen = $state(false);
+let dropdownElement = $state<HTMLDivElement | null>(null);
+let buttonElement = $state<HTMLButtonElement | null>(null);
+let shouldFlipUp = $state(false);
 
 const currentConfig = $derived(getCategoryConfig(value || 'other'));
 const availableCategories = $derived(getCategoriesForType(transactionType));
@@ -37,9 +46,41 @@ function toggleOpen(event: MouseEvent) {
   // Prevent form submission
   event.preventDefault();
   event.stopPropagation();
-  
+
   if (!disabled) {
     isOpen = !isOpen;
+
+    // Calculate dropdown position when opening
+    if (isOpen && buttonElement) {
+      $effect.root(() => {
+        setTimeout(() => {
+          calculateDropdownPosition();
+        }, 0);
+      });
+    }
+  }
+}
+
+function calculateDropdownPosition() {
+  if (!buttonElement) return;
+
+  const buttonRect = buttonElement.getBoundingClientRect();
+  const viewportHeight = window.innerHeight;
+  const dropdownHeight = dropdownElement?.offsetHeight || 256; // Fallback height
+
+  // Check if we're inside a modal (BottomSheet)
+  const isInModal = buttonElement.closest('[role="dialog"]') !== null;
+
+  // For modals, use more conservative spacing and prefer showing above if needed
+  const buffer = isInModal ? 20 : 10;
+  const spaceBelow = viewportHeight - buttonRect.bottom - buffer;
+  const spaceAbove = buttonRect.top - buffer;
+
+  // In modals, be more aggressive about flipping up to avoid clipping
+  if (isInModal) {
+    shouldFlipUp = spaceBelow < dropdownHeight * 0.8 && spaceAbove > spaceBelow;
+  } else {
+    shouldFlipUp = spaceBelow < dropdownHeight && spaceAbove > spaceBelow;
   }
 }
 
@@ -48,15 +89,21 @@ function handleClickOutside(event: MouseEvent) {
   const target = event.target as Element;
   if (!target.closest('.category-selector')) {
     isOpen = false;
+    shouldFlipUp = false;
   }
 }
 
 $effect(() => {
   if (isOpen) {
     document.addEventListener('click', handleClickOutside);
+    // Add resize listener to recalculate position
+    window.addEventListener('resize', calculateDropdownPosition);
     return () => {
       document.removeEventListener('click', handleClickOutside);
+      window.removeEventListener('resize', calculateDropdownPosition);
     };
+  } else {
+    shouldFlipUp = false;
   }
 });
 
@@ -65,17 +112,45 @@ const buttonSizes = {
   md: 'px-3 py-1.5 text-sm',
   lg: 'px-4 py-2 text-base',
 };
+
+const dropdownWidthClasses = {
+  auto: 'min-w-full max-w-xs',
+  full: 'min-w-full w-full',
+  wide: 'min-w-64 w-64',
+};
+
+const dropdownPositionClasses = {
+  auto: 'left-0',
+  full: 'left-0',
+  wide: 'left-0 xl:right-0 xl:left-auto', // On larger screens, position from right if needed
+};
+
+const getDropdownVerticalClasses = (flipUp: boolean) => {
+  return flipUp ? 'bottom-full mb-1' : 'top-full mt-1';
+};
 </script>
 
 <div class="relative category-selector {className}">
   <!-- Current Category Button -->
   <button
+    bind:this={buttonElement}
     type="button"
     {id}
     onclick={toggleOpen}
     {disabled}
-    class="inline-flex items-center gap-2 rounded-lg border transition-colors {currentConfig.bgColor} {currentConfig.color} {currentConfig.borderColor} {buttonSizes[size]}
-           {disabled ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1'}"
+    class="inline-flex items-center gap-2 rounded-lg border transition-colors {buttonSizes[size]}
+           {(value || 'other') === 'food' ? 'bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300 border-orange-300 dark:border-orange-700' :
+            (value || 'other') === 'transport' ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 border-blue-300 dark:border-blue-700' :
+            (value || 'other') === 'shopping' ? 'bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 border-purple-300 dark:border-purple-700' :
+            (value || 'other') === 'entertainment' ? 'bg-pink-100 dark:bg-pink-900 text-pink-700 dark:text-pink-300 border-pink-300 dark:border-pink-700' :
+            (value || 'other') === 'bills' ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 border-red-300 dark:border-red-700' :
+            (value || 'other') === 'health' ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 border-green-300 dark:border-green-700' :
+            (value || 'other') === 'education' ? 'bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 border-indigo-300 dark:border-indigo-700' :
+            (value || 'other') === 'work' ? 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600' :
+            (value || 'other') === 'travel' ? 'bg-cyan-100 dark:bg-cyan-900 text-cyan-700 dark:text-cyan-300 border-cyan-300 dark:border-cyan-700' :
+            (value || 'other') === 'gifts' ? 'bg-rose-100 dark:bg-rose-900 text-rose-700 dark:text-rose-300 border-rose-300 dark:border-rose-700' :
+            'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-600'}
+           {disabled ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:ring-offset-1 dark:focus:ring-offset-gray-800'}"
   >
     <span class="text-sm">{currentConfig.icon}</span>
     <span class="font-medium">{currentConfig.label}</span>
@@ -90,7 +165,10 @@ const buttonSizes = {
 
   <!-- Category Options Dropdown -->
   {#if isOpen && !disabled}
-    <div class="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 min-w-full max-w-xs">
+    <div 
+      bind:this={dropdownElement}
+      class="absolute bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg dark:shadow-gray-900/20 z-[200] transition-all duration-200 {dropdownWidthClasses[dropdownWidth]} {dropdownPositionClasses[dropdownWidth]} {getDropdownVerticalClasses(shouldFlipUp)}"
+    >
       <div class="py-1 max-h-64 overflow-y-auto">
         {#each availableCategories as category (category)}
           {@const config = getCategoryConfig(category)}
@@ -101,16 +179,16 @@ const buttonSizes = {
               event.stopPropagation();
               handleSelect(category);
             }}
-            class="w-full text-left px-3 py-2 hover:bg-gray-50 transition-colors flex items-start gap-3
-                   {category === value ? 'bg-blue-50 text-blue-700' : 'text-gray-700'}"
+            class="w-full text-left px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-start gap-3
+                   {category === value ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' : 'text-gray-700 dark:text-gray-300'}"
           >
             <span class="text-lg flex-shrink-0 mt-0.5">{config.icon}</span>
             <div class="flex-1 min-w-0">
               <div class="font-medium text-sm">{config.label}</div>
-              <div class="text-xs text-gray-500 mt-0.5">{config.description}</div>
+              <div class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{config.description}</div>
             </div>
             {#if category === value}
-              <Icon name="check" size="sm" class="text-blue-600 flex-shrink-0 mt-1" />
+              <Icon name="check" size="sm" class="text-blue-600 dark:text-blue-400 flex-shrink-0 mt-1" />
             {/if}
           </button>
         {/each}

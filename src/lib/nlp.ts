@@ -88,9 +88,30 @@ const KEYWORDS = {
     ]),
     // Priority keywords
     priority: {
-      urgent: new Set(['urgent', 'asap', 'immediately', 'critical', 'emergency', 'now']),
-      high: new Set(['important', 'priority', 'high', 'soon', 'quickly', 'fast']),
-      low: new Set(['later', 'sometime', 'eventually', 'low', 'minor', 'optional']),
+      urgent: new Set([
+        'urgent',
+        'asap',
+        'immediately',
+        'critical',
+        'emergency',
+        'now',
+      ]),
+      high: new Set([
+        'important',
+        'priority',
+        'high',
+        'soon',
+        'quickly',
+        'fast',
+      ]),
+      low: new Set([
+        'later',
+        'sometime',
+        'eventually',
+        'low',
+        'minor',
+        'optional',
+      ]),
     },
   },
 
@@ -174,66 +195,294 @@ const KEYWORDS = {
     // Category keywords for automatic detection
     categories: {
       food: new Set([
-        'food', 'lunch', 'dinner', 'breakfast', 'snack', 'coffee', 'restaurant', 'cafe',
-        'grocery', 'groceries', 'pizza', 'burger', 'sushi', 'takeout', 'delivery',
-        'starbucks', 'mcdonalds', 'uber eats', 'doordash', 'grubhub', 'meal', 'drink',
-        'sandwich', 'salad', 'chicken', 'beef', 'fish', 'vegetable', 'fruit', 'bread',
-        'milk', 'juice', 'beer', 'wine', 'alcohol', 'bar', 'pub', 'dining', 'eat',
+        'food',
+        'lunch',
+        'dinner',
+        'breakfast',
+        'snack',
+        'coffee',
+        'restaurant',
+        'cafe',
+        'grocery',
+        'groceries',
+        'pizza',
+        'burger',
+        'sushi',
+        'takeout',
+        'delivery',
+        'starbucks',
+        'mcdonalds',
+        'uber eats',
+        'doordash',
+        'grubhub',
+        'meal',
+        'drink',
+        'sandwich',
+        'salad',
+        'chicken',
+        'beef',
+        'fish',
+        'vegetable',
+        'fruit',
+        'bread',
+        'milk',
+        'juice',
+        'beer',
+        'wine',
+        'alcohol',
+        'bar',
+        'pub',
+        'dining',
+        'eat',
       ]),
       transport: new Set([
-        'gas', 'fuel', 'uber', 'taxi', 'bus', 'train', 'metro', 'subway', 'flight',
-        'airline', 'airport', 'parking', 'toll', 'car', 'bike', 'scooter', 'rideshare',
-        'lyft', 'transport', 'commute', 'travel', 'trip', 'drive', 'ride', 'public transport',
+        'gas',
+        'fuel',
+        'uber',
+        'taxi',
+        'bus',
+        'train',
+        'metro',
+        'subway',
+        'flight',
+        'airline',
+        'airport',
+        'parking',
+        'toll',
+        'car',
+        'bike',
+        'scooter',
+        'rideshare',
+        'lyft',
+        'transport',
+        'commute',
+        'travel',
+        'trip',
+        'drive',
+        'ride',
+        'public transport',
       ]),
       shopping: new Set([
-        'amazon', 'shopping', 'clothes', 'shirt', 'shoes', 'pants', 'dress', 'jacket',
-        'electronics', 'phone', 'laptop', 'computer', 'tv', 'tablet', 'headphones',
-        'furniture', 'home', 'household', 'cleaning', 'laundry', 'store', 'mall',
-        'target', 'walmart', 'costco', 'ebay', 'online', 'purchase', 'buy', 'bought',
-        'cashback', 'refund', 'return', 'exchange', 'discount', 'sale', 'deals',
+        'amazon',
+        'shopping',
+        'clothes',
+        'shirt',
+        'shoes',
+        'pants',
+        'dress',
+        'jacket',
+        'electronics',
+        'phone',
+        'laptop',
+        'computer',
+        'tv',
+        'tablet',
+        'headphones',
+        'furniture',
+        'home',
+        'household',
+        'cleaning',
+        'laundry',
+        'store',
+        'mall',
+        'target',
+        'walmart',
+        'costco',
+        'ebay',
+        'online',
+        'purchase',
+        'buy',
+        'bought',
+        'cashback',
+        'refund',
+        'return',
+        'exchange',
+        'discount',
+        'sale',
+        'deals',
       ]),
       entertainment: new Set([
-        'movie', 'cinema', 'theater', 'netflix', 'spotify', 'subscription', 'game',
-        'gaming', 'xbox', 'playstation', 'steam', 'book', 'magazine', 'music',
-        'concert', 'show', 'event', 'ticket', 'streaming', 'youtube', 'disney',
-        'entertainment', 'fun', 'hobby', 'art', 'craft',
+        'movie',
+        'cinema',
+        'theater',
+        'netflix',
+        'spotify',
+        'subscription',
+        'game',
+        'gaming',
+        'xbox',
+        'playstation',
+        'steam',
+        'book',
+        'magazine',
+        'music',
+        'concert',
+        'show',
+        'event',
+        'ticket',
+        'streaming',
+        'youtube',
+        'disney',
+        'entertainment',
+        'fun',
+        'hobby',
+        'art',
+        'craft',
       ]),
       bills: new Set([
-        'rent', 'mortgage', 'electricity', 'electric', 'gas bill', 'water', 'internet',
-        'phone bill', 'cable', 'insurance', 'utility', 'utilities', 'bill', 'payment',
-        'monthly', 'subscription', 'service', 'maintenance', 'repair', 'fix',
+        'rent',
+        'mortgage',
+        'electricity',
+        'electric',
+        'gas bill',
+        'water',
+        'internet',
+        'phone bill',
+        'cable',
+        'insurance',
+        'utility',
+        'utilities',
+        'bill',
+        'payment',
+        'monthly',
+        'subscription',
+        'service',
+        'maintenance',
+        'repair',
+        'fix',
       ]),
       health: new Set([
-        'doctor', 'hospital', 'medical', 'medicine', 'pharmacy', 'prescription',
-        'dentist', 'dental', 'gym', 'fitness', 'yoga', 'massage', 'therapy',
-        'health', 'healthcare', 'checkup', 'appointment', 'clinic', 'wellness',
-        'vitamin', 'supplement', 'surgery', 'treatment',
+        'doctor',
+        'hospital',
+        'medical',
+        'medicine',
+        'pharmacy',
+        'prescription',
+        'dentist',
+        'dental',
+        'gym',
+        'fitness',
+        'yoga',
+        'massage',
+        'therapy',
+        'health',
+        'healthcare',
+        'checkup',
+        'appointment',
+        'clinic',
+        'wellness',
+        'vitamin',
+        'supplement',
+        'surgery',
+        'treatment',
       ]),
       education: new Set([
-        'school', 'university', 'college', 'course', 'class', 'tuition', 'book',
-        'textbook', 'education', 'learning', 'training', 'certification', 'exam',
-        'study', 'student', 'teacher', 'professor', 'degree', 'diploma',
+        'school',
+        'university',
+        'college',
+        'course',
+        'class',
+        'tuition',
+        'book',
+        'textbook',
+        'education',
+        'learning',
+        'training',
+        'certification',
+        'exam',
+        'study',
+        'student',
+        'teacher',
+        'professor',
+        'degree',
+        'diploma',
       ]),
       work: new Set([
-        'office', 'supplies', 'business', 'work', 'meeting', 'conference', 'client',
-        'project', 'equipment', 'software', 'tools', 'professional', 'salary',
-        'freelance', 'contract', 'commission', 'bonus', 'income', 'wage',
-        'tip', 'tips', 'payment', 'paycheck', 'earnings',
+        'office',
+        'supplies',
+        'business',
+        'work',
+        'meeting',
+        'conference',
+        'client',
+        'project',
+        'equipment',
+        'software',
+        'tools',
+        'professional',
+        'salary',
+        'freelance',
+        'contract',
+        'commission',
+        'bonus',
+        'income',
+        'wage',
+        'tip',
+        'tips',
+        'payment',
+        'paycheck',
+        'earnings',
       ]),
       travel: new Set([
-        'hotel', 'flight', 'vacation', 'holiday', 'trip', 'travel', 'booking',
-        'airbnb', 'resort', 'cruise', 'tour', 'sightseeing', 'tourist', 'visa',
-        'passport', 'luggage', 'souvenir', 'adventure', 'explore',
+        'hotel',
+        'flight',
+        'vacation',
+        'holiday',
+        'trip',
+        'travel',
+        'booking',
+        'airbnb',
+        'resort',
+        'cruise',
+        'tour',
+        'sightseeing',
+        'tourist',
+        'visa',
+        'passport',
+        'luggage',
+        'souvenir',
+        'adventure',
+        'explore',
       ]),
       gifts: new Set([
-        'gift', 'present', 'birthday', 'anniversary', 'wedding', 'christmas',
-        'holiday', 'donation', 'charity', 'tip', 'gratuity', 'surprise',
-        'celebration', 'party', 'valentine', 'mother', 'father', 'giving',
+        'gift',
+        'present',
+        'birthday',
+        'anniversary',
+        'wedding',
+        'christmas',
+        'holiday',
+        'donation',
+        'charity',
+        'tip',
+        'gratuity',
+        'surprise',
+        'celebration',
+        'party',
+        'valentine',
+        'mother',
+        'father',
+        'giving',
       ]),
       other: new Set([
-        'miscellaneous', 'misc', 'other', 'various', 'general', 'random',
-        'stuff', 'things', 'item', 'purchase', 'expense', 'cost',
-        'reimbursement', 'settlement', 'lottery', 'prize', 'reward', 'credit',
+        'miscellaneous',
+        'misc',
+        'other',
+        'various',
+        'general',
+        'random',
+        'stuff',
+        'things',
+        'item',
+        'purchase',
+        'expense',
+        'cost',
+        'reimbursement',
+        'settlement',
+        'lottery',
+        'prize',
+        'reward',
+        'credit',
       ]),
     },
   },
@@ -278,7 +527,12 @@ export function parseNaturalLanguage(input: string): ParsedCommand {
   }
 
   // Step 9: Clean and format the content using original casing
-  result.content = cleanContentFromTokens(tokens, result.type, amounts[0], result.category);
+  result.content = cleanContentFromTokens(
+    tokens,
+    result.type,
+    amounts[0],
+    result.category,
+  );
 
   return result;
 }
@@ -376,7 +630,9 @@ function parseNumber(str: string): number | null {
 /**
  * PRIORITY EXTRACTION - Extract priority indicators from tokens
  */
-function extractPriorityFromTokens(tokens: Token[]): 'low' | 'medium' | 'high' | 'urgent' | null {
+function extractPriorityFromTokens(
+  tokens: Token[],
+): 'low' | 'medium' | 'high' | 'urgent' | null {
   const words = tokens.filter((t) => t.type === 'word').map((t) => t.text);
 
   // Check for urgent keywords
@@ -406,7 +662,9 @@ function extractPriorityFromTokens(tokens: Token[]): 'low' | 'medium' | 'high' |
 /**
  * CATEGORY EXTRACTION - Extract transaction category from tokens
  */
-function extractCategoryFromTokens(tokens: Token[]): TransactionCategory | null {
+function extractCategoryFromTokens(
+  tokens: Token[],
+): TransactionCategory | null {
   const words = tokens.filter((t) => t.type === 'word').map((t) => t.text);
   const allText = words.join(' ').toLowerCase();
 
@@ -414,23 +672,25 @@ function extractCategoryFromTokens(tokens: Token[]): TransactionCategory | null 
   const categoryScores: Partial<Record<TransactionCategory, number>> = {};
 
   // Check each category's keywords
-  for (const [category, keywords] of Object.entries(KEYWORDS.transaction.categories)) {
+  for (const [category, keywords] of Object.entries(
+    KEYWORDS.transaction.categories,
+  )) {
     let score = 0;
-    
+
     // Check for exact word matches
     for (const word of words) {
       if (keywords.has(word)) {
         score += 1;
       }
     }
-    
+
     // Check for phrase matches in the full text
     for (const keyword of keywords) {
       if (keyword.includes(' ') && allText.includes(keyword)) {
         score += 1.5; // Boost for phrase matches
       }
     }
-    
+
     if (score > 0) {
       categoryScores[category as TransactionCategory] = score;
     }
@@ -438,10 +698,13 @@ function extractCategoryFromTokens(tokens: Token[]): TransactionCategory | null 
 
   // Return the category with the highest score
   if (Object.keys(categoryScores).length > 0) {
-    const bestCategory = Object.entries(categoryScores).reduce((a, b) => 
-      (categoryScores[a[0] as TransactionCategory] || 0) > (categoryScores[b[0] as TransactionCategory] || 0) ? a : b
+    const bestCategory = Object.entries(categoryScores).reduce((a, b) =>
+      (categoryScores[a[0] as TransactionCategory] || 0) >
+      (categoryScores[b[0] as TransactionCategory] || 0)
+        ? a
+        : b,
     )[0] as TransactionCategory;
-    
+
     return bestCategory;
   }
 
@@ -544,9 +807,11 @@ function calculateSemanticScores(tokens: Token[]): {
     }
 
     // Priority keywords boost task score
-    if (KEYWORDS.task.priority.urgent.has(word) || 
-        KEYWORDS.task.priority.high.has(word) || 
-        KEYWORDS.task.priority.low.has(word)) {
+    if (
+      KEYWORDS.task.priority.urgent.has(word) ||
+      KEYWORDS.task.priority.high.has(word) ||
+      KEYWORDS.task.priority.low.has(word)
+    ) {
       scores.task += 0.3;
     }
 
@@ -682,16 +947,57 @@ function cleanContentFromTokens(
     // Only filter out generic/redundant category keywords, not specific product names
     const genericKeywords = new Set([
       // Generic category terms that don't add value to description
-      'shopping', 'purchase', 'buy', 'bought', 'online', 'store', 'mall', 'amazon',
-      'entertainment', 'fun', 'hobby', 'bills', 'payment', 'service', 'subscription',
-      'transport', 'travel', 'trip', 'food', 'meal', 'eat', 'dining',
-      'health', 'medical', 'healthcare', 'education', 'learning', 'work', 'business',
-      'gifts', 'miscellaneous', 'misc', 'other', 'various', 'general', 'stuff', 'things',
+      'shopping',
+      'purchase',
+      'buy',
+      'bought',
+      'online',
+      'store',
+      'mall',
+      'amazon',
+      'entertainment',
+      'fun',
+      'hobby',
+      'bills',
+      'payment',
+      'service',
+      'subscription',
+      'transport',
+      'travel',
+      'trip',
+      'food',
+      'meal',
+      'eat',
+      'dining',
+      'health',
+      'medical',
+      'healthcare',
+      'education',
+      'learning',
+      'work',
+      'business',
+      'gifts',
+      'miscellaneous',
+      'misc',
+      'other',
+      'various',
+      'general',
+      'stuff',
+      'things',
       // Generic product categories (but keep specific product names)
-      'electronics', 'clothes', 'furniture', 'household', 'cleaning', 'laundry',
-      'supplies', 'equipment', 'tools', 'items', 'products'
+      'electronics',
+      'clothes',
+      'furniture',
+      'household',
+      'cleaning',
+      'laundry',
+      'supplies',
+      'equipment',
+      'tools',
+      'items',
+      'products',
     ]);
-    
+
     const categoryKeywords = KEYWORDS.transaction.categories[detectedCategory];
     if (categoryKeywords) {
       for (const keyword of categoryKeywords) {
@@ -727,11 +1033,11 @@ function cleanContentFromTokens(
 
     // Skip priority keywords for tasks
     if (type === 'task' && token.type === 'word') {
-      const isPriorityKeyword = 
+      const isPriorityKeyword =
         KEYWORDS.task.priority.urgent.has(token.text) ||
         KEYWORDS.task.priority.high.has(token.text) ||
         KEYWORDS.task.priority.low.has(token.text);
-      
+
       if (isPriorityKeyword) {
         continue;
       }
@@ -739,22 +1045,28 @@ function cleanContentFromTokens(
 
     // Skip category keywords for transactions (only if they were used for detection)
     // BUT: Don't filter out words that are part of compound product names
-    if (type === 'transaction' && token.type === 'word' && categoryKeywordsToFilter.has(token.text)) {
+    if (
+      type === 'transaction' &&
+      token.type === 'word' &&
+      categoryKeywordsToFilter.has(token.text)
+    ) {
       // Check if this word might be part of a compound product name
       // by looking at adjacent tokens
       const prevToken = filteredTokens[filteredTokens.length - 1];
       const nextToken = tokens[i + 1];
-      
+
       // If the previous or next token suggests this is part of a product name, keep it
-      const isProbablyPartOfProductName = 
-        (prevToken && prevToken.type === 'word' && 
-         (prevToken.originalText.toLowerCase() === 'apple' || 
-          prevToken.originalText.toLowerCase() === 'samsung' ||
-          prevToken.originalText.toLowerCase() === 'google' ||
-          /^[A-Z]/.test(prevToken.originalText))) || // Previous word is capitalized (brand name)
-        (nextToken && nextToken.type === 'word' && 
-         /^[A-Z]/.test(nextToken.originalText)); // Next word is capitalized
-      
+      const isProbablyPartOfProductName =
+        (prevToken &&
+          prevToken.type === 'word' &&
+          (prevToken.originalText.toLowerCase() === 'apple' ||
+            prevToken.originalText.toLowerCase() === 'samsung' ||
+            prevToken.originalText.toLowerCase() === 'google' ||
+            /^[A-Z]/.test(prevToken.originalText))) || // Previous word is capitalized (brand name)
+        (nextToken &&
+          nextToken.type === 'word' &&
+          /^[A-Z]/.test(nextToken.originalText)); // Next word is capitalized
+
       if (!isProbablyPartOfProductName) {
         continue; // Skip generic category words
       }
