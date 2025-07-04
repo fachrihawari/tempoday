@@ -36,7 +36,7 @@ function handleIntroCompleted() {
 }
 </script>
 
-<div class="h-screen flex flex-col relative">
+<div class="h-screen flex flex-col relative bg-gray-50 dark:bg-gray-950">
   {#if showIntro && router.activePath !== "/terms" && router.activePath !== "/thanks"}
     <LazyPage loader={loadIntro} onIntroCompleted={handleIntroCompleted} />
   {:else}
