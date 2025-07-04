@@ -27,11 +27,11 @@ $effect(() => {
 </script>
 
 {#if loading}
-  <div class="w-full flex h-full justify-center items-center py-8 text-gray-400">
+  <div class="w-full flex h-full justify-center items-center py-8 text-gray-400 dark:text-gray-500">
     <Loading size='3xl' />
   </div>
 {:else if error}
-  <div class="w-full flex h-full justify-center items-center py-8 text-red-500">
+  <div class="w-full flex h-full justify-center items-center py-8 text-red-500 dark:text-red-400">
     {error.message}
   </div>
 {:else if Component}

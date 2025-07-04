@@ -129,11 +129,11 @@ function getResultIcon(
 function getResultColor(type: SearchResult['type']): string {
   switch (type) {
     case 'task':
-      return 'text-blue-600';
+      return 'text-blue-600 dark:text-blue-400';
     case 'note':
-      return 'text-purple-600';
+      return 'text-purple-600 dark:text-purple-400';
     case 'transaction':
-      return 'text-green-600';
+      return 'text-green-600 dark:text-green-400';
   }
 }
 
@@ -141,11 +141,11 @@ function getResultColor(type: SearchResult['type']): string {
 function getResultBgColor(type: SearchResult['type']): string {
   switch (type) {
     case 'task':
-      return 'bg-blue-50 border-blue-200';
+      return 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800';
     case 'note':
-      return 'bg-purple-50 border-purple-200';
+      return 'bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800';
     case 'transaction':
-      return 'bg-green-50 border-green-200';
+      return 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800';
   }
 }
 
@@ -204,22 +204,22 @@ onMount(() => {
   <PageHeader title="Search" subtitle="Find tasks, notes, and transactions" onBack={goBack} />
 
   <!-- Search Input and Filters -->
-  <div class="p-4 bg-white border-b border-gray-200 space-y-3">
+  <div class="p-4 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 space-y-3">
     <!-- Search Input -->
     <div class="relative">
       <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
         {#if isSearching}
-          <Icon name="loader" class="text-blue-500 animate-spin" size="sm" />
+          <Icon name="loader" class="text-blue-500 dark:text-blue-400 animate-spin" size="sm" />
         {:else}
-          <Icon name="search" class="text-gray-400" size="sm" />
+          <Icon name="search" class="text-gray-400 dark:text-gray-500" size="sm" />
         {/if}
       </div>
       <input
         bind:this={searchInputElement}
         bind:value={searchInput}
         placeholder="Search tasks, notes, and transactions..."
-        class="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base
-               {isSearching ? 'border-blue-300 bg-blue-50' : ''}"
+        class="w-full pl-10 pr-10 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 text-base bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400
+               {isSearching ? 'border-blue-300 dark:border-blue-600 bg-blue-50 dark:bg-blue-900/20' : ''}"
         autocomplete="off"
         autocapitalize="off"
         spellcheck="false"
@@ -230,11 +230,11 @@ onMount(() => {
           onclick={clearSearch}
           class="absolute inset-y-0 right-0 pr-3 flex items-center"
         >
-          <Icon name="close" class="text-gray-400 hover:text-gray-600" size="sm" />
+          <Icon name="close" class="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300" size="sm" />
         </button>
       {:else if isSearching}
         <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
-          <span class="text-xs text-blue-600 font-medium">Searching...</span>
+          <span class="text-xs text-blue-600 dark:text-blue-400 font-medium">Searching...</span>
         </div>
       {/if}
     </div>
@@ -253,8 +253,8 @@ onMount(() => {
     
     <!-- Search Progress Indicator -->
     {#if isSearching}
-      <div class="w-full bg-blue-100 rounded-full h-1 overflow-hidden">
-        <div class="h-full bg-blue-500 rounded-full animate-pulse" style="width: 100%"></div>
+      <div class="w-full bg-blue-100 dark:bg-blue-900/30 rounded-full h-1 overflow-hidden">
+        <div class="h-full bg-blue-500 dark:bg-blue-400 rounded-full animate-pulse" style="width: 100%"></div>
       </div>
     {/if}
   </div>
@@ -266,31 +266,31 @@ onMount(() => {
       <div class="flex flex-col items-center justify-center py-12 px-6">
         <div class="relative mb-6">
           <!-- Animated search icon -->
-          <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
-            <Icon name="search" class="text-blue-600 animate-pulse" size="xl" />
+          <div class="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
+            <Icon name="search" class="text-blue-600 dark:text-blue-400 animate-pulse" size="xl" />
           </div>
           <!-- Spinning loader overlay -->
-          <div class="absolute inset-0 border-4 border-blue-200 border-t-blue-500 rounded-full animate-spin"></div>
+          <div class="absolute inset-0 border-4 border-blue-200 dark:border-blue-800 border-t-blue-500 dark:border-t-blue-400 rounded-full animate-spin"></div>
         </div>
         
-        <h3 class="text-lg font-medium text-gray-900 mb-2">Searching...</h3>
-        <p class="text-gray-600 text-center mb-4">
+        <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">Searching...</h3>
+        <p class="text-gray-600 dark:text-gray-400 text-center mb-4">
           Looking through your tasks, notes, and transactions
         </p>
         
         <!-- Search progress dots -->
         <div class="flex space-x-2">
-          <div class="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style="animation-delay: 0ms"></div>
-          <div class="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style="animation-delay: 150ms"></div>
-          <div class="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style="animation-delay: 300ms"></div>
+          <div class="w-2 h-2 bg-blue-500 dark:bg-blue-400 rounded-full animate-bounce" style="animation-delay: 0ms"></div>
+          <div class="w-2 h-2 bg-blue-500 dark:bg-blue-400 rounded-full animate-bounce" style="animation-delay: 150ms"></div>
+          <div class="w-2 h-2 bg-blue-500 dark:bg-blue-400 rounded-full animate-bounce" style="animation-delay: 300ms"></div>
         </div>
       </div>
     {:else if error}
       <!-- Error State -->
       <div class="flex flex-col items-center justify-center py-12 px-6">
-        <Icon name="alert-circle" class="text-red-500 mb-4" size="3xl" />
-        <h3 class="text-lg font-medium text-gray-900 mb-2">Search Error</h3>
-        <p class="text-gray-600 text-center mb-4">{error}</p>
+        <Icon name="alert-circle" class="text-red-500 dark:text-red-400 mb-4" size="3xl" />
+        <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">Search Error</h3>
+        <p class="text-gray-600 dark:text-gray-400 text-center mb-4">{error}</p>
         <Button variant="primary" onclick={() => searchStore.clearError()}>
           {#snippet children()}Try Again{/snippet}
         </Button>
@@ -298,9 +298,9 @@ onMount(() => {
     {:else if hasSearched && !hasResults}
       <!-- No Results State -->
       <div class="flex flex-col items-center justify-center py-12 px-6">
-        <Icon name="search" class="text-gray-400 mb-4" size="3xl" />
-        <h3 class="text-lg font-medium text-gray-900 mb-2">No Results Found</h3>
-        <p class="text-gray-600 text-center">
+        <Icon name="search" class="text-gray-400 dark:text-gray-500 mb-4" size="3xl" />
+        <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No Results Found</h3>
+        <p class="text-gray-600 dark:text-gray-400 text-center">
           No results match "{query}"
           {#if hasActiveFilters}
             with the current filters
@@ -320,10 +320,10 @@ onMount(() => {
       <div class="p-4">
         <!-- Results Summary -->
         <div class="mb-4">
-          <p class="text-sm text-gray-600">
+          <p class="text-sm text-gray-600 dark:text-gray-400">
             Found {results.total} result{results.total !== 1 ? 's' : ''} for "{query}"
             {#if hasActiveFilters}
-              <span class="text-blue-600">with filters</span>
+              <span class="text-blue-600 dark:text-blue-400">with filters</span>
             {/if}
           </p>
         </div>
@@ -331,26 +331,26 @@ onMount(() => {
         <!-- Results by Category -->
         {#if results.tasks.length > 0}
           <div class="mb-6">
-            <h3 class="text-sm font-medium text-gray-900 mb-3 flex items-center gap-2">
-              <Icon name="clipboard" class="text-blue-600" size="sm" />
+            <h3 class="text-sm font-medium text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2">
+              <Icon name="clipboard" class="text-blue-600 dark:text-blue-400" size="sm" />
               Tasks ({results.tasks.length})
             </h3>
             <div class="space-y-2">
               {#each results.tasks as result (result.id)}
                 <button
                   onclick={() => handleResultClick(result)}
-                  class="w-full text-left p-3 rounded-lg border transition-colors hover:bg-gray-50 {getResultBgColor(result.type)}"
+                  class="w-full text-left p-3 rounded-lg border transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 {getResultBgColor(result.type)}"
                 >
                   <div class="flex items-start justify-between">
                     <div class="flex-1 min-w-0">
                       <div class="flex items-center gap-2 mb-1">
                         <Icon name={getResultIcon(result.type)} class={getResultColor(result.type)} size="sm" />
-                        <span class="text-sm font-medium text-gray-900 truncate">{result.title}</span>
+                        <span class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{result.title}</span>
                       </div>
-                      <p class="text-xs text-gray-600">{result.content}</p>
-                      <p class="text-xs text-gray-500 mt-1">{formatResultDate(result.date)}</p>
+                      <p class="text-xs text-gray-600 dark:text-gray-400">{result.content}</p>
+                      <p class="text-xs text-gray-500 dark:text-gray-500 mt-1">{formatResultDate(result.date)}</p>
                     </div>
-                    <Icon name="chevron-right" class="text-gray-400 flex-shrink-0 ml-2" size="sm" />
+                    <Icon name="chevron-right" class="text-gray-400 dark:text-gray-500 flex-shrink-0 ml-2" size="sm" />
                   </div>
                 </button>
               {/each}
@@ -360,26 +360,26 @@ onMount(() => {
 
         {#if results.notes.length > 0}
           <div class="mb-6">
-            <h3 class="text-sm font-medium text-gray-900 mb-3 flex items-center gap-2">
-              <Icon name="edit" class="text-purple-600" size="sm" />
+            <h3 class="text-sm font-medium text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2">
+              <Icon name="edit" class="text-purple-600 dark:text-purple-400" size="sm" />
               Notes ({results.notes.length})
             </h3>
             <div class="space-y-2">
               {#each results.notes as result (result.id)}
                 <button
                   onclick={() => handleResultClick(result)}
-                  class="w-full text-left p-3 rounded-lg border transition-colors hover:bg-gray-50 {getResultBgColor(result.type)}"
+                  class="w-full text-left p-3 rounded-lg border transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 {getResultBgColor(result.type)}"
                 >
                   <div class="flex items-start justify-between">
                     <div class="flex-1 min-w-0">
                       <div class="flex items-center gap-2 mb-1">
                         <Icon name={getResultIcon(result.type)} class={getResultColor(result.type)} size="sm" />
-                        <span class="text-sm font-medium text-gray-900">{result.title}</span>
+                        <span class="text-sm font-medium text-gray-900 dark:text-gray-100">{result.title}</span>
                       </div>
-                      <p class="text-xs text-gray-600 line-clamp-2">{result.content}</p>
-                      <p class="text-xs text-gray-500 mt-1">{formatResultDate(result.date)}</p>
+                      <p class="text-xs text-gray-600 dark:text-gray-400 line-clamp-2">{result.content}</p>
+                      <p class="text-xs text-gray-500 dark:text-gray-500 mt-1">{formatResultDate(result.date)}</p>
                     </div>
-                    <Icon name="chevron-right" class="text-gray-400 flex-shrink-0 ml-2" size="sm" />
+                    <Icon name="chevron-right" class="text-gray-400 dark:text-gray-500 flex-shrink-0 ml-2" size="sm" />
                   </div>
                 </button>
               {/each}
@@ -389,26 +389,26 @@ onMount(() => {
 
         {#if results.transactions.length > 0}
           <div class="mb-6">
-            <h3 class="text-sm font-medium text-gray-900 mb-3 flex items-center gap-2">
-              <Icon name="dollar" class="text-green-600" size="sm" />
+            <h3 class="text-sm font-medium text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2">
+              <Icon name="dollar" class="text-green-600 dark:text-green-400" size="sm" />
               Transactions ({results.transactions.length})
             </h3>
             <div class="space-y-2">
               {#each results.transactions as result (result.id)}
                 <button
                   onclick={() => handleResultClick(result)}
-                  class="w-full text-left p-3 rounded-lg border transition-colors hover:bg-gray-50 {getResultBgColor(result.type)}"
+                  class="w-full text-left p-3 rounded-lg border transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 {getResultBgColor(result.type)}"
                 >
                   <div class="flex items-start justify-between">
                     <div class="flex-1 min-w-0">
                       <div class="flex items-center gap-2 mb-1">
                         <Icon name={getResultIcon(result.type)} class={getResultColor(result.type)} size="sm" />
-                        <span class="text-sm font-medium text-gray-900 truncate">{result.title}</span>
+                        <span class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{result.title}</span>
                       </div>
-                      <p class="text-xs text-gray-600">{result.content}</p>
-                      <p class="text-xs text-gray-500 mt-1">{formatResultDate(result.date)}</p>
+                      <p class="text-xs text-gray-600 dark:text-gray-400">{result.content}</p>
+                      <p class="text-xs text-gray-500 dark:text-gray-500 mt-1">{formatResultDate(result.date)}</p>
                     </div>
-                    <Icon name="chevron-right" class="text-gray-400 flex-shrink-0 ml-2" size="sm" />
+                    <Icon name="chevron-right" class="text-gray-400 dark:text-gray-500 flex-shrink-0 ml-2" size="sm" />
                   </div>
                 </button>
               {/each}
@@ -419,16 +419,16 @@ onMount(() => {
     {:else}
       <!-- Initial State -->
       <div class="flex flex-col items-center justify-center py-12 px-6">
-        <Icon name="search" class="text-gray-400 mb-4" size="3xl" />
-        <h3 class="text-lg font-medium text-gray-900 mb-2">Search Your Data</h3>
-        <p class="text-gray-600 text-center mb-6">
+        <Icon name="search" class="text-gray-400 dark:text-gray-500 mb-4" size="3xl" />
+        <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">Search Your Data</h3>
+        <p class="text-gray-600 dark:text-gray-400 text-center mb-6">
           Find tasks, notes, and transactions by typing in the search box above
         </p>
         
         <!-- Search Tips -->
-        <div class="bg-gray-50 rounded-lg p-4 max-w-sm w-full">
-          <h4 class="text-sm font-medium text-gray-900 mb-2">Search Tips:</h4>
-          <ul class="text-xs text-gray-600 space-y-1">
+        <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 max-w-sm w-full border border-gray-200 dark:border-gray-700">
+          <h4 class="text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">Search Tips:</h4>
+          <ul class="text-xs text-gray-600 dark:text-gray-400 space-y-1">
             <li>• Search across all your tasks, notes, and transactions</li>
             <li>• Use filters to narrow down results by type, status, or category</li>
             <li>• Results are sorted by date (newest first)</li>

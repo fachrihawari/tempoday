@@ -17,5 +17,5 @@ let {
 <div class="flex flex-col items-center justify-center p-4 {className}">
   <Icon name='loader' class="animate-spin"  size={size}/>
 
-  <p class="mt-4 text-gray-600">{message}</p>
+  <p class="mt-4 text-gray-600 dark:text-gray-400">{message}</p>
 </div>

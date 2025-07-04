@@ -27,27 +27,27 @@ const typeConfig: Record<
   { classes: string; icon: IconName; iconColor: string; defaultTitle: string }
 > = {
   info: {
-    classes: 'bg-blue-50 text-blue-800 border-blue-200',
+    classes: 'bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300 border-blue-200 dark:border-blue-800',
     icon: 'info-circle' as IconName,
-    iconColor: 'text-blue-600',
+    iconColor: 'text-blue-600 dark:text-blue-400',
     defaultTitle: 'Info',
   },
   success: {
-    classes: 'bg-green-50 text-green-800 border-green-200',
+    classes: 'bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-300 border-green-200 dark:border-green-800',
     icon: 'check-circle' as IconName,
-    iconColor: 'text-green-600',
+    iconColor: 'text-green-600 dark:text-green-400',
     defaultTitle: 'Success',
   },
   warning: {
-    classes: 'bg-yellow-50 text-yellow-800 border-yellow-200',
+    classes: 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-300 border-yellow-200 dark:border-yellow-800',
     icon: 'exclamation-triangle' as IconName,
-    iconColor: 'text-yellow-600',
+    iconColor: 'text-yellow-600 dark:text-yellow-400',
     defaultTitle: 'Warning',
   },
   error: {
-    classes: 'bg-red-50 text-red-800 border-red-200',
+    classes: 'bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-300 border-red-200 dark:border-red-800',
     icon: 'alert-circle' as IconName,
-    iconColor: 'text-red-600',
+    iconColor: 'text-red-600 dark:text-red-400',
     defaultTitle: 'Error',
   },
 };
