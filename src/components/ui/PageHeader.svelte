@@ -1,21 +1,11 @@
 <script lang="ts">
 import Button from './Button.svelte';
-import Icon from './Icon.svelte';
+import Icon, { type IconName } from './Icon.svelte';
 
 interface Props {
   title: string;
   subtitle?: string;
-  icon?:
-    | 'home'
-    | 'calendar'
-    | 'settings'
-    | 'check'
-    | 'trash'
-    | 'plus'
-    | 'close'
-    | 'dollar'
-    | 'clipboard'
-    | 'edit';
+  icon?: IconName;
   children?: any;
   onBack?: (() => void) | null;
 }

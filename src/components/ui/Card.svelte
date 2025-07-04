@@ -55,7 +55,7 @@ function toggleExpanded() {
         class="flex items-center gap-2 {collapsible ? 'py-1 rounded-lg transition-all duration-200 cursor-pointer' : 'cursor-default'} flex-1"
       >
         {#if icon}
-          <Icon name={icon} class={iconColor + ' dark:text-gray-300'} />
+          <Icon name={icon} class={iconColor} />
         {/if}
         <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">{title}</h2>
         

@@ -25,7 +25,9 @@ export type IconName =
   | 'search'
   | 'sun'
   | 'moon'
-  | 'monitor';
+  | 'monitor'
+  | 'heart'
+  | 'shield';
 export type IconSize = 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl';
 
 interface Props {
@@ -75,6 +77,8 @@ const icons = {
   sun: `<circle cx="12" cy="12" r="5" stroke="currentColor" stroke-width="2" fill="none"/><path stroke="currentColor" stroke-width="2" d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>`,
   moon: `<path stroke="currentColor" stroke-width="2" fill="none" d="M21 12.79A9 9 0 1111.21 3a7 7 0 109.79 9.79z"/>`,
   monitor: `<rect x="3" y="5" width="18" height="12" rx="2" stroke="currentColor" stroke-width="2" fill="none"/><path stroke="currentColor" stroke-width="2" d="M8 21h8M12 17v4"/>`,
+  heart: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>`,
+  shield: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>`,
 };
 </script>
 
