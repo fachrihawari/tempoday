@@ -221,11 +221,10 @@ function goBack() {
           <p class="mb-3">As a user of TempoDay, you agree to:</p>
           <ul class="list-disc list-inside space-y-2 text-sm">
             <li>Use the app only for lawful purposes</li>
-            <li>Not attempt to reverse engineer, modify, or distribute the app</li>
             <li>Not use the app to store illegal or harmful content</li>
             <li>Understand that you are responsible for backing up your data</li>
             <li>Report any bugs or security issues responsibly</li>
-            <li>Respect the intellectual property rights of the app</li>
+            <li>Respect the Apache License 2.0 terms when redistributing or modifying the software</li>
           </ul>
         </div>
       {/snippet}
@@ -281,44 +280,52 @@ function goBack() {
                 <Icon name="check-circle" class="text-white" size="sm" />
               </div>
               <div>
-                <h4 class="font-medium text-indigo-900 dark:text-indigo-100 mb-1">Open Source & Free Forever</h4>
+                <h4 class="font-medium text-indigo-900 dark:text-indigo-100 mb-1">Apache License 2.0 - Open Source & Free</h4>
                 <p class="text-sm text-indigo-700 dark:text-indigo-300 leading-relaxed">
-                  TempoDay is open source software and will always remain free. You are welcome to copy, modify, distribute, and self-host your own version.
+                  TempoDay is licensed under the Apache License 2.0, allowing you to freely use, modify, and distribute the software for any purpose, including commercial use.
                 </p>
               </div>
             </div>
           </div>
 
-          <h4 class="font-medium text-gray-900 dark:text-gray-100 mb-2">What this means:</h4>
+          <h4 class="font-medium text-gray-900 dark:text-gray-100 mb-2">What the Apache License 2.0 allows:</h4>
           <ul class="list-disc list-inside space-y-2 text-sm mb-4">
-            <li><strong>Free to Use:</strong> TempoDay is completely free for personal use and always will be</li>
+            <li><strong>Free to Use:</strong> Use TempoDay for any purpose, personal or commercial</li>
             <li><strong>Open Source:</strong> Source code is publicly available on GitHub</li>
-            <li><strong>Copy & Modify:</strong> You can freely copy, modify, and distribute the code</li>
-            <li><strong>Self-Hosting:</strong> You're welcome to host your own instance for personal use</li>
-            <li><strong>Fork & Customize:</strong> Create your own version with different features</li>
-            <li><strong>Non-Commercial:</strong> Use is restricted to personal, educational, and non-commercial purposes</li>
+            <li><strong>Copy & Modify:</strong> Freely copy, modify, and distribute the code</li>
+            <li><strong>Commercial Use:</strong> Use in commercial products and services is allowed</li>
+            <li><strong>Patent Protection:</strong> Includes patent grants and protections for users</li>
+            <li><strong>Sublicensing:</strong> Create derivative works under different license terms</li>
           </ul>
 
-          <div class="bg-yellow-50 dark:bg-yellow-950/30 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3 mb-4">
+          <div class="bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-lg p-3 mb-4">
             <div class="flex items-start gap-2">
-              <Icon name="exclamation-triangle" class="text-yellow-600 dark:text-yellow-400 mt-0.5" size="sm" />
+              <Icon name="check-circle" class="text-green-600 dark:text-green-400 mt-0.5" size="sm" />
               <div class="text-sm">
-                <div class="font-medium text-yellow-900 dark:text-yellow-100">Commercial Use Restriction</div>
-                <div class="text-yellow-700 dark:text-yellow-300">
-                  TempoDay cannot be used for commercial purposes, including but not limited to selling, monetizing, or using in commercial products or services.
+                <div class="font-medium text-green-900 dark:text-green-100">Permissive License</div>
+                <div class="text-green-700 dark:text-green-300">
+                  The Apache License 2.0 is business-friendly and allows both personal and commercial use with minimal restrictions.
                 </div>
               </div>
             </div>
           </div>
 
+          <h4 class="font-medium text-gray-900 dark:text-gray-100 mb-2">Requirements when using TempoDay:</h4>
+          <ul class="list-disc list-inside space-y-2 text-sm mb-4">
+            <li><strong>Attribution Required:</strong> Include the original copyright notice and license in distributions</li>
+            <li><strong>Notice Changes:</strong> State any significant changes made to the original code</li>
+            <li><strong>License Inclusion:</strong> Include a copy of the Apache License 2.0 with distributions</li>
+            <li><strong>Trademark Respect:</strong> The TempoDay name and logo require permission for trademark use</li>
+          </ul>
+
           <h4 class="font-medium text-gray-900 dark:text-gray-100 mb-2">Your rights and responsibilities:</h4>
           <ul class="list-disc list-inside space-y-2 text-sm">
             <li>Your personal data remains your property and is stored locally on your device</li>
-            <li>We respect open-source components and list them in our acknowledgments</li>
-            <li>When forking or redistributing, please respect the non-commercial license terms</li>
-            <li>Attribution is appreciated but not required for personal use</li>
-            <li>The TempoDay name and logo are trademarks, but you can rebrand your fork</li>
-            <li>Commercial licensing may be available upon request for business use cases</li>
+            <li>You can rebrand and redistribute TempoDay with proper attribution</li>
+            <li>Commercial use is permitted as long as license requirements are met</li>
+            <li>Patent grants provide legal protection for using the software</li>
+            <li>No warranty is provided - use at your own risk</li>
+            <li>Contributions to the project are welcomed under the same license</li>
           </ul>
         </div>
       {/snippet}

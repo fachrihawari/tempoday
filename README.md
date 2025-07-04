@@ -56,3 +56,18 @@ For more details, check out the [About TempoDay](about.md) file.
    ```
 3. **Open in your browser:**
    Visit `http://localhost:5173` (or the port shown in your terminal).
+
+## License
+
+TempoDay is licensed under the [Apache License 2.0](LICENSE). This means you are free to:
+
+- ✅ Use the software for any purpose
+- ✅ Modify and distribute the software  
+- ✅ Use it commercially
+- ✅ Place warranty and liability disclaimers
+
+**Requirements:**
+- Include the original copyright notice and license
+- State any significant changes made to the code
+
+See the [LICENSE](LICENSE) file for full details.
