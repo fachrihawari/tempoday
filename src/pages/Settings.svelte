@@ -2,7 +2,7 @@
 import AppearanceSettings from '../components/AppearanceSettings.svelte';
 import BackupRestore from '../components/BackupRestore.svelte';
 import DonationModal from '../components/DonationModal.svelte';
-import Settings from '../components/Settings.svelte';
+import CurrencySettings from '../components/CurrencySettings.svelte';
 import SupportSettings from '../components/SupportSettings.svelte';
 import Button from '../components/ui/Button.svelte';
 import Card from '../components/ui/Card.svelte';
@@ -75,7 +75,7 @@ function navigateToTerms() {
       defaultExpanded={false}
     >
       {#snippet children()}
-        <Settings />
+        <CurrencySettings />
       {/snippet}
     </Card>
 
