@@ -37,27 +37,27 @@ let inputElement: HTMLInputElement = $state()!;
 let isFocused = $state(false);
 
 const focusColor = $derived(() => {
-  if (error) return 'focus:ring-red-500 focus:border-red-500';
+  if (error) return 'focus:ring-red-500 dark:focus:ring-red-400 focus:border-red-500 dark:focus:border-red-400';
   if (theme)
     return sectionThemes[theme].colors.focus + ' focus:border-transparent';
-  return 'focus:ring-blue-500 focus:border-blue-500';
+  return 'focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400';
 });
 
 const borderColor = $derived(() => {
-  if (error) return 'border-red-300';
+  if (error) return 'border-red-300 dark:border-red-600';
   if (isFocused) {
     if (theme) {
       const color =
         theme === 'tasks'
-          ? 'border-blue-500'
+          ? 'border-blue-500 dark:border-blue-400'
           : theme === 'notes'
-            ? 'border-purple-500'
-            : 'border-green-500';
+            ? 'border-purple-500 dark:border-purple-400'
+            : 'border-green-500 dark:border-green-400';
       return color;
     }
-    return 'border-blue-500';
+    return 'border-blue-500 dark:border-blue-400';
   }
-  return 'border-gray-300';
+  return 'border-gray-300 dark:border-gray-600';
 });
 
 function handleFocus() {
@@ -71,11 +71,11 @@ function handleBlur() {
 
 <div class="space-y-2">
   {#if label}
-    <label for="input-{label}" class="block text-sm font-medium text-gray-700">
+    <label for="input-{label}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
       {label}
 
       {#if required}
-        <span class="text-red-600">*</span>
+        <span class="text-red-600 dark:text-red-400">*</span>
       {/if}
     </label>
   {/if}
@@ -97,13 +97,14 @@ function handleBlur() {
     class={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 text-sm transition-all duration-200
     ${borderColor()}
     ${focusColor()}
-    ${disabled ? 'bg-gray-50 cursor-not-allowed' : 'bg-white'}
+    ${disabled ? 'bg-gray-50 dark:bg-gray-700 cursor-not-allowed' : 'bg-white dark:bg-gray-800'}
+    text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400
     ${className}`}
   />
 
   {#if error}
     <p
-      class="text-sm text-red-600 mt-1 animate-in slide-in-from-top-1 duration-200"
+      class="text-sm text-red-600 dark:text-red-400 mt-1 animate-in slide-in-from-top-1 duration-200"
     >
       {error}
     </p>

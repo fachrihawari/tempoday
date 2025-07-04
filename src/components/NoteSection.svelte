@@ -126,7 +126,7 @@ function handleKeydown(event: KeyboardEvent) {
       {:else if hasNote}
         <button onclick={startEditing} class="cursor-text w-full text-left">
           <div
-            class="bg-gray-50 rounded-lg p-3 min-h-[80px] whitespace-pre-wrap text-sm text-gray-900 leading-relaxed"
+            class="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 min-h-[80px] whitespace-pre-wrap text-sm text-gray-900 dark:text-gray-100 leading-relaxed border border-gray-200 dark:border-gray-700"
           >
             {content}
           </div>
@@ -147,6 +147,7 @@ function handleKeydown(event: KeyboardEvent) {
         dashed={true}
         onclick={startEditing}
         class="mt-2"
+        fullWidth
       >
         {#snippet children()}
           <Icon name="edit" size="sm" class="mr-1" />

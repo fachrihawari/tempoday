@@ -198,10 +198,10 @@ function handleScroll() {
 </script>
 
 <!-- Header and Date Picker -->
-<div class="sticky top-0 py-4 bg-white z-10 shadow-sm">
+<div class="sticky top-0 py-4 bg-white dark:bg-gray-900 z-10 shadow-sm dark:shadow-gray-800/50">
   <!-- Current Date Display -->
   <div class="px-4 flex justify-between items-center">
-    <h2 class="text-lg font-semibold text-gray-800">
+    <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200">
       {formatDate(appState.selectedDate)}
     </h2>
 
@@ -226,10 +226,10 @@ function handleScroll() {
           onclick={() => selectDate(date)}
           class="flex-shrink-0 w-16 h-20 flex flex-col items-center justify-center rounded-lg transition-all duration-200 scroll-snap-align-center !p-2
             {isSameDate(date, appState.selectedDate)
-            ? '!bg-blue-500 !text-white shadow-lg scale-105'
+            ? '!bg-blue-500 dark:!bg-blue-600 !text-white shadow-lg scale-105'
             : isToday(date)
-              ? '!bg-blue-100 !text-blue-700 border-2 border-blue-300'
-              : '!bg-gray-50 !text-gray-700 hover:!bg-gray-100'}"
+              ? '!bg-blue-100 dark:!bg-blue-900 !text-blue-700 dark:!text-blue-300 border-2 border-blue-300 dark:border-blue-700'
+              : '!bg-gray-50 dark:!bg-gray-800 !text-gray-700 dark:!text-gray-300 hover:!bg-gray-100 dark:hover:!bg-gray-700'}"
         >
           {#snippet children()}
             <span class="text-xs font-medium uppercase">
@@ -239,7 +239,7 @@ function handleScroll() {
               {date.getDate()}
             </span>
             {#if date.getDate() === 1}
-              <span class="text-xs text-gray-500 mt-1">
+              <span class="text-xs text-gray-500 dark:text-gray-400 mt-1">
                 {date.toLocaleDateString("en-US", { month: "short" })}
               </span>
             {/if}

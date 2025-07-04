@@ -22,6 +22,7 @@ export class ReactiveTransactions {
   isLoading = $state(false);
   isCreating = $state(false);
   isDeleting = $state<Record<string, boolean>>({});
+  isUpdating = $state<Record<string, boolean>>({});
 
   // Error state
   error = $state<string | null>(null);
@@ -126,6 +127,46 @@ export class ReactiveTransactions {
       console.error('Error deleting transaction:', err);
     } finally {
       this.isDeleting[transactionId] = false;
+    }
+  }
+
+  /**
+   * Update a transaction
+   */
+  async updateTransaction(transactionId: string, updates: Partial<Omit<Transaction, 'id' | 'createdAt'>>): Promise<void> {
+    this.isUpdating[transactionId] = true;
+    this.error = null;
+
+    try {
+      const existingTransaction = await this.getTransactionById(transactionId);
+      if (!existingTransaction) {
+        throw new NotFoundError(
+          `Transaction with ID ${transactionId} not found`,
+        );
+      }
+
+      const updatedTransaction: Transaction = {
+        ...existingTransaction,
+        ...updates,
+        updatedAt: Date.now(),
+      };
+
+      await db.transactions.update(transactionId, updatedTransaction);
+
+      // Update transaction in local state
+      this.transactions = this.transactions.map((transaction) =>
+        transaction.id === transactionId ? updatedTransaction : transaction
+      );
+    } catch (err) {
+      if (err instanceof NotFoundError) {
+        this.error = 'Transaction not found';
+      } else {
+        this.error =
+          err instanceof Error ? err.message : 'Failed to update transaction';
+      }
+      console.error('Error updating transaction:', err);
+    } finally {
+      this.isUpdating[transactionId] = false;
     }
   }
 

@@ -87,12 +87,12 @@ $effect(() => {
   {#if label}
     <label
       for="textarea-{label}"
-      class="block text-sm font-medium text-gray-700"
+      class="block text-sm font-medium text-gray-700 dark:text-gray-300"
     >
       {label}
 
       {#if required}
-        <span class="text-red-600">*</span>
+        <span class="text-red-600 dark:text-red-400">*</span>
       {/if}
     </label>
   {/if}
@@ -112,13 +112,14 @@ $effect(() => {
     class={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 text-sm transition-all duration-200 resize-none
     ${borderColor()}
     ${focusColor()}
-    ${disabled ? 'bg-gray-50 cursor-not-allowed' : 'bg-white'}
+    ${disabled ? 'bg-gray-50 dark:bg-gray-700 cursor-not-allowed' : 'bg-white dark:bg-gray-800'}
+    text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400
     ${className}`}
   ></textarea>
 
   {#if error}
     <p
-      class="text-sm text-red-600 mt-1 animate-in slide-in-from-top-1 duration-200"
+      class="text-sm text-red-600 dark:text-red-400 mt-1 animate-in slide-in-from-top-1 duration-200"
     >
       {error}
     </p>

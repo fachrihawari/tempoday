@@ -14,7 +14,6 @@ import { reactiveTransactions } from '../stores/transactions.svelte';
 import BottomSheet from './ui/BottomSheet.svelte';
 import Button from './ui/Button.svelte';
 import Card from './ui/Card.svelte';
-import CategoryBadge from './ui/CategoryBadge.svelte';
 import CategorySelector from './ui/CategorySelector.svelte';
 import EmptyState from './ui/EmptyState.svelte';
 import Icon from './ui/Icon.svelte';
@@ -27,6 +26,7 @@ let {
   isLoading,
   isCreating,
   isDeleting,
+  isUpdating,
   error,
   totalIncome,
   totalExpenses,
@@ -124,23 +124,23 @@ function resetForm() {
   {#snippet children()}
     <!-- Daily Summary -->
     {#if transactions.length > 0 && !isLoading}
-      <div class="bg-gray-50 rounded-lg p-3 mb-4 space-y-2">
+      <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 mb-4 space-y-2 border border-gray-200 dark:border-gray-700">
         <div class="flex justify-between text-sm">
-          <span class="text-gray-600">Income:</span>
-          <span class="text-green-600 font-medium"
+          <span class="text-gray-600 dark:text-gray-400">Income:</span>
+          <span class="text-green-600 dark:text-green-400 font-medium"
             >{formatAmount(totalIncome)}</span
           >
         </div>
         <div class="flex justify-between text-sm">
-          <span class="text-gray-600">Expenses:</span>
-          <span class="text-red-600 font-medium"
+          <span class="text-gray-600 dark:text-gray-400">Expenses:</span>
+          <span class="text-red-600 dark:text-red-400 font-medium"
             >{formatAmount(totalExpenses)}</span
           >
         </div>
-        <hr class="border-gray-200" />
+        <hr class="border-gray-200 dark:border-gray-600" />
         <div class="flex justify-between text-sm font-semibold">
-          <span class="text-gray-900">Net Balance:</span>
-          <span class={netBalance >= 0 ? "text-green-600" : "text-red-600"}>
+          <span class="text-gray-900 dark:text-gray-100">Net Balance:</span>
+          <span class={netBalance >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}>
             {formatAmount(netBalance)}
           </span>
         </div>
@@ -154,32 +154,50 @@ function resetForm() {
       {:else}
         {#each transactions as transaction (transaction.id)}
           <div
-            class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 group relative border border-gray-100"
+            class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 group relative border border-gray-100 dark:border-gray-700"
           >
             <div
               class="flex-shrink-0 w-3 h-3 rounded-full {transaction.type ===
               'income'
-                ? 'bg-green-500'
-                : 'bg-red-500'}"
+                ? 'bg-green-500 dark:bg-green-400'
+                : 'bg-red-500 dark:bg-red-400'}"
             ></div>
 
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-2 mb-1">
-                <p class="text-sm text-gray-900 truncate">
+                <p class="text-sm text-gray-900 dark:text-gray-100 truncate">
                   {transaction.description}
                 </p>
               </div>
               <div class="flex items-center gap-2">
-                <CategoryBadge category={transaction.category} size="sm" />
-                <p class="text-xs text-gray-500 capitalize">{transaction.type}</p>
+                <CategorySelector
+                  value={transaction.category}
+                  transactionType={transaction.type}
+                  onSelect={async (newCategory) => {
+                    try {
+                      await reactiveTransactions.updateTransaction(transaction.id, {
+                        category: newCategory
+                      });
+                      toastStore.success('Category updated');
+                    } catch (err) {
+                      // Error is already handled by the store
+                      console.error('Failed to update category:', err);
+                    }
+                  }}
+                  disabled={isUpdating[transaction.id]}
+                  size="sm"
+                  dropdownWidth="wide"
+                  class="text-xs"
+                />
+                <p class="text-xs text-gray-500 dark:text-gray-400 capitalize">{transaction.type}</p>
               </div>
             </div>
 
             <div class="text-right">
               <p
                 class="text-sm font-medium {transaction.type === 'income'
-                  ? 'text-green-600'
-                  : 'text-red-600'}"
+                  ? 'text-green-600 dark:text-green-400'
+                  : 'text-red-600 dark:text-red-400'}"
               >
                 {transaction.type === "income" ? "+" : "-"}{formatAmount(
                   transaction.amount,
@@ -194,7 +212,7 @@ function resetForm() {
                 reactiveTransactions.deleteTransaction(transaction.id);
               }}
               disabled={isDeleting[transaction.id]}
-              class={`!p-1 text-red-500 hover:bg-red-50 !w-6 !h-6
+              class={`!p-1 text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 !w-6 !h-6
                 ${
                   isDeleting[transaction.id]
                     ? "opacity-50 cursor-not-allowed"
@@ -231,7 +249,7 @@ function resetForm() {
           <!-- Type Selection -->
           <fieldset>
             <legend
-              class="block text-sm font-medium text-gray-700 mb-3"
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3"
               >Transaction Type</legend
             >
             <div class="flex gap-2">
@@ -240,7 +258,7 @@ function resetForm() {
                 variant={type === "income" ? "primary" : "outline"}
                 onclick={() => (type = "income")}
                 class="flex-1 transition-all duration-200 {type === 'income'
-                  ? '!bg-green-100 !text-green-700 !border-2 !border-green-200 shadow-sm'
+                  ? '!bg-green-100 dark:!bg-green-900 !text-green-700 dark:!text-green-300 !border-2 !border-green-200 dark:!border-green-700 shadow-sm'
                   : ''}"
               >
                 {#snippet children()}
@@ -253,7 +271,7 @@ function resetForm() {
                 variant={type === "expense" ? "primary" : "outline"}
                 onclick={() => (type = "expense")}
                 class="flex-1 transition-all duration-200 {type === 'expense'
-                  ? '!bg-red-100 !text-red-700 !border-2 !border-red-200 shadow-sm'
+                  ? '!bg-red-100 dark:!bg-red-900 !text-red-700 dark:!text-red-300 !border-2 !border-red-200 dark:!border-red-700 shadow-sm'
                   : ''}"
               >
                 {#snippet children()}
@@ -266,7 +284,7 @@ function resetForm() {
 
           <!-- Category Selection -->
           <div class="space-y-2">
-            <label for="new-transaction-category" class="block text-sm font-medium text-gray-700">
+            <label for="new-transaction-category" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Category
             </label>
             <CategorySelector
@@ -275,6 +293,7 @@ function resetForm() {
               transactionType={type}
               onSelect={(selectedCategory: TransactionCategory) => category = selectedCategory}
               size="md"
+              dropdownWidth="full"
               class="w-full"
             />
           </div>

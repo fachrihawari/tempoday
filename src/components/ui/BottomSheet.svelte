@@ -233,7 +233,7 @@ $effect(() => {
     </div>
 
     <!-- Content -->
-    <div class="flex-1 overflow-y-auto px-6 py-4 min-h-0">
+    <div class="flex-1 overflow-y-auto overflow-x-visible px-6 py-4 min-h-0">
       {@render children()}
     </div>
   </div>
