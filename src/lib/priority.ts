@@ -38,9 +38,9 @@ export const PRIORITY_CONFIG: Record<TaskPriority, PriorityConfig> = {
   },
   low: {
     label: 'Low',
-    color: 'text-gray-700',
-    bgColor: 'bg-gray-100',
-    borderColor: 'border-gray-300',
+    color: 'text-gray-700 dark:text-gray-300',
+    bgColor: 'bg-gray-100 dark:bg-gray-700',
+    borderColor: 'border-gray-300 dark:border-gray-600',
     icon: '📝',
     sortOrder: 4,
   },
