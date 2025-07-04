@@ -123,11 +123,21 @@ onMount(() => {
 // Manage body scroll when bottom sheet is open
 $effect(() => {
   if (open) {
-    // Prevent body scroll when bottom sheet is open
+    // Store current scroll position
+    const scrollY = window.scrollY;
+    
+    // Alternative approach: use overflow and margin instead of position fixed
+    // This preserves the background better
+    const originalBodyStyles = {
+      overflow: document.body.style.overflow,
+      marginTop: document.body.style.marginTop,
+      height: document.body.style.height,
+    };
+
+    // Prevent scrolling without using position fixed
     document.body.style.overflow = 'hidden';
-    document.body.style.position = 'fixed';
-    document.body.style.width = '100%';
-    document.body.style.top = '0';
+    document.body.style.height = '100vh';
+    document.body.style.marginTop = `-${scrollY}px`;
 
     // Auto-focus first input when opened
     setTimeout(() => {
@@ -140,16 +150,14 @@ $effect(() => {
     }, 100);
 
     return () => {
-      document.body.style.overflow = '';
-      document.body.style.position = '';
-      document.body.style.width = '';
-      document.body.style.top = '';
+      // Restore original body styles
+      document.body.style.overflow = originalBodyStyles.overflow;
+      document.body.style.marginTop = originalBodyStyles.marginTop;
+      document.body.style.height = originalBodyStyles.height;
+
+      // Restore scroll position
+      window.scrollTo(0, scrollY);
     };
-  } else {
-    document.body.style.overflow = '';
-    document.body.style.position = '';
-    document.body.style.width = '';
-    document.body.style.top = '';
   }
 });
 
@@ -165,7 +173,7 @@ $effect(() => {
 {#if open}
   <!-- Backdrop -->
   <div 
-    class="fixed inset-0 bg-black/50 z-[100] touch-none"
+    class="fixed inset-0 bg-black/50 dark:bg-black/70 z-[100] touch-none"
     transition:fade="{{ duration: 200 }}"
     onclick={close}
     onkeydown={(e) => e.key === 'Escape' && close()}
@@ -177,7 +185,7 @@ $effect(() => {
   <!-- Bottom Sheet -->
   <div 
     bind:this={sheetElement}
-    class="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-2xl z-[101] flex flex-col touch-pan-y overscroll-contain
+    class="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 rounded-t-3xl shadow-2xl z-[101] flex flex-col touch-pan-y overscroll-contain
            max-h-[85vh] sm:max-h-[90vh]
            pb-safe-area-inset-bottom"
     transition:fly="{{ y: 300, duration: 300 }}"
@@ -204,22 +212,22 @@ $effect(() => {
         }
       }}
     >
-      <div class="w-10 h-1.5 bg-gray-300 rounded-full"></div>
+      <div class="w-10 h-1.5 bg-gray-300 dark:bg-gray-600 rounded-full"></div>
     </div>
 
     <!-- Header -->
-    <div class="flex items-center justify-between px-6 pb-4 border-b border-gray-200 flex-shrink-0">
-      <h2 id="sheet-title" class="text-xl font-semibold text-gray-900">
+    <div class="flex items-center justify-between px-6 pb-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
+      <h2 id="sheet-title" class="text-xl font-semibold text-gray-900 dark:text-gray-100">
         {title}
       </h2>
       <Button
         variant="ghost"
         size="sm"
         onclick={close}
-        class="!p-2 rounded-full hover:!bg-gray-100"
+        class="!p-2 rounded-full hover:!bg-gray-100 dark:hover:!bg-gray-800"
       >
         {#snippet children()}
-          <Icon name="close" class="w-5 h-5 text-gray-500" />
+          <Icon name="close" class="w-5 h-5 text-gray-500 dark:text-gray-400" />
         {/snippet}
       </Button>
     </div>
