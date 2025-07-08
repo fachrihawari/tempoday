@@ -5,7 +5,7 @@ import { NotFoundError } from '../lib/error';
 import { uuid } from '../lib/unique';
 
 // Types for better API
-export type CreateNoteInput = Omit<Note, 'id' | 'createdAt' | 'updatedAt'>;
+export type CreateNoteInput = Omit<Note, 'id' | 'updatedAt'>;
 
 export class ReactiveNotes {
   // Reactive state for notes

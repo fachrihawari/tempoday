@@ -8,6 +8,10 @@ export interface Task {
   priority: 'low' | 'medium' | 'high' | 'urgent'; // New priority field
   createdAt: number; // epoch ms
   updatedAt: number; // epoch ms
+  // Time-based scheduling fields
+  startedAt?: number; // When task starts (epoch ms)
+  endedAt?: number; // When task ends (epoch ms)
+  completedAt?: number; // When task was completed (epoch ms)
 }
 
 export interface Note {
