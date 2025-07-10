@@ -14,10 +14,12 @@
   let scrollContainer = $state<HTMLElement>();
   let dateRange = $state<Date[]>([]);
   let isExpanded = $state(true); // State to control date picker visibility
+  let isUserScrolling = $state(false); // Flag to prevent auto-scroll during user interaction
+  let scrollTimeout: ReturnType<typeof setTimeout>;
 
   // Initialize date range around the selected date
   function initializeDateRange(centerDate: Date) {
-    dateRange = getDateRange(centerDate, 60); // 60 days around center date (120 days total)
+    dateRange = getDateRange(centerDate, 30); // 30 days around center date (60 days total)
   }
 
   function selectDate(date: Date) {
@@ -64,9 +66,9 @@
       const targetButton = buttons[targetIndex];
 
       if (targetButton) {
-        // Use scrollIntoView for more reliable centering
+        // Use scrollIntoView for reliable centering
         targetButton.scrollIntoView({
-          behavior: immediate ? "auto" : "smooth",
+          behavior: immediate ? "instant" : "smooth",
           block: "nearest",
           inline: "center",
         });
@@ -79,34 +81,35 @@
     const currentDate = appState.selectedDate || new Date();
     initializeDateRange(currentDate);
 
-    // Use multiple strategies to ensure proper initial positioning
-    const attemptScroll = (immediate = true) => {
-      if (scrollContainer && scrollContainer.querySelector("button")) {
-        scrollToDate(currentDate, immediate);
+    // Ensure proper centering with multiple attempts for reliable positioning
+    const attemptScroll = () => {
+      if (scrollContainer && scrollContainer.children.length > 0) {
+        scrollToDate(currentDate, true);
         return true;
       }
       return false;
     };
 
-    // First attempt - immediate after DOM is likely ready
-    setTimeout(() => {
+    // First attempt after DOM update
+    requestAnimationFrame(() => {
       if (!attemptScroll()) {
-        // Second attempt - after more time for complex layouts
+        // Second attempt with slight delay
         setTimeout(() => {
           if (!attemptScroll()) {
-            // Final attempt - with even more time
-            setTimeout(() => attemptScroll(), 200);
+            // Final attempt with more delay
+            setTimeout(() => attemptScroll(), 100);
           }
-        }, 100);
+        }, 50);
       }
-    }, 50);
+    });
   });
 
   // Reactive effect to handle external selectedDate changes
   $effect(() => {
     const currentSelectedDate = appState.selectedDate;
 
-    if (currentSelectedDate && dateRange.length > 0 && scrollContainer) {
+    // Only auto-scroll if user is not actively scrolling
+    if (currentSelectedDate && dateRange.length > 0 && scrollContainer && !isUserScrolling) {
       // Check if selected date is in current range
       const isInRange = dateRange.some((date) =>
         isSameDate(date, currentSelectedDate),
@@ -117,36 +120,17 @@
         initializeDateRange(currentSelectedDate);
 
         // Wait for range to update, then scroll
-        setTimeout(() => {
-          scrollToDate(currentSelectedDate);
-        }, 50);
-      } else {
-        // If it's in range, just scroll to it
-        setTimeout(() => {
-          scrollToDate(currentSelectedDate);
-        }, 10);
+        requestAnimationFrame(() => {
+          setTimeout(() => {
+            scrollToDate(currentSelectedDate);
+          }, 50);
+        });
       }
     }
   });
 
-  // Watch for container size changes (useful for responsive design)
-  $effect(() => {
-    if (scrollContainer && appState.selectedDate) {
-      // Re-center the selected date when container size might have changed
-      const resizeObserver = new ResizeObserver(() => {
-        setTimeout(() => scrollToDate(appState.selectedDate, true), 10);
-      });
-
-      resizeObserver.observe(scrollContainer);
-
-      return () => {
-        resizeObserver.disconnect();
-      };
-    }
-  });
-
   function loadMoreDates(direction: "past" | "future") {
-    const daysToAdd = 30;
+    const daysToAdd = 15; // Reduced from 30 for better performance
 
     if (direction === "past") {
       const firstDate = dateRange[0];
@@ -172,29 +156,36 @@
   function handleScroll() {
     if (!scrollContainer || dateRange.length === 0) return;
 
+    // Set user scrolling flag
+    isUserScrolling = true;
+    
+    // Clear the flag after scrolling stops
+    clearTimeout(scrollTimeout);
+    scrollTimeout = setTimeout(() => {
+      isUserScrolling = false;
+    }, 300);
+
     const { scrollLeft, scrollWidth, clientWidth } = scrollContainer;
-
-    // Dynamic threshold based on container size
-    const loadThreshold = Math.max(50, Math.min(100, clientWidth * 0.2)); // 20% of container width, between 50-100px
-
-    // Load more dates when near the beginning
-    if (scrollLeft < loadThreshold) {
+    const buttonWidth = 60; // Approximate button width including gap
+    
+    // Load more dates when scrolled near the beginning (within 3 buttons)
+    if (scrollLeft < buttonWidth * 3) {
       const oldScrollWidth = scrollWidth;
       const oldScrollLeft = scrollLeft;
 
       loadMoreDates("past");
 
       // Maintain scroll position after prepending dates
-      setTimeout(() => {
+      requestAnimationFrame(() => {
         if (!scrollContainer) return;
         const newScrollWidth = scrollContainer.scrollWidth;
         const addedWidth = newScrollWidth - oldScrollWidth;
         scrollContainer.scrollLeft = oldScrollLeft + addedWidth;
-      }, 10);
+      });
     }
 
-    // Load more dates when near the end
-    if (scrollLeft + clientWidth > scrollWidth - loadThreshold) {
+    // Load more dates when scrolled near the end (within 3 buttons)
+    if (scrollLeft + clientWidth > scrollWidth - (buttonWidth * 3)) {
       loadMoreDates("future");
     }
   }
@@ -202,23 +193,23 @@
 
 <!-- Header and Date Picker -->
 <div
-  class="sticky top-0 py-2 bg-white dark:bg-gray-900 z-10 shadow-sm dark:shadow-gray-800/50"
+  class="sticky top-0 py-2 bg-white z-10 shadow-sm"
 >
   <!-- Current Date Display -->
-  <div class="px-4 flex justify-between items-center">
+  <div class="px-4 flex justify-between flex-row-reverse items-center">
     <!-- Toggle button for date picker -->
     <Button
-      variant="ghost"
+      variant="outline"
       onclick={() => (isExpanded = !isExpanded)}
       aria-label={isExpanded ? "Hide date picker" : "Show date picker"}
     >
       <Icon 
         name="chevron-down"
-        class="text-gray-500 dark:text-gray-400 transition-transform duration-200 {isExpanded ? 'rotate-180' : ''}"
+        class="text-gray-500 transition-transform duration-200 {isExpanded ? 'rotate-180' : ''}"
       />
     </Button>
 
-    <h2 class="text-base font-semibold text-gray-800 dark:text-gray-200">
+    <h2 class="text-base font-semibold text-gray-800">
       {formatDate(appState.selectedDate)}
     </h2>
     <Button variant="outline" onclick={goToToday} class="px-2 py-1 text-xs">
@@ -243,10 +234,10 @@
             onclick={() => selectDate(date)}
             class="flex-shrink-0 w-14 h-16 flex flex-col items-center justify-center rounded-lg transition-all duration-200 scroll-snap-align-center !p-1
               {isSameDate(date, appState.selectedDate)
-              ? '!bg-blue-500 dark:!bg-blue-600 !text-white shadow-lg scale-105'
+              ? '!bg-blue-500 !text-white shadow-lg scale-105'
               : isToday(date)
-                ? '!bg-blue-100 dark:!bg-blue-900 !text-blue-700 dark:!text-blue-300 border-2 border-blue-300 dark:border-blue-700'
-                : '!bg-gray-50 dark:!bg-gray-800 !text-gray-700 dark:!text-gray-300 hover:!bg-gray-100 dark:hover:!bg-gray-700'}"
+                ? '!bg-blue-100 !text-blue-700 border-2 border-blue-300'
+                : '!bg-gray-50 !text-gray-700 hover:!bg-gray-100'}"
           >
             {#snippet children()}
               <span class="text-xs font-medium uppercase">
@@ -256,7 +247,7 @@
                 {date.getDate()}
               </span>
               {#if date.getDate() === 1}
-                <span class="text-xs text-gray-500 dark:text-gray-400">
+                <span class="text-xs text-gray-500">
                   {date.toLocaleDateString("en-US", { month: "short" })}
                 </span>
               {/if}
