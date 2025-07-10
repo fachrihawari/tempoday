@@ -1,9 +1,9 @@
 <script lang="ts">
 import DatePicker from '../components/DatePicker.svelte';
-    import FinanceSection from '../components/FinanceSection.svelte';
-    import NoteSection from '../components/NoteSection.svelte';
+import FinanceSection from '../components/FinanceSection.svelte';
+import NoteSection from '../components/NoteSection.svelte';
 import TaskDayGrid from '../components/TaskDayGrid.svelte';
-    import TasksSection from '../components/TasksSection.svelte';
+import TasksSection from '../components/TasksSection.svelte';
 import BottomSheet from '../components/ui/BottomSheet.svelte';
 import Button from '../components/ui/Button.svelte';
 import Fab, { type FabAction } from '../components/ui/Fab.svelte';
