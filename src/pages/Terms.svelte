@@ -14,7 +14,6 @@ function goBack() {
   <!-- Header -->
   <PageHeader 
     title="Terms & Conditions" 
-    subtitle="Updated June 30, 2025"
     onBack={goBack}
   />
 

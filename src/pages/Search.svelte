@@ -201,7 +201,7 @@ onMount(() => {
 
 <div class="h-full flex flex-col">
   <!-- Header -->
-  <PageHeader title="Search" subtitle="Find tasks, notes, and transactions" onBack={goBack} />
+  <PageHeader title="Search" onBack={goBack} />
 
   <!-- Search Input and Filters -->
   <div class="p-4 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 space-y-3">

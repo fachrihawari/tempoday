@@ -22,7 +22,6 @@ function navigateToTerms() {
   <!-- Header -->
   <PageHeader 
     title="Settings" 
-    subtitle="Customize your TempoDay experience"
     icon="settings"
   />
 
