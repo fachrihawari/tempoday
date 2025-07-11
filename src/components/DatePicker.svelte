@@ -193,7 +193,7 @@
 
 <!-- Header and Date Picker -->
 <div
-  class="sticky top-0 py-2 bg-white z-10 shadow-sm"
+  class="sticky top-0 py-2 bg-white dark:bg-gray-900 z-10 border-b border-gray-200 dark:border-gray-800"
 >
   <!-- Current Date Display -->
   <div class="px-4 flex justify-between flex-row-reverse items-center">
@@ -209,7 +209,7 @@
       />
     </Button>
 
-    <h2 class="text-base font-semibold text-gray-800">
+    <h2 class="text-base font-semibold text-gray-800 dark:text-gray-100">
       {formatDate(appState.selectedDate)}
     </h2>
     <Button variant="outline" onclick={goToToday} class="px-2 py-1 text-xs">
@@ -218,43 +218,41 @@
   </div>
 
   <!-- Horizontal Date Picker -->
-  {#if isExpanded}
-    <div class="relative px-4 pt-2">
-      <div
-        bind:this={scrollContainer}
-        onscroll={handleScroll}
-        class="flex gap-1 overflow-x-auto pb-1 -mx-4 px-4
-               [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden
-               overscroll-behavior-x-contain scroll-smooth"
-        style="scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;"
-      >
-        {#each dateRange as date (date.toISOString())}
-          <Button
-            variant="ghost"
-            onclick={() => selectDate(date)}
-            class="flex-shrink-0 w-14 h-16 flex flex-col items-center justify-center rounded-lg transition-all duration-200 scroll-snap-align-center !p-1
-              {isSameDate(date, appState.selectedDate)
-              ? '!bg-blue-500 !text-white shadow-lg scale-105'
-              : isToday(date)
-                ? '!bg-blue-100 !text-blue-700 border-2 border-blue-300'
-                : '!bg-gray-50 !text-gray-700 hover:!bg-gray-100'}"
-          >
-            {#snippet children()}
-              <span class="text-xs font-medium uppercase">
-                {formatDayOfWeek(date)}
+  <div class="relative px-4 transition-all duration-300 {isExpanded ? 'opacity-100 max-h-20 pt-2' : 'opacity-0 max-h-0 overflow-hidden'}">
+    <div
+      bind:this={scrollContainer}
+      onscroll={handleScroll}
+      class="flex gap-1 overflow-x-auto pb-1 -mx-4 px-4
+             [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden
+             overscroll-behavior-x-contain scroll-smooth"
+      style="scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;"
+    >
+      {#each dateRange as date (date.toISOString())}
+        <Button
+          variant="ghost"
+          onclick={() => selectDate(date)}
+          class="flex-shrink-0 w-14 h-16 flex flex-col items-center justify-center rounded-lg transition-all duration-200 scroll-snap-align-center !p-1
+            {isSameDate(date, appState.selectedDate)
+            ? '!bg-blue-500 !text-white shadow-lg scale-105 dark:!bg-blue-600 dark:!text-white'
+            : isToday(date)
+              ? '!bg-blue-100 !text-blue-700 border-2 border-blue-300 dark:!bg-blue-900 dark:!text-blue-300 dark:!border-blue-700'
+              : '!bg-gray-50 !text-gray-700 hover:!bg-gray-100 dark:!bg-gray-800 dark:!text-gray-300 hover:dark:!bg-gray-700'}"
+        >
+          {#snippet children()}
+            <span class="text-xs font-medium uppercase">
+              {formatDayOfWeek(date)}
+            </span>
+            <span class="text-base font-bold">
+              {date.getDate()}
+            </span>
+            {#if date.getDate() === 1}
+              <span class="text-xs text-gray-500">
+                {date.toLocaleDateString("en-US", { month: "short" })}
               </span>
-              <span class="text-base font-bold">
-                {date.getDate()}
-              </span>
-              {#if date.getDate() === 1}
-                <span class="text-xs text-gray-500">
-                  {date.toLocaleDateString("en-US", { month: "short" })}
-                </span>
-              {/if}
-            {/snippet}
-          </Button>
-        {/each}
-      </div>
+            {/if}
+          {/snippet}
+        </Button>
+      {/each}
     </div>
-  {/if}
+  </div>
 </div>
