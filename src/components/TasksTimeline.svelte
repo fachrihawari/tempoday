@@ -1,17 +1,16 @@
 <script lang="ts">
+import type { Task } from '../dexie/models';
 import { formatDateKey } from '../lib/date';
 import { reactiveTasks } from '../stores/tasks.svelte';
-import Icon, { type IconName } from './ui/Icon.svelte';
+import Icon from './ui/Icon.svelte';
 
 interface Props {
   selectedDate: Date;
-  onTaskClick?: (task: any) => void;
+  onTaskClick?: (task: Task) => void;
   onHourClick?: (hour: number) => void;
-  onTaskComplete?: (task: any) => void;
 }
 
-let { selectedDate, onTaskClick, onHourClick, onTaskComplete }: Props =
-  $props();
+let { selectedDate, onTaskClick, onHourClick }: Props = $props();
 
 // Generate hours for the day (0-23)
 const hours = Array.from({ length: 24 }, (_, i) => i);
@@ -79,9 +78,7 @@ function getHourData(hour: number) {
   };
 }
 
-function getTaskGridRow(task: any): { start: number; span: number } {
-  const dateKey = formatDateKey(selectedDate);
-
+function getTaskGridRow(task: Task): { start: number; span: number } {
   let startHour: number;
   if (task.startedAt) {
     const taskDate = new Date(task.startedAt);
@@ -102,9 +99,7 @@ function getTaskGridRow(task: any): { start: number; span: number } {
   return { start: startHour + 1, span }; // +1 because CSS grid is 1-indexed
 }
 
-function getTaskPosition(task: any): { left: string; width: string } {
-  const dateKey = formatDateKey(selectedDate);
-
+function getTaskPosition(task: Task): { left: string; width: string } {
   // Get all tasks for the current date
   const allTasks = tasks;
 
@@ -143,30 +138,23 @@ function handleHourClick(hour: number) {
   onHourClick?.(hour);
 }
 
-function handleTaskClick(task: any, event: Event) {
+function handleTaskClick(task: Task, event: Event) {
   event.stopPropagation();
   onTaskClick?.(task);
 }
 
-async function handleCompleteTask(task: any) {
-  try {
-    if (onTaskComplete) {
-      onTaskComplete(task);
-    } else {
-      await reactiveTasks.completeTask(task.id);
-    }
-  } catch (error) {
-    console.error('Failed to complete task:', error);
-  }
+async function handleCompleteTask(task: Task) {
+  await reactiveTasks.completeTask(task.id);
 }
 </script>
 
 <!-- CSS Grid Calendar Layout -->
-<div class="grid grid-cols-[60px_1fr] grid-rows-[repeat(24,_60px)] gap-0 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900">
-  
+<div
+  class="grid grid-cols-[60px_1fr] grid-rows-[repeat(24,_60px)] gap-0 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900"
+>
   <!-- Hour Labels -->
   {#each hours as hour}
-    <div 
+    <div
       class="flex items-start justify-center pt-2 border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800"
       style="grid-column: 1; grid-row: {hour + 1};"
     >
@@ -175,97 +163,127 @@ async function handleCompleteTask(task: any) {
       </span>
     </div>
   {/each}
-  
+
   <!-- Hour Slots (Empty clickable areas) -->
   {#each hours as hour}
     {@const hourData = getHourData(hour)}
-    <div 
+    <div
       class="border-b border-r border-gray-200 dark:border-gray-700 hover:bg-blue-50 dark:hover:bg-blue-900/10 transition-colors cursor-pointer relative group"
       style="grid-column: 2; grid-row: {hour + 1};"
       role="button"
       tabindex="0"
       aria-label="Add task at {formatHour(hour)}"
       onclick={() => handleHourClick(hour)}
-      onkeydown={(e) => e.key === 'Enter' && handleHourClick(hour)}
+      onkeydown={(e) => e.key === "Enter" && handleHourClick(hour)}
     >
       {#if hourData.isEmpty}
         <!-- Empty hour - show add button on hover -->
-        <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-          <span class="text-xs text-gray-400 dark:text-gray-500">+ Add task</span>
+        <div
+          class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+        >
+          <span class="text-xs text-gray-400 dark:text-gray-500"
+            >+ Add task</span
+          >
         </div>
       {/if}
     </div>
   {/each}
-  
+
   <!-- Tasks (Overlaying the grid) -->
   {#each tasks as task}
     {@const gridPosition = getTaskGridRow(task)}
     {@const taskPosition = getTaskPosition(task)}
-    <div 
+    <div
       class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 text-gray-800 dark:text-gray-200 border border-blue-200 dark:border-blue-800 rounded-lg p-2 my-0.5 shadow-sm hover:shadow-md hover:from-blue-100 hover:to-indigo-100 dark:hover:from-blue-900/50 dark:hover:to-indigo-900/50 transition-all cursor-pointer relative"
       style="grid-column: 2; grid-row: {gridPosition.start} / span {gridPosition.span}; margin-left: {taskPosition.left}; width: {taskPosition.width};"
       role="button"
       tabindex="0"
       aria-label="Task: {task.description}"
       onclick={(e) => handleTaskClick(task, e)}
-      onkeydown={(e) => e.key === 'Enter' && handleTaskClick(task, e)}
+      onkeydown={(e) => e.key === "Enter" && handleTaskClick(task, e)}
     >
       <div class="flex items-start justify-between h-full">
         <div class="flex-1 min-w-0">
           <div class="flex items-center gap-1 mb-1">
-            <div class="w-2 h-2 bg-indigo-500 dark:bg-indigo-400 rounded-full"></div>
+            <div
+              class="w-2 h-2 bg-indigo-500 dark:bg-indigo-400 rounded-full"
+            ></div>
             {#if task.startedAt && task.endedAt}
               <span class="text-xs text-gray-600 dark:text-gray-400">
-                {new Date(task.startedAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })}
+                {new Date(task.startedAt).toLocaleTimeString("en-US", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  hour12: false,
+                })}
                 {#if gridPosition.span > 1}
-                  - {new Date(task.endedAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })}
+                  - {new Date(task.endedAt).toLocaleTimeString("en-US", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: false,
+                  })}
                 {/if}
               </span>
             {/if}
           </div>
-          
-          <p class="text-sm font-medium leading-tight {task.completed ? 'line-through opacity-70' : ''} truncate">
+
+          <p
+            class="text-sm font-medium leading-tight {task.completed
+              ? 'line-through opacity-70'
+              : ''} truncate"
+          >
             {task.description}
           </p>
-          
+
           {#if gridPosition.span > 1}
             <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              {gridPosition.span} hour{gridPosition.span > 1 ? 's' : ''}
+              {gridPosition.span} hour{gridPosition.span > 1 ? "s" : ""}
             </div>
           {/if}
-          
+
           {#if task.completed && task.completedAt}
             <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              ✓ {new Date(task.completedAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+              ✓ {new Date(task.completedAt).toLocaleTimeString("en-US", {
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
             </div>
           {/if}
         </div>
-        
-        <button 
+
+        <button
           class="ml-2 p-1.5 bg-white/80 dark:bg-gray-800/80 hover:bg-green-100 dark:hover:bg-green-900/30 border border-gray-300 dark:border-gray-600 hover:border-green-400 dark:hover:border-green-600 rounded-md transition-all shadow-sm hover:shadow-md"
           onclick={() => handleCompleteTask(task)}
           disabled={reactiveTasks.isToggling[task.id]}
         >
-          <Icon 
-            name={task.completed ? 'check-circle' : 'check'} 
-            size="sm" 
-            class="text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400" 
+          <Icon
+            name={task.completed ? "check-circle" : "check"}
+            size="sm"
+            class="text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400"
           />
         </button>
       </div>
-      
+
       <!-- Priority indicator -->
-      <div class="absolute left-0 top-0 bottom-0 w-1 rounded-l-md {
-        task.priority === 'urgent' ? 'bg-red-500' :
-        task.priority === 'high' ? 'bg-orange-500' :
-        task.priority === 'medium' ? 'bg-yellow-500' : 'bg-green-500'
-      }"></div>
+      <div
+        class="absolute left-0 top-0 bottom-0 w-1 rounded-l-md {task.priority ===
+        'urgent'
+          ? 'bg-red-500'
+          : task.priority === 'high'
+            ? 'bg-orange-500'
+            : task.priority === 'medium'
+              ? 'bg-yellow-500'
+              : 'bg-green-500'}"
+      ></div>
     </div>
   {/each}
 </div>
 
 {#if isLoading}
-  <div class="absolute inset-0 flex items-center justify-center bg-white/50 dark:bg-gray-900/50">
-    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+  <div
+    class="absolute inset-0 flex items-center justify-center bg-white/50 dark:bg-gray-900/50"
+  >
+    <div
+      class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"
+    ></div>
   </div>
 {/if}

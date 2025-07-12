@@ -1,194 +1,199 @@
 <script lang="ts">
-  import { onMount } from "svelte";
-  import {
-    formatDate,
-    formatDayOfWeek,
-    getDateRange,
-    isSameDate,
-    isToday,
-  } from "../lib/date";
-  import { appState, setSelectedDate } from "../stores/app.svelte";
-  import Button from "./ui/Button.svelte";
-  import Icon from "./ui/Icon.svelte";
+import { onMount } from 'svelte';
+import {
+  formatDate,
+  formatDayOfWeek,
+  getDateRange,
+  isSameDate,
+  isToday,
+} from '../lib/date';
+import { appState, setSelectedDate } from '../stores/app.svelte';
+import Button from './ui/Button.svelte';
+import Icon from './ui/Icon.svelte';
 
-  let scrollContainer = $state<HTMLElement>();
-  let dateRange = $state<Date[]>([]);
-  let isExpanded = $state(true); // State to control date picker visibility
-  let isUserScrolling = $state(false); // Flag to prevent auto-scroll during user interaction
-  let scrollTimeout: ReturnType<typeof setTimeout>;
+let scrollContainer = $state<HTMLElement>();
+let dateRange = $state<Date[]>([]);
+let isExpanded = $state(true); // State to control date picker visibility
+let isUserScrolling = $state(false); // Flag to prevent auto-scroll during user interaction
+let scrollTimeout: ReturnType<typeof setTimeout>;
 
-  // Initialize date range around the selected date
-  function initializeDateRange(centerDate: Date) {
-    dateRange = getDateRange(centerDate, 30); // 30 days around center date (60 days total)
+// Initialize date range around the selected date
+function initializeDateRange(centerDate: Date) {
+  dateRange = getDateRange(centerDate, 30); // 30 days around center date (60 days total)
+}
+
+function selectDate(date: Date) {
+  setSelectedDate(new Date(date));
+}
+
+function goToToday() {
+  const today = new Date();
+
+  // Set the selected date first
+  setSelectedDate(today);
+
+  // Check if today is already in the current date range
+  const isInRange = dateRange.some((date) => isSameDate(date, today));
+
+  if (isInRange) {
+    // If today is already in range, just scroll to it smoothly
+    setTimeout(() => {
+      scrollToDate(today);
+    }, 10);
+  } else {
+    // Only regenerate date range if today is not in the current range
+    initializeDateRange(today);
+
+    // Wait for the range to update, then scroll
+    setTimeout(() => {
+      scrollToDate(today);
+    }, 50);
+  }
+}
+
+function scrollToDate(targetDate: Date, immediate = false) {
+  if (!scrollContainer || dateRange.length === 0) {
+    return;
   }
 
-  function selectDate(date: Date) {
-    setSelectedDate(new Date(date));
-  }
+  const targetIndex = dateRange.findIndex((date) =>
+    isSameDate(date, targetDate),
+  );
 
-  function goToToday() {
-    const today = new Date();
+  if (targetIndex >= 0) {
+    // Find the target button element
+    const buttons = scrollContainer.querySelectorAll('button');
+    const targetButton = buttons[targetIndex];
 
-    // Set the selected date first
-    setSelectedDate(today);
-
-    // Check if today is already in the current date range
-    const isInRange = dateRange.some((date) => isSameDate(date, today));
-
-    if (isInRange) {
-      // If today is already in range, just scroll to it smoothly
-      setTimeout(() => {
-        scrollToDate(today);
-      }, 10);
-    } else {
-      // Only regenerate date range if today is not in the current range
-      initializeDateRange(today);
-
-      // Wait for the range to update, then scroll
-      setTimeout(() => {
-        scrollToDate(today);
-      }, 50);
-    }
-  }
-
-  function scrollToDate(targetDate: Date, immediate = false) {
-    if (!scrollContainer || dateRange.length === 0) {
-      return;
-    }
-
-    const targetIndex = dateRange.findIndex((date) =>
-      isSameDate(date, targetDate),
-    );
-
-    if (targetIndex >= 0) {
-      // Find the target button element
-      const buttons = scrollContainer.querySelectorAll("button");
-      const targetButton = buttons[targetIndex];
-
-      if (targetButton) {
-        // Use scrollIntoView for reliable centering
-        targetButton.scrollIntoView({
-          behavior: immediate ? "instant" : "smooth",
-          block: "nearest",
-          inline: "center",
-        });
-      }
-    }
-  }
-
-  onMount(() => {
-    // Initialize with the current selected date or today
-    const currentDate = appState.selectedDate || new Date();
-    initializeDateRange(currentDate);
-
-    // Ensure proper centering with multiple attempts for reliable positioning
-    const attemptScroll = () => {
-      if (scrollContainer && scrollContainer.children.length > 0) {
-        scrollToDate(currentDate, true);
-        return true;
-      }
-      return false;
-    };
-
-    // First attempt after DOM update
-    requestAnimationFrame(() => {
-      if (!attemptScroll()) {
-        // Second attempt with slight delay
-        setTimeout(() => {
-          if (!attemptScroll()) {
-            // Final attempt with more delay
-            setTimeout(() => attemptScroll(), 100);
-          }
-        }, 50);
-      }
-    });
-  });
-
-  // Reactive effect to handle external selectedDate changes
-  $effect(() => {
-    const currentSelectedDate = appState.selectedDate;
-
-    // Only auto-scroll if user is not actively scrolling
-    if (currentSelectedDate && dateRange.length > 0 && scrollContainer && !isUserScrolling) {
-      // Check if selected date is in current range
-      const isInRange = dateRange.some((date) =>
-        isSameDate(date, currentSelectedDate),
-      );
-
-      if (!isInRange) {
-        // If selected date is not in range, regenerate range around it
-        initializeDateRange(currentSelectedDate);
-
-        // Wait for range to update, then scroll
-        requestAnimationFrame(() => {
-          setTimeout(() => {
-            scrollToDate(currentSelectedDate);
-          }, 50);
-        });
-      }
-    }
-  });
-
-  function loadMoreDates(direction: "past" | "future") {
-    const daysToAdd = 15; // Reduced from 30 for better performance
-
-    if (direction === "past") {
-      const firstDate = dateRange[0];
-      const newDates: Date[] = [];
-      for (let i = daysToAdd; i > 0; i--) {
-        const newDate = new Date(firstDate);
-        newDate.setDate(firstDate.getDate() - i);
-        newDates.push(newDate);
-      }
-      dateRange = [...newDates, ...dateRange];
-    } else {
-      const lastDate = dateRange[dateRange.length - 1];
-      const newDates: Date[] = [];
-      for (let i = 1; i <= daysToAdd; i++) {
-        const newDate = new Date(lastDate);
-        newDate.setDate(lastDate.getDate() + i);
-        newDates.push(newDate);
-      }
-      dateRange = [...dateRange, ...newDates];
-    }
-  }
-
-  function handleScroll() {
-    if (!scrollContainer || dateRange.length === 0) return;
-
-    // Set user scrolling flag
-    isUserScrolling = true;
-    
-    // Clear the flag after scrolling stops
-    clearTimeout(scrollTimeout);
-    scrollTimeout = setTimeout(() => {
-      isUserScrolling = false;
-    }, 300);
-
-    const { scrollLeft, scrollWidth, clientWidth } = scrollContainer;
-    const buttonWidth = 60; // Approximate button width including gap
-    
-    // Load more dates when scrolled near the beginning (within 3 buttons)
-    if (scrollLeft < buttonWidth * 3) {
-      const oldScrollWidth = scrollWidth;
-      const oldScrollLeft = scrollLeft;
-
-      loadMoreDates("past");
-
-      // Maintain scroll position after prepending dates
-      requestAnimationFrame(() => {
-        if (!scrollContainer) return;
-        const newScrollWidth = scrollContainer.scrollWidth;
-        const addedWidth = newScrollWidth - oldScrollWidth;
-        scrollContainer.scrollLeft = oldScrollLeft + addedWidth;
+    if (targetButton) {
+      // Use scrollIntoView for reliable centering
+      targetButton.scrollIntoView({
+        behavior: immediate ? 'instant' : 'smooth',
+        block: 'nearest',
+        inline: 'center',
       });
     }
+  }
+}
 
-    // Load more dates when scrolled near the end (within 3 buttons)
-    if (scrollLeft + clientWidth > scrollWidth - (buttonWidth * 3)) {
-      loadMoreDates("future");
+onMount(() => {
+  // Initialize with the current selected date or today
+  const currentDate = appState.selectedDate || new Date();
+  initializeDateRange(currentDate);
+
+  // Ensure proper centering with multiple attempts for reliable positioning
+  const attemptScroll = () => {
+    if (scrollContainer && scrollContainer.children.length > 0) {
+      scrollToDate(currentDate, true);
+      return true;
+    }
+    return false;
+  };
+
+  // First attempt after DOM update
+  requestAnimationFrame(() => {
+    if (!attemptScroll()) {
+      // Second attempt with slight delay
+      setTimeout(() => {
+        if (!attemptScroll()) {
+          // Final attempt with more delay
+          setTimeout(() => attemptScroll(), 100);
+        }
+      }, 50);
+    }
+  });
+});
+
+// Reactive effect to handle external selectedDate changes
+$effect(() => {
+  const currentSelectedDate = appState.selectedDate;
+
+  // Only auto-scroll if user is not actively scrolling
+  if (
+    currentSelectedDate &&
+    dateRange.length > 0 &&
+    scrollContainer &&
+    !isUserScrolling
+  ) {
+    // Check if selected date is in current range
+    const isInRange = dateRange.some((date) =>
+      isSameDate(date, currentSelectedDate),
+    );
+
+    if (!isInRange) {
+      // If selected date is not in range, regenerate range around it
+      initializeDateRange(currentSelectedDate);
+
+      // Wait for range to update, then scroll
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          scrollToDate(currentSelectedDate);
+        }, 50);
+      });
     }
   }
+});
+
+function loadMoreDates(direction: 'past' | 'future') {
+  const daysToAdd = 15; // Reduced from 30 for better performance
+
+  if (direction === 'past') {
+    const firstDate = dateRange[0];
+    const newDates: Date[] = [];
+    for (let i = daysToAdd; i > 0; i--) {
+      const newDate = new Date(firstDate);
+      newDate.setDate(firstDate.getDate() - i);
+      newDates.push(newDate);
+    }
+    dateRange = [...newDates, ...dateRange];
+  } else {
+    const lastDate = dateRange[dateRange.length - 1];
+    const newDates: Date[] = [];
+    for (let i = 1; i <= daysToAdd; i++) {
+      const newDate = new Date(lastDate);
+      newDate.setDate(lastDate.getDate() + i);
+      newDates.push(newDate);
+    }
+    dateRange = [...dateRange, ...newDates];
+  }
+}
+
+function handleScroll() {
+  if (!scrollContainer || dateRange.length === 0) return;
+
+  // Set user scrolling flag
+  isUserScrolling = true;
+
+  // Clear the flag after scrolling stops
+  clearTimeout(scrollTimeout);
+  scrollTimeout = setTimeout(() => {
+    isUserScrolling = false;
+  }, 300);
+
+  const { scrollLeft, scrollWidth, clientWidth } = scrollContainer;
+  const buttonWidth = 60; // Approximate button width including gap
+
+  // Load more dates when scrolled near the beginning (within 3 buttons)
+  if (scrollLeft < buttonWidth * 3) {
+    const oldScrollWidth = scrollWidth;
+    const oldScrollLeft = scrollLeft;
+
+    loadMoreDates('past');
+
+    // Maintain scroll position after prepending dates
+    requestAnimationFrame(() => {
+      if (!scrollContainer) return;
+      const newScrollWidth = scrollContainer.scrollWidth;
+      const addedWidth = newScrollWidth - oldScrollWidth;
+      scrollContainer.scrollLeft = oldScrollLeft + addedWidth;
+    });
+  }
+
+  // Load more dates when scrolled near the end (within 3 buttons)
+  if (scrollLeft + clientWidth > scrollWidth - buttonWidth * 3) {
+    loadMoreDates('future');
+  }
+}
 </script>
 
 <!-- Header and Date Picker -->

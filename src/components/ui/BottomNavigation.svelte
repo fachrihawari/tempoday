@@ -1,22 +1,32 @@
 <script lang="ts">
 import { reactiveRouter } from '../../stores/router.svelte';
-import Icon from './Icon.svelte';
+import Icon, { type IconName } from './Icon.svelte';
 
-const navItems = [
+type NavItem = {
+  path: string;
+  label: string;
+  icon: IconName;
+};
+const navItems: NavItem[] = [
   {
     path: '/',
     label: 'Home',
-    icon: 'home' as const,
+    icon: 'home',
   },
   {
-    path: '/calendar',
-    label: 'Calendar',
-    icon: 'calendar' as const,
+    path: '/tasks',
+    label: 'Tasks',
+    icon: 'clipboard',
   },
   {
-    path: '/search',
-    label: 'Search',
-    icon: 'search' as const,
+    path: '/notes',
+    label: 'Notes',
+    icon: 'edit',
+  },
+  {
+    path: '/transactions',
+    label: 'Transactions',
+    icon: 'dollar',
   },
   {
     path: '/settings',

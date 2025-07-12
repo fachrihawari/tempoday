@@ -104,11 +104,11 @@ const slides: Slide[] = [
 ];
 
 function nextSlide() {
-  goToSlide((currentSlide + 1) % slides.length)
+  goToSlide((currentSlide + 1) % slides.length);
 }
 
 function prevSlide() {
-  goToSlide(currentSlide === 0 ? slides.length - 1 : currentSlide - 1)
+  goToSlide(currentSlide === 0 ? slides.length - 1 : currentSlide - 1);
 }
 
 function goToSlide(index: number) {

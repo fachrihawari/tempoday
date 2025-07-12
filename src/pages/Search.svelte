@@ -87,7 +87,7 @@ function goBack() {
     clearTimeout(searchTimeout);
     searchTimeout = null;
   }
-  reactiveRouter.navigate('/');
+  reactiveRouter.goBack();
 }
 
 // Handle clicking on a search result

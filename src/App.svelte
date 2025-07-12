@@ -10,7 +10,9 @@ let showIntro = $state(localStorage.getItem('tempoday-intro-seen') !== 'true');
 $inspect(showIntro, '<<< showIntro');
 
 // Lazy loader functions for each page
-const loadCalendar = () => import('./pages/Calendar.svelte');
+const loadTasks = () => import('./pages/Tasks.svelte');
+const loadNotes = () => import('./pages/Notes.svelte');
+const loadTransactions = () => import('./pages/Transactions.svelte');
 const loadDashboard = () => import('./pages/Dashboard.svelte');
 const loadIntro = () => import('./pages/Intro.svelte');
 const loadSearch = () => import('./pages/Search.svelte');
@@ -60,9 +62,21 @@ function handleIntroCompleted() {
           loadingSize="3xl"
           loadingClass="w-full h-full justify-center items-center py-8"
         />
-      {:else if router.activePath === "/calendar"}
+      {:else if router.activePath === "/tasks"}
         <Lazy
-          loader={loadCalendar}
+          loader={loadTasks}
+          loadingSize="3xl"
+          loadingClass="w-full h-full justify-center items-center py-8"
+        />
+      {:else if router.activePath === "/notes"}
+        <Lazy
+          loader={loadNotes}
+          loadingSize="3xl"
+          loadingClass="w-full h-full justify-center items-center py-8"
+        />
+      {:else if router.activePath === "/transactions"}
+        <Lazy
+          loader={loadTransactions}
           loadingSize="3xl"
           loadingClass="w-full h-full justify-center items-center py-8"
         />
