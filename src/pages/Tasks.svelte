@@ -58,8 +58,8 @@ const router = $derived(reactiveRouter);
       <TasksTimeline
         selectedDate={appState.selectedDate}
         onHourClick={(hour) => {
-          // Open task modal logic
           console.log('Open task modal at hour:', hour);
+          openForm = true;
         }}
         onTaskClick={(task) => {
           // TODO: Handle task click (edit task)
@@ -69,9 +69,9 @@ const router = $derived(reactiveRouter);
     </div>
   {:else}
     <TasksList />
+    <Fab icon="plus" onclick={() => openForm = true} variant="tasks" />
   {/if}
 
   <TaskFormModal bind:open={openForm} />
 
-  <Fab icon="plus" onclick={() => openForm = true} variant="tasks" />
 </div>
