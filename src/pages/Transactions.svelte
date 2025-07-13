@@ -2,19 +2,14 @@
 <script lang="ts">
 import { onMount } from 'svelte';
 import DatePicker from '../components/DatePicker.svelte';
-import BottomSheet from '../components/ui/BottomSheet.svelte';
+import TransactionFormModal from '../components/transactions/TransactionFormModal.svelte';
 import Button from '../components/ui/Button.svelte';
 import Card from '../components/ui/Card.svelte';
 import CategorySelector from '../components/ui/CategorySelector.svelte';
 import EmptyState from '../components/ui/EmptyState.svelte';
 import Icon from '../components/ui/Icon.svelte';
-import Input from '../components/ui/Input.svelte';
 import Loading from '../components/ui/Loading.svelte';
 import PageHeader from '../components/ui/PageHeader.svelte';
-import {
-  type TransactionCategory,
-  getDefaultCategory,
-} from '../lib/categories';
 import { formatCurrency } from '../lib/currency';
 import { formatDateKey } from '../lib/date';
 import { appState } from '../stores/app.svelte';
@@ -28,7 +23,6 @@ const router = $derived(reactiveRouter);
 let {
   transactions,
   isLoading,
-  isCreating,
   isDeleting,
   isUpdating,
   error,
@@ -41,11 +35,7 @@ let {
 // Reactive settings
 let { settings } = $derived(settingsStore);
 
-let showAddForm = $state(false);
-let description = $state('');
-let amount = $state(0);
-let type = $state<'income' | 'expense'>('expense');
-let category = $state<TransactionCategory>(getDefaultCategory('expense'));
+let openForm = $state(false);
 
 // Watch for date changes and load transactions
 $effect(() => {
@@ -66,51 +56,12 @@ $effect(() => {
   }
 });
 
-// Update category when transaction type changes
-$effect(() => {
-  category = getDefaultCategory(type);
-});
-
 // Helper function to format currency with current settings
 function formatAmount(amount: number): string {
   // Provide fallback values if settings haven't loaded yet
   const currency = settings?.currency || 'USD';
   const locale = settings?.locale || 'en-US';
   return formatCurrency(amount, currency, locale);
-}
-
-async function handleAddTransaction(event?: Event) {
-  if (event) {
-    event.preventDefault();
-  }
-
-  const desc = description.trim();
-
-  const dateKey = formatDateKey(appState.selectedDate);
-  try {
-    await reactiveTransactions.createTransaction({
-      description: desc,
-      amount,
-      type,
-      category,
-      date: dateKey,
-    });
-    toastStore.success(
-      `${type === 'income' ? 'Income' : 'Expense'} added successfully`,
-    );
-    resetForm();
-  } catch (err) {
-    console.error('Failed to add transaction:', err);
-    // Error is already handled by reactive store
-  }
-}
-
-function resetForm() {
-  description = '';
-  amount = 0;
-  type = 'expense';
-  category = getDefaultCategory('expense');
-  showAddForm = false;
 }
 </script>
 
@@ -168,7 +119,7 @@ function resetForm() {
     {/if}
 
     <!-- Transaction List -->
-    <div class="space-y-2" class:mb-4={transactions.length > 0}>
+    <div class="space-y-2">
       {#if isLoading}
         <Loading size="xl" message="Loading transactions..." />
       {:else}
@@ -256,133 +207,12 @@ function resetForm() {
             icon="dollar"
             title="No transactions for this day"
             subtitle="Tap to track your first transaction"
-            onclick={() => (showAddForm = true)}
+            onclick={() => (openForm = true)}
           />
         {/if}
       {/if}
     </div>
 
-    <!-- Add Transaction Form -->
-    <BottomSheet bind:open={showAddForm} title="Add Transaction">
-      {#snippet children()}
-        <form onsubmit={handleAddTransaction} class="space-y-6">
-          <!-- Type Selection -->
-          <fieldset>
-            <legend
-              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3"
-              >Transaction Type</legend
-            >
-            <div class="flex gap-2">
-              <Button
-                type="button"
-                variant={type === "income" ? "primary" : "outline"}
-                onclick={() => (type = "income")}
-                class="flex-1 transition-all duration-200 {type === 'income'
-                  ? '!bg-green-100 dark:!bg-green-900 !text-green-700 dark:!text-green-300 !border-2 !border-green-200 dark:!border-green-700 shadow-sm'
-                  : ''}"
-              >
-                {#snippet children()}
-                  <Icon name="trending-up" size="sm" class="mr-2" />
-                  Income
-                {/snippet}
-              </Button>
-              <Button
-                type="button"
-                variant={type === "expense" ? "primary" : "outline"}
-                onclick={() => (type = "expense")}
-                class="flex-1 transition-all duration-200 {type === 'expense'
-                  ? '!bg-red-100 dark:!bg-red-900 !text-red-700 dark:!text-red-300 !border-2 !border-red-200 dark:!border-red-700 shadow-sm'
-                  : ''}"
-              >
-                {#snippet children()}
-                  <Icon name="trending-down" size="sm" class="mr-2" />
-                  Expense
-                {/snippet}
-              </Button>
-            </div>
-          </fieldset>
-
-          <!-- Category Selection -->
-          <div class="space-y-2">
-            <label for="new-transaction-category" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Category
-            </label>
-            <CategorySelector
-              id="new-transaction-category"
-              value={category}
-              transactionType={type}
-              onSelect={(selectedCategory: TransactionCategory) => category = selectedCategory}
-              size="md"
-              dropdownWidth="full"
-              class="w-full"
-            />
-          </div>
-
-          <!-- Description Input -->
-          <Input
-            bind:value={description}
-            placeholder="What was this for?"
-            label="Description"
-            theme="financials"
-            required
-          />
-
-          <!-- Amount Input -->
-          <Input
-            bind:value={amount}
-            type="number"
-            step="0.01"
-            min="0"
-            placeholder="0.00"
-            label="Amount ({settings.currencySymbol})"
-            theme="financials"
-            required
-          />
-
-          <div class="flex gap-3 pt-2">
-            <Button
-              type="button"
-              variant="ghost"
-              onclick={resetForm}
-              class="flex-none w-1/4"
-            >
-              {#snippet children()}
-                Cancel
-              {/snippet}
-            </Button>
-            <Button
-              type="submit"
-              variant="financials"
-              class="flex-1"
-              disabled={!description.trim() || amount <= 0 || isCreating}
-            >
-              {#snippet children()}
-                {#if isCreating}
-                  <Icon name="loader" size="sm" class="mr-2 animate-spin" />
-                  Adding...
-                {:else}
-                  <Icon name="plus" size="sm" class="mr-2" />
-                  Add {type === "income" ? "Income" : "Expense"}
-                {/if}
-              {/snippet}
-            </Button>
-          </div>
-        </form>
-      {/snippet}
-    </BottomSheet>
-
-    {#if !showAddForm && transactions.length > 0 && !isLoading}
-      <Button
-        variant="financials"
-        dashed={true}
-        onclick={() => (showAddForm = true)}
-        class="w-full"
-      >
-        {#snippet children()}
-          <Icon name="plus" size="sm" class="mr-2" />
-          Add Transaction
-        {/snippet}
-      </Button>
-    {/if}
+    <TransactionFormModal bind:open={openForm} />
   {/snippet}
 </Card>

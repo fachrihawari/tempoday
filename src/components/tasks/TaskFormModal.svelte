@@ -14,8 +14,6 @@ type Props = {
 };
 let { open = $bindable() }: Props = $props();
 
-$inspect({ open });
-
 const tasksStore = $derived(reactiveTasks);
 
 let description = $state('');
