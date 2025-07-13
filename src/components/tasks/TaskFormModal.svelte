@@ -1,74 +1,74 @@
 <script lang="ts">
-  import { formatDateKey } from "../../lib/date";
-  import type { TaskPriority } from "../../lib/priority";
-  import { appState } from "../../stores/app.svelte";
-  import { reactiveTasks } from "../../stores/tasks.svelte";
-  import { toastStore } from "../../stores/toast.svelte";
-  import BottomSheet from "../ui/BottomSheet.svelte";
-  import Button from "../ui/Button.svelte";
-  import Input from "../ui/Input.svelte";
-  import PrioritySelector from "../ui/PrioritySelector.svelte";
+import { formatDateKey } from '../../lib/date';
+import type { TaskPriority } from '../../lib/priority';
+import { appState } from '../../stores/app.svelte';
+import { reactiveTasks } from '../../stores/tasks.svelte';
+import { toastStore } from '../../stores/toast.svelte';
+import BottomSheet from '../ui/BottomSheet.svelte';
+import Button from '../ui/Button.svelte';
+import Input from '../ui/Input.svelte';
+import PrioritySelector from '../ui/PrioritySelector.svelte';
 
-  type Props = {
-    open: boolean;
-  };
-  let { open = $bindable() }: Props = $props();
+type Props = {
+  open: boolean;
+};
+let { open = $bindable() }: Props = $props();
 
-  $inspect({open})
+$inspect({ open });
 
-  const tasksStore = $derived(reactiveTasks);
+const tasksStore = $derived(reactiveTasks);
 
-  let description = $state("");
-  let priority = $state<TaskPriority>("medium");
-  let startTime = $state("");
-  let endTime = $state("");
+let description = $state('');
+let priority = $state<TaskPriority>('medium');
+let startTime = $state('');
+let endTime = $state('');
 
-  async function handleCreateTask() {
-    if (!description.trim()) return;
+async function handleCreateTask() {
+  if (!description.trim()) return;
 
-    try {
-      const dateKey = formatDateKey(appState.selectedDate);
-      const baseDate = new Date(appState.selectedDate);
+  try {
+    const dateKey = formatDateKey(appState.selectedDate);
+    const baseDate = new Date(appState.selectedDate);
 
-      // Parse start and end times
-      let startedAt: number | undefined;
-      let endedAt: number | undefined;
+    // Parse start and end times
+    let startedAt: number | undefined;
+    let endedAt: number | undefined;
 
-      if (startTime) {
-        const [hours, minutes] = startTime.split(":").map(Number);
-        const startDate = new Date(baseDate);
-        startDate.setHours(hours, minutes, 0, 0);
-        startedAt = startDate.getTime();
-      }
-
-      if (endTime) {
-        const [hours, minutes] = endTime.split(":").map(Number);
-        const endDate = new Date(baseDate);
-        endDate.setHours(hours, minutes, 0, 0);
-        endedAt = endDate.getTime();
-      }
-
-      await reactiveTasks.createTask({
-        description,
-        date: dateKey,
-        createdAt: Date.now(),
-        priority,
-        startedAt,
-        endedAt,
-      });
-
-      // Reset form
-      description = "";
-      priority = "medium";
-      startTime = "";
-      endTime = "";
-      open = false;
-
-      toastStore.success("Task created successfully");
-    } catch (error) {
-      toastStore.error("Failed to create task");
+    if (startTime) {
+      const [hours, minutes] = startTime.split(':').map(Number);
+      const startDate = new Date(baseDate);
+      startDate.setHours(hours, minutes, 0, 0);
+      startedAt = startDate.getTime();
     }
+
+    if (endTime) {
+      const [hours, minutes] = endTime.split(':').map(Number);
+      const endDate = new Date(baseDate);
+      endDate.setHours(hours, minutes, 0, 0);
+      endedAt = endDate.getTime();
+    }
+
+    await reactiveTasks.createTask({
+      description,
+      date: dateKey,
+      createdAt: Date.now(),
+      priority,
+      startedAt,
+      endedAt,
+    });
+
+    // Reset form
+    description = '';
+    priority = 'medium';
+    startTime = '';
+    endTime = '';
+    open = false;
+
+    toastStore.success('Task created successfully');
+  } catch (error) {
+    toastStore.error('Failed to create task');
   }
+}
 </script>
 
 <!-- Task Creation Modal -->

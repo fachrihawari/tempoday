@@ -1,18 +1,18 @@
 <script lang="ts">
-import { formatDateKey } from '../lib/date';
-import { appState } from '../stores/app.svelte';
-import { reactiveNotes } from '../stores/notes.svelte';
-import { toastStore } from '../stores/toast.svelte';
+import DatePicker from '../components/DatePicker.svelte';
 import BottomSheet from '../components/ui/BottomSheet.svelte';
 import Button from '../components/ui/Button.svelte';
 import Card from '../components/ui/Card.svelte';
 import EmptyState from '../components/ui/EmptyState.svelte';
 import Icon from '../components/ui/Icon.svelte';
 import Loading from '../components/ui/Loading.svelte';
+import PageHeader from '../components/ui/PageHeader.svelte';
 import Textarea from '../components/ui/Textarea.svelte';
-    import { reactiveRouter } from '../stores/router.svelte';
-    import PageHeader from '../components/ui/PageHeader.svelte';
-    import DatePicker from '../components/DatePicker.svelte';
+import { formatDateKey } from '../lib/date';
+import { appState } from '../stores/app.svelte';
+import { reactiveNotes } from '../stores/notes.svelte';
+import { reactiveRouter } from '../stores/router.svelte';
+import { toastStore } from '../stores/toast.svelte';
 
 // Reactive values from the store
 let { isLoading, isSaving, error, content, hasNote } = $derived(reactiveNotes);

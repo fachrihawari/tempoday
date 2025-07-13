@@ -6,7 +6,6 @@ import {
 } from '../../lib/priority';
 import Icon from './Icon.svelte';
 
-
 interface Props {
   value: TaskPriority;
   onSelect: (priority: TaskPriority) => void;

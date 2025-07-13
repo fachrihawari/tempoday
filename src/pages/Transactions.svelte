@@ -1,16 +1,7 @@
 <!-- Enhanced FinanceSection using reusable UI components -->
 <script lang="ts">
 import { onMount } from 'svelte';
-import {
-  type TransactionCategory,
-  getDefaultCategory,
-} from '../lib/categories';
-import { formatCurrency } from '../lib/currency';
-import { formatDateKey } from '../lib/date';
-import { appState } from '../stores/app.svelte';
-import { settingsStore } from '../stores/settings.svelte';
-import { toastStore } from '../stores/toast.svelte';
-import { reactiveTransactions } from '../stores/transactions.svelte';
+import DatePicker from '../components/DatePicker.svelte';
 import BottomSheet from '../components/ui/BottomSheet.svelte';
 import Button from '../components/ui/Button.svelte';
 import Card from '../components/ui/Card.svelte';
@@ -19,10 +10,18 @@ import EmptyState from '../components/ui/EmptyState.svelte';
 import Icon from '../components/ui/Icon.svelte';
 import Input from '../components/ui/Input.svelte';
 import Loading from '../components/ui/Loading.svelte';
-    import PageHeader from '../components/ui/PageHeader.svelte';
-    import DatePicker from '../components/DatePicker.svelte';
-    import { reactiveRouter } from '../stores/router.svelte';
-
+import PageHeader from '../components/ui/PageHeader.svelte';
+import {
+  type TransactionCategory,
+  getDefaultCategory,
+} from '../lib/categories';
+import { formatCurrency } from '../lib/currency';
+import { formatDateKey } from '../lib/date';
+import { appState } from '../stores/app.svelte';
+import { reactiveRouter } from '../stores/router.svelte';
+import { settingsStore } from '../stores/settings.svelte';
+import { toastStore } from '../stores/toast.svelte';
+import { reactiveTransactions } from '../stores/transactions.svelte';
 
 const router = $derived(reactiveRouter);
 // Reactive values from the store
