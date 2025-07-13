@@ -1,82 +1,81 @@
 <!-- Enhanced FinanceSection using reusable UI components -->
 <script lang="ts">
-import { onMount } from 'svelte';
-import DatePicker from '../components/DatePicker.svelte';
-import TransactionFormModal from '../components/transactions/TransactionFormModal.svelte';
-import Button from '../components/ui/Button.svelte';
-import Card from '../components/ui/Card.svelte';
-import CategorySelector from '../components/ui/CategorySelector.svelte';
-import EmptyState from '../components/ui/EmptyState.svelte';
-import Icon from '../components/ui/Icon.svelte';
-import Loading from '../components/ui/Loading.svelte';
-import PageHeader from '../components/ui/PageHeader.svelte';
-import { formatCurrency } from '../lib/currency';
-import { formatDateKey } from '../lib/date';
-import { appState } from '../stores/app.svelte';
-import { reactiveRouter } from '../stores/router.svelte';
-import { settingsStore } from '../stores/settings.svelte';
-import { toastStore } from '../stores/toast.svelte';
-import { reactiveTransactions } from '../stores/transactions.svelte';
+  import { onMount } from "svelte";
+  import DatePicker from "../components/DatePicker.svelte";
+  import TransactionFormModal from "../components/transactions/TransactionFormModal.svelte";
+  import Button from "../components/ui/Button.svelte";
+  import Card from "../components/ui/Card.svelte";
+  import CategorySelector from "../components/ui/CategorySelector.svelte";
+  import EmptyState from "../components/ui/EmptyState.svelte";
+  import Icon from "../components/ui/Icon.svelte";
+  import Loading from "../components/ui/Loading.svelte";
+  import PageHeader from "../components/ui/PageHeader.svelte";
+  import { formatCurrency } from "../lib/currency";
+  import { formatDateKey } from "../lib/date";
+  import { appState } from "../stores/app.svelte";
+  import { reactiveRouter } from "../stores/router.svelte";
+  import { settingsStore } from "../stores/settings.svelte";
+  import { toastStore } from "../stores/toast.svelte";
+  import { reactiveTransactions } from "../stores/transactions.svelte";
+  import Fab from "../components/ui/Fab.svelte";
 
-const router = $derived(reactiveRouter);
-// Reactive values from the store
-let {
-  transactions,
-  isLoading,
-  isDeleting,
-  isUpdating,
-  error,
-  totalIncome,
-  totalExpenses,
-  netBalance,
-  totalCount,
-} = $derived(reactiveTransactions);
+  const router = $derived(reactiveRouter);
+  // Reactive values from the store
+  let {
+    transactions,
+    isLoading,
+    isDeleting,
+    isUpdating,
+    error,
+    totalIncome,
+    totalExpenses,
+    netBalance,
+    totalCount,
+  } = $derived(reactiveTransactions);
 
-// Reactive settings
-let { settings } = $derived(settingsStore);
+  // Reactive settings
+  let { settings } = $derived(settingsStore);
 
-let openForm = $state(false);
+  let openForm = $state(false);
 
-// Watch for date changes and load transactions
-$effect(() => {
-  const dateKey = formatDateKey(appState.selectedDate);
-  reactiveTransactions.loadTransactions(dateKey);
-});
+  // Watch for date changes and load transactions
+  $effect(() => {
+    const dateKey = formatDateKey(appState.selectedDate);
+    reactiveTransactions.loadTransactions(dateKey);
+  });
 
-// Load settings when component mounts
-onMount(() => {
-  settingsStore.loadSettings();
-});
+  // Load settings when component mounts
+  onMount(() => {
+    settingsStore.loadSettings();
+  });
 
-// Watch for errors and show toast
-$effect(() => {
-  if (error) {
-    toastStore.error(error);
-    reactiveTransactions.clearError();
+  // Watch for errors and show toast
+  $effect(() => {
+    if (error) {
+      toastStore.error(error);
+      reactiveTransactions.clearError();
+    }
+  });
+
+  // Helper function to format currency with current settings
+  function formatAmount(amount: number): string {
+    // Provide fallback values if settings haven't loaded yet
+    const currency = settings?.currency || "USD";
+    const locale = settings?.locale || "en-US";
+    return formatCurrency(amount, currency, locale);
   }
-});
-
-// Helper function to format currency with current settings
-function formatAmount(amount: number): string {
-  // Provide fallback values if settings haven't loaded yet
-  const currency = settings?.currency || 'USD';
-  const locale = settings?.locale || 'en-US';
-  return formatCurrency(amount, currency, locale);
-}
 </script>
-
-
 
 <!-- Header Component -->
 <PageHeader title="Transactions" icon="dollar">
-   <!-- Search button -->
-   <Button
-     onclick={() => router.navigate("/search")}
-     variant="outline"
-     aria-label="Go to search page"
-   >
-     <Icon name="search" class="text-gray-600 dark:text-gray-300" />
-   </Button>
+  <!-- Search button -->
+  <Button
+    onclick={() => router.navigate("/search")}
+    variant="outline"
+    aria-label="Go to search page"
+  >
+    <Icon name="search" class="text-gray-600 dark:text-gray-300" />
+  </Button>
 </PageHeader>
 
 <!-- DatePicker Component -->
@@ -95,7 +94,9 @@ function formatAmount(amount: number): string {
   {#snippet children()}
     <!-- Daily Summary -->
     {#if transactions.length > 0 && !isLoading}
-      <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 mb-4 space-y-2 border border-gray-200 dark:border-gray-700">
+      <div
+        class="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 mb-4 space-y-2 border border-gray-200 dark:border-gray-700"
+      >
         <div class="flex justify-between text-sm">
           <span class="text-gray-600 dark:text-gray-400">Income:</span>
           <span class="text-green-600 dark:text-green-400 font-medium"
@@ -111,7 +112,11 @@ function formatAmount(amount: number): string {
         <hr class="border-gray-200 dark:border-gray-600" />
         <div class="flex justify-between text-sm font-semibold">
           <span class="text-gray-900 dark:text-gray-100">Net Balance:</span>
-          <span class={netBalance >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}>
+          <span
+            class={netBalance >= 0
+              ? "text-green-600 dark:text-green-400"
+              : "text-red-600 dark:text-red-400"}
+          >
             {formatAmount(netBalance)}
           </span>
         </div>
@@ -146,13 +151,16 @@ function formatAmount(amount: number): string {
                   transactionType={transaction.type}
                   onSelect={async (newCategory) => {
                     try {
-                      await reactiveTransactions.updateTransaction(transaction.id, {
-                        category: newCategory
-                      });
-                      toastStore.success('Category updated');
+                      await reactiveTransactions.updateTransaction(
+                        transaction.id,
+                        {
+                          category: newCategory,
+                        },
+                      );
+                      toastStore.success("Category updated");
                     } catch (err) {
                       // Error is already handled by the store
-                      console.error('Failed to update category:', err);
+                      console.error("Failed to update category:", err);
                     }
                   }}
                   disabled={isUpdating[transaction.id]}
@@ -160,7 +168,9 @@ function formatAmount(amount: number): string {
                   dropdownWidth="wide"
                   class="text-xs"
                 />
-                <p class="text-xs text-gray-500 dark:text-gray-400 capitalize">{transaction.type}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 capitalize">
+                  {transaction.type}
+                </p>
               </div>
             </div>
 
@@ -214,5 +224,7 @@ function formatAmount(amount: number): string {
     </div>
 
     <TransactionFormModal bind:open={openForm} />
+
+    <Fab icon="plus" onclick={() => (openForm = true)} variant="financials" />
   {/snippet}
 </Card>

@@ -10,13 +10,14 @@ type Props = {
   onclick: () => void;
 };
 
-const { icon, label, onclick }: Props = $props();
+const { icon, label, onclick, variant }: Props = $props();
 </script>
 
 <div class="fixed bottom-20 z-50 right-4">
   <Button
     aria-label={label || "Button"}
     class="w-16 h-16 !rounded-full"
+    {variant}
     {onclick}
   >
     <Icon name={icon} size="xl" />
