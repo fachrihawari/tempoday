@@ -13,6 +13,7 @@ import { reactiveRouter } from '../stores/router.svelte';
 // View mode state
 let viewMode = $state<'timeline' | 'sections'>('sections');
 
+// Open task form modal state
 let openForm = $state(false);
 
 const router = $derived(reactiveRouter);
@@ -73,5 +74,4 @@ const router = $derived(reactiveRouter);
   {/if}
 
   <TaskFormModal bind:open={openForm} />
-
 </div>
