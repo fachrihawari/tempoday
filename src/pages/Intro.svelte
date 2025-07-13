@@ -153,7 +153,7 @@ const currentSlideData = $derived(slides[currentSlide]);
 </script>
 
 <!-- Beautiful Original Design with Authentic TempoDay Peach -->
-<div class="h-screen flex flex-col transition-all duration-500 overflow-hidden">
+<div class="h-dvh flex flex-col transition-all duration-500 overflow-hidden">
   <!-- Dynamic background that respects dark mode -->
   <div
     class="absolute inset-0 opacity-90 dark:opacity-95 transition-opacity duration-500"

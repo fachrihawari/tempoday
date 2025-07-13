@@ -43,7 +43,7 @@ const router = $derived(reactiveRouter);
 >
   <div class="max-w-md mx-auto">
     <div
-      class="flex justify-around items-center py-2 pb-safe-area-inset-bottom"
+      class="flex justify-around items-center h-16 pb-safe-area-inset-bottom"
     >
       {#each navItems as item (item.path)}
         <button

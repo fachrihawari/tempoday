@@ -7,7 +7,6 @@ import { settingsStore } from './stores/settings.svelte';
 
 const router = $derived(reactiveRouter);
 let showIntro = $state(localStorage.getItem('tempoday-intro-seen') !== 'true');
-$inspect(showIntro, '<<< showIntro');
 
 // Lazy loader functions for each page
 const loadTasks = () => import('./pages/Tasks.svelte');
@@ -40,7 +39,7 @@ function handleIntroCompleted() {
 }
 </script>
 
-<div class="h-screen flex flex-col relative bg-gray-50 dark:bg-gray-950">
+<div class="h-dvh flex flex-col relative bg-gray-50 dark:bg-gray-950">
   {#if showIntro && router.activePath !== "/terms" && router.activePath !== "/thanks"}
     <Lazy
       loader={loadIntro}
@@ -116,13 +115,11 @@ function handleIntroCompleted() {
       <Lazy
         loader={loadBottomNavigation}
         showLoading={false}
-        class="fixed bottom-0 left-0 right-0 z-50"
       />
     {/if}
     <Lazy
       loader={loadToastContainer}
       showLoading={false}
-      class="fixed inset-x-0 bottom-20 z-[9999] pointer-events-none"
     />
   {/if}
 </div>
