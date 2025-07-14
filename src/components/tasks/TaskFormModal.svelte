@@ -49,7 +49,6 @@ async function handleCreateTask() {
     await reactiveTasks.createTask({
       description,
       date: dateKey,
-      createdAt: Date.now(),
       priority,
       startedAt,
       endedAt,

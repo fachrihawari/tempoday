@@ -8,7 +8,7 @@ import { uuid } from '../lib/unique';
 // Types for better API
 export type CreateTaskInput = Pick<
   Task,
-  'description' | 'date' | 'createdAt'
+  'description' | 'date'
 > & {
   priority?: TaskPriority;
   startedAt?: number;
