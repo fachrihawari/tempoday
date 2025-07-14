@@ -6,10 +6,7 @@ import { type TaskPriority, sortTasksComprehensive } from '../lib/priority';
 import { uuid } from '../lib/unique';
 
 // Types for better API
-export type CreateTaskInput = Pick<
-  Task,
-  'description' | 'date'
-> & {
+export type CreateTaskInput = Pick<Task, 'description' | 'date'> & {
   priority?: TaskPriority;
   startedAt?: number;
   endedAt?: number;

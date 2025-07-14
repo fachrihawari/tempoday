@@ -16,6 +16,8 @@ let dateRange = $state<Date[]>([]);
 let isExpanded = $state(false); // State to control date picker visibility
 let isUserScrolling = $state(false); // Flag to prevent auto-scroll during user interaction
 let scrollTimeout: ReturnType<typeof setTimeout>;
+let isLoadingDates = $state(false); // Flag to prevent multiple simultaneous loads
+let isAdjustingScroll = $state(false); // Flag to prevent scroll handler during position adjustment
 
 // Initialize date range around the selected date
 function initializeDateRange(centerDate: Date) {
@@ -135,6 +137,10 @@ $effect(() => {
 });
 
 function loadMoreDates(direction: 'past' | 'future') {
+  // Prevent multiple simultaneous loads
+  if (isLoadingDates) return;
+
+  isLoadingDates = true;
   const daysToAdd = 15; // Reduced from 30 for better performance
 
   if (direction === 'past') {
@@ -156,10 +162,21 @@ function loadMoreDates(direction: 'past' | 'future') {
     }
     dateRange = [...dateRange, ...newDates];
   }
+
+  // Reset the loading flag after a brief delay to allow DOM updates
+  setTimeout(() => {
+    isLoadingDates = false;
+  }, 100);
 }
 
 function handleScroll() {
-  if (!scrollContainer || dateRange.length === 0) return;
+  if (
+    !scrollContainer ||
+    dateRange.length === 0 ||
+    isLoadingDates ||
+    isAdjustingScroll
+  )
+    return;
 
   // Set user scrolling flag
   isUserScrolling = true;
@@ -173,19 +190,54 @@ function handleScroll() {
   const { scrollLeft, scrollWidth, clientWidth } = scrollContainer;
   const buttonWidth = 60; // Approximate button width including gap
 
-  // Load more dates when scrolled near the beginning (within 3 buttons)
-  if (scrollLeft < buttonWidth * 3) {
-    const oldScrollWidth = scrollWidth;
+  // Load more dates when scrolled near the beginning (within 1 button for even more conservative loading)
+  if (scrollLeft < buttonWidth * 1) {
+    // Temporarily remove scroll listener to prevent interference
+    scrollContainer.removeEventListener('scroll', handleScroll);
+    isAdjustingScroll = true;
+
     const oldScrollLeft = scrollLeft;
+    const currentFirstDate = dateRange[0];
 
     loadMoreDates('past');
 
-    // Maintain scroll position after prepending dates
+    // Wait for DOM to update, then adjust scroll position
     requestAnimationFrame(() => {
-      if (!scrollContainer) return;
-      const newScrollWidth = scrollContainer.scrollWidth;
-      const addedWidth = newScrollWidth - oldScrollWidth;
-      scrollContainer.scrollLeft = oldScrollLeft + addedWidth;
+      if (!scrollContainer) {
+        isAdjustingScroll = false;
+        // Re-add scroll listener
+        scrollContainer!.addEventListener('scroll', handleScroll);
+        return;
+      }
+
+      // Calculate how many new dates were added
+      const newFirstDateIndex = dateRange.findIndex(
+        (date) => date.getTime() === currentFirstDate.getTime(),
+      );
+
+      if (newFirstDateIndex > 0) {
+        // Calculate the new scroll position based on added buttons
+        const addedButtons = newFirstDateIndex;
+        const newScrollLeft = oldScrollLeft + addedButtons * buttonWidth;
+
+        // Set the scroll position immediately without smooth scrolling
+        scrollContainer.style.scrollBehavior = 'auto';
+        scrollContainer.scrollLeft = newScrollLeft;
+
+        // Restore smooth scrolling after a short delay
+        setTimeout(() => {
+          if (scrollContainer) {
+            scrollContainer.style.scrollBehavior = 'smooth';
+            isAdjustingScroll = false;
+            // Re-add scroll listener
+            scrollContainer.addEventListener('scroll', handleScroll);
+          }
+        }, 50);
+      } else {
+        isAdjustingScroll = false;
+        // Re-add scroll listener
+        scrollContainer.addEventListener('scroll', handleScroll);
+      }
     });
   }
 
@@ -229,8 +281,8 @@ function handleScroll() {
       onscroll={handleScroll}
       class="flex gap-1 overflow-x-auto pb-1 -mx-4 px-4
              [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden
-             overscroll-behavior-x-contain scroll-smooth"
-      style="scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;"
+             overscroll-behavior-x-contain"
+      style="scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scroll-behavior: smooth;"
     >
       {#each dateRange as date (date.toISOString())}
         <Button
