@@ -9,7 +9,7 @@ import Icon from '../components/ui/Icon.svelte';
 import Loading from '../components/ui/Loading.svelte';
 import PageHeader from '../components/ui/PageHeader.svelte';
 import Textarea from '../components/ui/Textarea.svelte';
-import { formatDateKey } from '../lib/date';
+import { formatDate, formatDateKey } from '../lib/date';
 import { appState } from '../stores/app.svelte';
 import { reactiveNotes } from '../stores/notes.svelte';
 import { reactiveRouter } from '../stores/router.svelte';
@@ -93,7 +93,7 @@ function handleKeydown(event: KeyboardEvent) {
     <!-- Note Edit Form -->
     <BottomSheet
       bind:open={isEditing}
-      title={hasNote ? "Edit Note" : "Add Note"}
+      title={formatDate(appState.selectedDate)}
     >
       {#snippet children()}
         <form onsubmit={saveNote} class="space-y-6">
@@ -154,9 +154,8 @@ function handleKeydown(event: KeyboardEvent) {
       {:else}
         <EmptyState
           icon="edit"
-          title="Add Note"
-          subtitle="Tap to write your daily thoughts"
-          onclick={startEditing}
+          title="No note for this day"
+          subtitle="Write your first note to get started!"
         />
       {/if}
     </div>

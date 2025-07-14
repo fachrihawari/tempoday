@@ -216,8 +216,7 @@ function formatAmount(amount: number): string {
           <EmptyState
             icon="dollar"
             title="No transactions for this day"
-            subtitle="Tap to track your first transaction"
-            onclick={() => (openForm = true)}
+            subtitle="Write your first transaction to get started!"
           />
         {/if}
       {/if}

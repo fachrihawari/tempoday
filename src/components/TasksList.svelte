@@ -188,7 +188,7 @@ function handlePriorityChange(taskId: string, priority: TaskPriority) {
           <EmptyState
             icon="clipboard"
             title="No tasks for this day"
-            subtitle="Tap to add your first task"
+            subtitle="Write your first task to get started!"
           />
         {/each}
       {/if}
