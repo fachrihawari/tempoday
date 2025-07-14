@@ -24,6 +24,12 @@ class ReactiveRouter {
     window.history.pushState({}, '', normalizedPath);
   }
 
+  goBack() {
+    if (window.history.length > 1) {
+      window.history.back();
+    }
+  }
+
   // Simple initialization for WebContainer
   initialize() {
     if (this.#isInitialized) {
@@ -31,19 +37,27 @@ class ReactiveRouter {
       return;
     }
 
-    // In WebContainer, don't try to read window.location
-    // Just start with default route
     this.#currentPath = window.location.pathname || '/';
     this.#isInitialized = true;
+
+    // Listen for browser navigation events
+    window.addEventListener('popstate', this.#handlePopState);
 
     console.log('Router initialized with path:', this.#currentPath);
 
     // Return a cleanup function
     return () => {
+      window.removeEventListener('popstate', this.#handlePopState);
       console.log('Router cleanup called');
       this.#isInitialized = false;
     };
   }
+
+  // Private handler for popstate
+  #handlePopState = () => {
+    this.#currentPath = window.location.pathname || '/';
+    console.log('Router popstate, updated path:', this.#currentPath);
+  };
 
   // Check if a path is currently active
   isActive(path: string): boolean {

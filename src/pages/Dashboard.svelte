@@ -8,8 +8,7 @@ import { formatDate } from '../lib/date';
 <div class="h-full flex flex-col">
   <!-- Header -->
   <PageHeader 
-    title="TempoDay" 
-    subtitle={formatDate(new Date())}
+    title="TempoDay"
     icon="home"
   />
 

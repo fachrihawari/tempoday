@@ -4,7 +4,6 @@ import {
   type TaskPriority,
   getPriorityConfig,
 } from '../../lib/priority';
-import Button from './Button.svelte';
 import Icon from './Icon.svelte';
 
 interface Props {
@@ -13,8 +12,8 @@ interface Props {
   disabled?: boolean;
   size?: 'sm' | 'md' | 'lg';
   class?: string;
-  id?: string;
   dropdownWidth?: 'auto' | 'full' | 'wide';
+  label?: string;
 }
 
 let {
@@ -23,8 +22,8 @@ let {
   disabled = false,
   size = 'md',
   class: className = '',
-  id,
   dropdownWidth = 'auto',
+  label,
 }: Props = $props();
 
 let isOpen = $state(false);
@@ -128,14 +127,17 @@ const getDropdownVerticalClasses = (flipUp: boolean) => {
 </script>
 
 <div class="relative priority-selector {className}">
+  {#if label}
+    <label for={`priority-${label}`} class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{label}</label>
+  {/if}
   <!-- Current Priority Button -->
   <button
     bind:this={buttonElement}
     type="button"
-    {id}
+    id={`priority-${label}`}
     onclick={toggleOpen}
     {disabled}
-    class="inline-flex items-center gap-2 rounded-lg border transition-colors {buttonSizes[size]}
+    class="inline-flex items-center gap-2 rounded-lg border transition-colors cursor-pointer {buttonSizes[size]}
            {value === 'urgent' ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 border-red-300 dark:border-red-700' :
             value === 'high' ? 'bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300 border-orange-300 dark:border-orange-700' :
             value === 'medium' ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 border-blue-300 dark:border-blue-700' :

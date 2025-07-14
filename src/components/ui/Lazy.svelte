@@ -19,7 +19,6 @@ let {
   loadingSize = 'lg',
   loadingMessage = 'Loading...',
   errorMessage,
-  class: className = '',
   loadingClass = '',
   errorClass = '',
   ...restProps
@@ -59,7 +58,5 @@ $effect(() => {
     </div>
   </div>
 {:else if Component}
-  <div class={className}>
-    <Component {...restProps} />
-  </div>
+  <Component {...restProps} />
 {/if}

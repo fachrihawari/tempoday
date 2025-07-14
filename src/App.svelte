@@ -7,10 +7,11 @@ import { settingsStore } from './stores/settings.svelte';
 
 const router = $derived(reactiveRouter);
 let showIntro = $state(localStorage.getItem('tempoday-intro-seen') !== 'true');
-$inspect(showIntro, '<<< showIntro');
 
 // Lazy loader functions for each page
-const loadCalendar = () => import('./pages/Calendar.svelte');
+const loadTasks = () => import('./pages/Tasks.svelte');
+const loadNotes = () => import('./pages/Notes.svelte');
+const loadTransactions = () => import('./pages/Transactions.svelte');
 const loadDashboard = () => import('./pages/Dashboard.svelte');
 const loadIntro = () => import('./pages/Intro.svelte');
 const loadSearch = () => import('./pages/Search.svelte');
@@ -38,7 +39,7 @@ function handleIntroCompleted() {
 }
 </script>
 
-<div class="h-screen flex flex-col relative bg-gray-50 dark:bg-gray-950">
+<div class="h-dvh flex flex-col relative bg-gray-50 dark:bg-gray-950">
   {#if showIntro && router.activePath !== "/terms" && router.activePath !== "/thanks"}
     <Lazy
       loader={loadIntro}
@@ -60,9 +61,21 @@ function handleIntroCompleted() {
           loadingSize="3xl"
           loadingClass="w-full h-full justify-center items-center py-8"
         />
-      {:else if router.activePath === "/calendar"}
+      {:else if router.activePath === "/tasks"}
         <Lazy
-          loader={loadCalendar}
+          loader={loadTasks}
+          loadingSize="3xl"
+          loadingClass="w-full h-full justify-center items-center py-8"
+        />
+      {:else if router.activePath === "/notes"}
+        <Lazy
+          loader={loadNotes}
+          loadingSize="3xl"
+          loadingClass="w-full h-full justify-center items-center py-8"
+        />
+      {:else if router.activePath === "/transactions"}
+        <Lazy
+          loader={loadTransactions}
           loadingSize="3xl"
           loadingClass="w-full h-full justify-center items-center py-8"
         />
@@ -102,13 +115,11 @@ function handleIntroCompleted() {
       <Lazy
         loader={loadBottomNavigation}
         showLoading={false}
-        class="fixed bottom-0 left-0 right-0 z-50"
       />
     {/if}
     <Lazy
       loader={loadToastContainer}
       showLoading={false}
-      class="fixed inset-x-0 bottom-20 z-[9999] pointer-events-none"
     />
   {/if}
 </div>

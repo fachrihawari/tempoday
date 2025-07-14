@@ -87,7 +87,7 @@ const sizes = {
   {onclick}
   {disabled}
   class={[
-    "flex justify-center items-center font-medium rounded-lg transition-colors",
+    "flex justify-center items-center font-medium rounded-lg transition-colors cursor-pointer",
     variantClass,
     sizes[size],
     className,

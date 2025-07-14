@@ -21,13 +21,13 @@ let { title, subtitle, icon, children, onBack = null }: Props = $props();
           onclick={onBack}
           variant="ghost"
           aria-label="Go back"
-          class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors mr-1"
+          class="!px-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors mr-1"
         >
           <Icon name="chevron-left" class="text-gray-600 dark:text-gray-300" />
         </Button>
       {/if}
       {#if icon}
-        <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 dark:from-blue-700 dark:to-purple-800 rounded-xl flex items-center justify-center">
+        <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 dark:from-blue-700 dark:to-purple-800 rounded-xl flex items-center justify-center">
           <Icon name={icon} class="text-white" />
         </div>
       {/if}

@@ -22,7 +22,6 @@ function navigateToTerms() {
   <!-- Header -->
   <PageHeader 
     title="Settings" 
-    subtitle="Customize your TempoDay experience"
     icon="settings"
   />
 
@@ -34,7 +33,7 @@ function navigateToTerms() {
       icon="sun" 
       iconColor="text-yellow-600 dark:text-yellow-400"
       collapsible={true}
-      defaultExpanded={true}
+      defaultExpanded={false}
     >
       {#snippet children()}
         <AppearanceSettings />

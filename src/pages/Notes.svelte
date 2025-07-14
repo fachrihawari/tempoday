@@ -1,18 +1,23 @@
 <script lang="ts">
-import { formatDateKey } from '../lib/date';
+import DatePicker from '../components/DatePicker.svelte';
+import BottomSheet from '../components/ui/BottomSheet.svelte';
+import Button from '../components/ui/Button.svelte';
+import Card from '../components/ui/Card.svelte';
+import EmptyState from '../components/ui/EmptyState.svelte';
+import Fab from '../components/ui/Fab.svelte';
+import Icon from '../components/ui/Icon.svelte';
+import Loading from '../components/ui/Loading.svelte';
+import PageHeader from '../components/ui/PageHeader.svelte';
+import Textarea from '../components/ui/Textarea.svelte';
+import { formatDate, formatDateKey } from '../lib/date';
 import { appState } from '../stores/app.svelte';
 import { reactiveNotes } from '../stores/notes.svelte';
+import { reactiveRouter } from '../stores/router.svelte';
 import { toastStore } from '../stores/toast.svelte';
-import BottomSheet from './ui/BottomSheet.svelte';
-import Button from './ui/Button.svelte';
-import Card from './ui/Card.svelte';
-import EmptyState from './ui/EmptyState.svelte';
-import Icon from './ui/Icon.svelte';
-import Loading from './ui/Loading.svelte';
-import Textarea from './ui/Textarea.svelte';
 
 // Reactive values from the store
 let { isLoading, isSaving, error, content, hasNote } = $derived(reactiveNotes);
+let router = $derived(reactiveRouter);
 
 let isEditing = $state(false);
 let editingText = $state('');
@@ -68,12 +73,27 @@ function handleKeydown(event: KeyboardEvent) {
 }
 </script>
 
-<Card title="Daily Note" icon="edit" iconColor="text-purple-500">
+<!-- Header Component -->
+<PageHeader title="Notes" icon="edit">
+  <!-- Search button -->
+  <Button
+    onclick={() => router.navigate("/search")}
+    variant="outline"
+    aria-label="Go to search page"
+  >
+    <Icon name="search" class="text-gray-600 dark:text-gray-300" />
+  </Button>
+</PageHeader>
+
+<!-- DatePicker Component -->
+<DatePicker />
+
+<Card>
   {#snippet children()}
     <!-- Note Edit Form -->
     <BottomSheet
       bind:open={isEditing}
-      title={hasNote ? "Edit Note" : "Add Note"}
+      title={formatDate(appState.selectedDate)}
     >
       {#snippet children()}
         <form onsubmit={saveNote} class="space-y-6">
@@ -134,26 +154,12 @@ function handleKeydown(event: KeyboardEvent) {
       {:else}
         <EmptyState
           icon="edit"
-          title="Add Note"
-          subtitle="Tap to write your daily thoughts"
-          onclick={startEditing}
+          title="No note for this day"
+          subtitle="Write your first note to get started!"
         />
       {/if}
     </div>
 
-    {#if hasNote && !isLoading}
-      <Button
-        variant="notes"
-        dashed={true}
-        onclick={startEditing}
-        class="mt-2"
-        fullWidth
-      >
-        {#snippet children()}
-          <Icon name="edit" size="sm" class="mr-1" />
-          Edit note
-        {/snippet}
-      </Button>
-    {/if}
+    <Fab icon="edit" onclick={() => (isEditing = true)} />
   {/snippet}
 </Card>

@@ -8,6 +8,8 @@ import { uuid } from '../lib/unique';
 // Types for better API
 export type CreateTaskInput = Pick<Task, 'description' | 'date'> & {
   priority?: TaskPriority;
+  startedAt?: number;
+  endedAt?: number;
 };
 
 export class ReactiveTasks {
@@ -298,6 +300,90 @@ export class ReactiveTasks {
    */
   clearError(): void {
     this.error = null;
+  }
+
+  /**
+   * Get tasks that overlap with a specific hour
+   */
+  getTasksForHour(hour: number, date: string): Task[] {
+    const hourStart = new Date(
+      date + ` ${hour.toString().padStart(2, '0')}:00:00`,
+    ).getTime();
+    const hourEnd = hourStart + 60 * 60 * 1000; // +1 hour
+
+    return this.tasks.filter((task) => {
+      // If task has specific start/end times, check overlap
+      if (task.startedAt && task.endedAt) {
+        return task.startedAt < hourEnd && task.endedAt > hourStart;
+      }
+
+      // If task only has startedAt, check if it starts in this hour
+      if (task.startedAt) {
+        return task.startedAt >= hourStart && task.startedAt < hourEnd;
+      }
+
+      // Fallback to createdAt for tasks without specific scheduling
+      return task.createdAt >= hourStart && task.createdAt < hourEnd;
+    });
+  }
+
+  /**
+   * Get the duration of a task in hours
+   */
+  getTaskDuration(task: Task): number {
+    if (!task.startedAt || !task.endedAt) return 1; // Default 1 hour
+    return Math.max(
+      1,
+      Math.ceil((task.endedAt - task.startedAt) / (60 * 60 * 1000)),
+    );
+  }
+
+  /**
+   * Get the starting hour for a task
+   */
+  getTaskStartHour(task: Task, date: string): number {
+    const timeToUse = task.startedAt || task.createdAt;
+    const taskDate = new Date(timeToUse);
+
+    // Ensure we're looking at the correct date
+    const taskDateStr = taskDate.toISOString().split('T')[0];
+    if (taskDateStr !== date) return -1; // Task not on this date
+
+    return taskDate.getHours();
+  }
+
+  /**
+   * Check if hour has any tasks
+   */
+  hasTasksForHour(hour: number, date: string): boolean {
+    return this.getTasksForHour(hour, date).length > 0;
+  }
+
+  /**
+   * Complete a task with timestamp
+   */
+  async completeTask(id: string): Promise<void> {
+    await this.toggleTask(id);
+
+    // Update completedAt timestamp
+    const task = this.tasks.find((t) => t.id === id);
+    if (task && task.completed) {
+      try {
+        await db.tasks.update(id, {
+          completedAt: Date.now(),
+          updatedAt: Date.now(),
+        });
+
+        // Update local state
+        this.tasks = this.tasks.map((t) =>
+          t.id === id
+            ? { ...t, completedAt: Date.now(), updatedAt: Date.now() }
+            : t,
+        );
+      } catch (err) {
+        console.error('Error updating completion timestamp:', err);
+      }
+    }
   }
 }
 

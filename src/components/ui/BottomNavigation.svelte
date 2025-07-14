@@ -1,22 +1,32 @@
 <script lang="ts">
 import { reactiveRouter } from '../../stores/router.svelte';
-import Icon from './Icon.svelte';
+import Icon, { type IconName } from './Icon.svelte';
 
-const navItems = [
+type NavItem = {
+  path: string;
+  label: string;
+  icon: IconName;
+};
+const navItems: NavItem[] = [
   {
     path: '/',
     label: 'Home',
-    icon: 'home' as const,
+    icon: 'home',
   },
   {
-    path: '/calendar',
-    label: 'Calendar',
-    icon: 'calendar' as const,
+    path: '/tasks',
+    label: 'Tasks',
+    icon: 'clipboard',
   },
   {
-    path: '/search',
-    label: 'Search',
-    icon: 'search' as const,
+    path: '/notes',
+    label: 'Notes',
+    icon: 'edit',
+  },
+  {
+    path: '/transactions',
+    label: 'Transactions',
+    icon: 'dollar',
   },
   {
     path: '/settings',
@@ -33,7 +43,7 @@ const router = $derived(reactiveRouter);
 >
   <div class="max-w-md mx-auto">
     <div
-      class="flex justify-around items-center py-2 pb-safe-area-inset-bottom"
+      class="flex justify-around items-center h-16 pb-safe-area-inset-bottom"
     >
       {#each navItems as item (item.path)}
         <button
