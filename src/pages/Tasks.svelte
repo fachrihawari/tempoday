@@ -70,7 +70,7 @@ const router = $derived(reactiveRouter);
     </div>
   {:else}
     <TasksList />
-    <Fab icon="plus" onclick={() => openForm = true} variant="tasks" />
+    <Fab icon="plus" onclick={() => openForm = true} />
   {/if}
 
   <TaskFormModal bind:open={openForm} />

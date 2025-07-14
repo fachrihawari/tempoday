@@ -1,69 +1,69 @@
 <!-- Enhanced FinanceSection using reusable UI components -->
 <script lang="ts">
-  import { onMount } from "svelte";
-  import DatePicker from "../components/DatePicker.svelte";
-  import TransactionFormModal from "../components/transactions/TransactionFormModal.svelte";
-  import Button from "../components/ui/Button.svelte";
-  import Card from "../components/ui/Card.svelte";
-  import CategorySelector from "../components/ui/CategorySelector.svelte";
-  import EmptyState from "../components/ui/EmptyState.svelte";
-  import Icon from "../components/ui/Icon.svelte";
-  import Loading from "../components/ui/Loading.svelte";
-  import PageHeader from "../components/ui/PageHeader.svelte";
-  import { formatCurrency } from "../lib/currency";
-  import { formatDateKey } from "../lib/date";
-  import { appState } from "../stores/app.svelte";
-  import { reactiveRouter } from "../stores/router.svelte";
-  import { settingsStore } from "../stores/settings.svelte";
-  import { toastStore } from "../stores/toast.svelte";
-  import { reactiveTransactions } from "../stores/transactions.svelte";
-  import Fab from "../components/ui/Fab.svelte";
+import { onMount } from 'svelte';
+import DatePicker from '../components/DatePicker.svelte';
+import TransactionFormModal from '../components/transactions/TransactionFormModal.svelte';
+import Button from '../components/ui/Button.svelte';
+import Card from '../components/ui/Card.svelte';
+import CategorySelector from '../components/ui/CategorySelector.svelte';
+import EmptyState from '../components/ui/EmptyState.svelte';
+import Fab from '../components/ui/Fab.svelte';
+import Icon from '../components/ui/Icon.svelte';
+import Loading from '../components/ui/Loading.svelte';
+import PageHeader from '../components/ui/PageHeader.svelte';
+import { formatCurrency } from '../lib/currency';
+import { formatDateKey } from '../lib/date';
+import { appState } from '../stores/app.svelte';
+import { reactiveRouter } from '../stores/router.svelte';
+import { settingsStore } from '../stores/settings.svelte';
+import { toastStore } from '../stores/toast.svelte';
+import { reactiveTransactions } from '../stores/transactions.svelte';
 
-  const router = $derived(reactiveRouter);
-  // Reactive values from the store
-  let {
-    transactions,
-    isLoading,
-    isDeleting,
-    isUpdating,
-    error,
-    totalIncome,
-    totalExpenses,
-    netBalance,
-    totalCount,
-  } = $derived(reactiveTransactions);
+const router = $derived(reactiveRouter);
+// Reactive values from the store
+let {
+  transactions,
+  isLoading,
+  isDeleting,
+  isUpdating,
+  error,
+  totalIncome,
+  totalExpenses,
+  netBalance,
+  totalCount,
+} = $derived(reactiveTransactions);
 
-  // Reactive settings
-  let { settings } = $derived(settingsStore);
+// Reactive settings
+let { settings } = $derived(settingsStore);
 
-  let openForm = $state(false);
+let openForm = $state(false);
 
-  // Watch for date changes and load transactions
-  $effect(() => {
-    const dateKey = formatDateKey(appState.selectedDate);
-    reactiveTransactions.loadTransactions(dateKey);
-  });
+// Watch for date changes and load transactions
+$effect(() => {
+  const dateKey = formatDateKey(appState.selectedDate);
+  reactiveTransactions.loadTransactions(dateKey);
+});
 
-  // Load settings when component mounts
-  onMount(() => {
-    settingsStore.loadSettings();
-  });
+// Load settings when component mounts
+onMount(() => {
+  settingsStore.loadSettings();
+});
 
-  // Watch for errors and show toast
-  $effect(() => {
-    if (error) {
-      toastStore.error(error);
-      reactiveTransactions.clearError();
-    }
-  });
-
-  // Helper function to format currency with current settings
-  function formatAmount(amount: number): string {
-    // Provide fallback values if settings haven't loaded yet
-    const currency = settings?.currency || "USD";
-    const locale = settings?.locale || "en-US";
-    return formatCurrency(amount, currency, locale);
+// Watch for errors and show toast
+$effect(() => {
+  if (error) {
+    toastStore.error(error);
+    reactiveTransactions.clearError();
   }
+});
+
+// Helper function to format currency with current settings
+function formatAmount(amount: number): string {
+  // Provide fallback values if settings haven't loaded yet
+  const currency = settings?.currency || 'USD';
+  const locale = settings?.locale || 'en-US';
+  return formatCurrency(amount, currency, locale);
+}
 </script>
 
 <!-- Header Component -->
@@ -225,6 +225,6 @@
 
     <TransactionFormModal bind:open={openForm} />
 
-    <Fab icon="plus" onclick={() => (openForm = true)} variant="financials" />
+    <Fab icon="plus" onclick={() => (openForm = true)} />
   {/snippet}
 </Card>

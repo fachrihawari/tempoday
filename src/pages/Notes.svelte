@@ -4,6 +4,7 @@ import BottomSheet from '../components/ui/BottomSheet.svelte';
 import Button from '../components/ui/Button.svelte';
 import Card from '../components/ui/Card.svelte';
 import EmptyState from '../components/ui/EmptyState.svelte';
+import Fab from '../components/ui/Fab.svelte';
 import Icon from '../components/ui/Icon.svelte';
 import Loading from '../components/ui/Loading.svelte';
 import PageHeader from '../components/ui/PageHeader.svelte';
@@ -74,14 +75,14 @@ function handleKeydown(event: KeyboardEvent) {
 
 <!-- Header Component -->
 <PageHeader title="Notes" icon="edit">
-   <!-- Search button -->
-   <Button
-     onclick={() => router.navigate("/search")}
-     variant="outline"
-     aria-label="Go to search page"
-   >
-     <Icon name="search" class="text-gray-600 dark:text-gray-300" />
-   </Button>
+  <!-- Search button -->
+  <Button
+    onclick={() => router.navigate("/search")}
+    variant="outline"
+    aria-label="Go to search page"
+  >
+    <Icon name="search" class="text-gray-600 dark:text-gray-300" />
+  </Button>
 </PageHeader>
 
 <!-- DatePicker Component -->
@@ -160,19 +161,6 @@ function handleKeydown(event: KeyboardEvent) {
       {/if}
     </div>
 
-    {#if hasNote && !isLoading}
-      <Button
-        variant="notes"
-        dashed={true}
-        onclick={startEditing}
-        class="mt-2"
-        fullWidth
-      >
-        {#snippet children()}
-          <Icon name="edit" size="sm" class="mr-1" />
-          Edit note
-        {/snippet}
-      </Button>
-    {/if}
+    <Fab icon="edit" onclick={() => (isEditing = true)} />
   {/snippet}
 </Card>

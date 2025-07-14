@@ -3,7 +3,7 @@ import type { TransactionCategory } from '../../dexie/models';
 import { getDefaultCategory } from '../../lib/categories';
 import { formatDateKey } from '../../lib/date';
 import { appState } from '../../stores/app.svelte';
-    import { settingsStore } from '../../stores/settings.svelte';
+import { settingsStore } from '../../stores/settings.svelte';
 import { toastStore } from '../../stores/toast.svelte';
 import { reactiveTransactions } from '../../stores/transactions.svelte';
 import BottomSheet from '../ui/BottomSheet.svelte';
