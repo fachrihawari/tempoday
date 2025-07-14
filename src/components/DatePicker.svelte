@@ -13,7 +13,7 @@ import Icon from './ui/Icon.svelte';
 
 let scrollContainer = $state<HTMLElement>();
 let dateRange = $state<Date[]>([]);
-let isExpanded = $state(false); // State to control date picker visibility
+let isExpanded = $state(true); // State to control date picker visibility
 let isUserScrolling = $state(false); // Flag to prevent auto-scroll during user interaction
 let scrollTimeout: ReturnType<typeof setTimeout>;
 let isLoadingDates = $state(false); // Flag to prevent multiple simultaneous loads
