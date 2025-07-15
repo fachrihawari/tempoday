@@ -9,7 +9,7 @@ import Card from './ui/Card.svelte';
 import EmptyState from './ui/EmptyState.svelte';
 import Icon from './ui/Icon.svelte';
 import Loading from './ui/Loading.svelte';
-import PrioritySelector from './ui/PrioritySelector.svelte';
+import PrioritySelector from './tasks/PrioritySelector.svelte';
 
 // Reactive values from the store
 let {

@@ -4,7 +4,7 @@ import {
   type TaskPriority,
   getPriorityConfig,
 } from '../../lib/priority';
-import Icon from './Icon.svelte';
+import Icon from '../ui/Icon.svelte';
 
 interface Props {
   value: TaskPriority;

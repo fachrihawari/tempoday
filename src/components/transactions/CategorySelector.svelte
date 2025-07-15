@@ -4,7 +4,7 @@ import {
   getCategoriesForType,
   getCategoryConfig,
 } from '../../lib/categories';
-import Icon from './Icon.svelte';
+import Icon from '../ui/Icon.svelte';
 
 interface Props {
   value?: TransactionCategory;

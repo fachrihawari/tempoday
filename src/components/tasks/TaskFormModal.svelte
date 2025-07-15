@@ -7,7 +7,7 @@ import { toastStore } from '../../stores/toast.svelte';
 import BottomSheet from '../ui/BottomSheet.svelte';
 import Button from '../ui/Button.svelte';
 import Input from '../ui/Input.svelte';
-import PrioritySelector from '../ui/PrioritySelector.svelte';
+import PrioritySelector from './PrioritySelector.svelte';
 
 type Props = {
   open: boolean;
