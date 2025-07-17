@@ -162,10 +162,10 @@ function handlePriorityChange(taskId: string, priority: TaskPriority) {
                 <Select
                   value={task.priority}
                   options={selectPriorityConfig}
+                  compact
                   onSelect={(priority: string) =>
                     handlePriorityChange(task.id, priority as TaskPriority)}
                   disabled={isUpdatingPriority[task.id]}
-                  size="sm"
                 />
               </div>
             {/if}

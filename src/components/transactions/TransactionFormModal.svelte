@@ -119,8 +119,6 @@ function resetForm() {
           transactionType={type}
           onSelect={(selectedCategory: TransactionCategory) =>
             (category = selectedCategory)}
-          size="md"
-          dropdownWidth="full"
           class="w-full"
         />
       </div>

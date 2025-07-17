@@ -175,22 +175,3 @@ export function getDefaultCategory(
 ): TransactionCategory {
   return type === 'income' ? 'work' : 'other';
 }
-
-/**
- * Filter categories by search term
- */
-export function filterCategories(
-  categories: TransactionCategory[],
-  searchTerm: string,
-): TransactionCategory[] {
-  if (!searchTerm.trim()) return categories;
-
-  const lowerSearch = searchTerm.toLowerCase();
-  return categories.filter((category) => {
-    const config = getCategoryConfig(category);
-    return (
-      config.label.toLowerCase().includes(lowerSearch) ||
-      config.description.toLowerCase().includes(lowerSearch)
-    );
-  });
-}
