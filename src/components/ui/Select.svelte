@@ -3,6 +3,7 @@ interface SelectOption {
   value: string;
   label: string;
   icon?: string;
+  description?: string;
   color?: string;
   bgColor?: string;
   borderColor?: string;
@@ -36,20 +37,20 @@ const selectId = id || (label ? `select-${label}` : undefined);
 
 const currentConfig = $derived(
   options.find((option) => option.value === value) || {
-    label: '',
+    label: placeholder || 'Select...',
     icon: '',
-    color: 'text-gray-900',
-    bgColor: 'bg-white',
-    borderColor: 'border-gray-300',
+    color: 'text-gray-900 dark:text-gray-100',
+    bgColor: 'bg-white dark:bg-gray-800',
+    borderColor: 'border-gray-300 dark:border-gray-600',
   },
 );
 
-const classList = $derived.by(() => {
+const selectClasses = $derived.by(() => {
   return `
     w-full rounded-lg border ${currentConfig.borderColor} ${currentConfig.bgColor} ${currentConfig.color} transition-colors
     focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400
     ${disabled ? 'opacity-50 cursor-not-allowed bg-gray-50 dark:bg-gray-700' : 'hover:border-gray-400 dark:hover:border-gray-500'}
-    ${compact ? 'h-6 text-xs' : 'h-10 text-sm'}
+    ${compact ? 'px-2 py-1 text-xs h-6' : 'px-3 py-2 text-sm h-10'}
   `;
 });
 </script>
@@ -73,7 +74,7 @@ const classList = $derived.by(() => {
         onSelect(value);
       }
     }}
-    class={classList}
+    class={selectClasses}
   >
     {#if placeholder}
       <option value="" disabled selected={!value}>
@@ -82,7 +83,7 @@ const classList = $derived.by(() => {
     {/if}
     {#each options as option (option.value)}
       <option value={option.value}>
-        {#if option.icon}{option.icon}&nbsp;&nbsp;{/if}{option.label}
+        {#if option.icon}{option.icon}{'  '}{/if}{option.label}{#if option.description}{' - '}{option.description}{/if}
       </option>
     {/each}
   </select>

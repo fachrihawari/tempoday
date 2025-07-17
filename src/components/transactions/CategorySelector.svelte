@@ -37,6 +37,7 @@ const categoryOptions = $derived(
       value: category,
       label: config.label,
       icon: config.icon,
+      description: config.description,
       color: config.color,
       bgColor: config.bgColor,
       borderColor: config.borderColor,
