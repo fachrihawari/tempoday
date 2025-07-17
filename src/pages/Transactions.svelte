@@ -148,6 +148,7 @@ function formatAmount(amount: number): string {
               <div class="flex items-center gap-2">
                 <CategorySelector
                   compact
+                  class="!w-3/4"
                   value={transaction.category}
                   transactionType={transaction.type}
                   onSelect={async (newCategory) => {
@@ -165,11 +166,7 @@ function formatAmount(amount: number): string {
                     }
                   }}
                   disabled={isUpdating[transaction.id]}
-                  class="text-xs"
                 />
-                <p class="text-xs text-gray-500 dark:text-gray-400 capitalize">
-                  {transaction.type}
-                </p>
               </div>
             </div>
 
