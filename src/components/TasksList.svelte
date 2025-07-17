@@ -1,6 +1,10 @@
 <script lang="ts">
 import { formatDateKey } from '../lib/date';
-import { type TaskPriority, getPriorityConfig } from '../lib/priority';
+import {
+  type TaskPriority,
+  getPriorityConfig,
+  selectPriorityConfig,
+} from '../lib/priority';
 import { appState } from '../stores/app.svelte';
 import { reactiveTasks } from '../stores/tasks.svelte';
 import { toastStore } from '../stores/toast.svelte';
@@ -9,7 +13,7 @@ import Card from './ui/Card.svelte';
 import EmptyState from './ui/EmptyState.svelte';
 import Icon from './ui/Icon.svelte';
 import Loading from './ui/Loading.svelte';
-import PrioritySelector from './tasks/PrioritySelector.svelte';
+import Select from './ui/Select.svelte';
 
 // Reactive values from the store
 let {
@@ -155,13 +159,13 @@ function handlePriorityChange(taskId: string, priority: TaskPriority) {
             <!-- Priority Selector (for incomplete tasks) -->
             {#if !task.completed}
               <div class="flex-shrink-0 mt-0.5">
-                <PrioritySelector
+                <Select
                   value={task.priority}
-                  onSelect={(priority: TaskPriority) =>
-                    handlePriorityChange(task.id, priority)}
+                  options={selectPriorityConfig}
+                  onSelect={(priority: string) =>
+                    handlePriorityChange(task.id, priority as TaskPriority)}
                   disabled={isUpdatingPriority[task.id]}
                   size="sm"
-                  dropdownWidth="auto"
                 />
               </div>
             {/if}

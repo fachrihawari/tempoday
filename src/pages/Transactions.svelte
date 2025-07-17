@@ -2,10 +2,10 @@
 <script lang="ts">
 import { onMount } from 'svelte';
 import DatePicker from '../components/DatePicker.svelte';
+import CategorySelector from '../components/transactions/CategorySelector.svelte';
 import TransactionFormModal from '../components/transactions/TransactionFormModal.svelte';
 import Button from '../components/ui/Button.svelte';
 import Card from '../components/ui/Card.svelte';
-import CategorySelector from '../components/transactions/CategorySelector.svelte';
 import EmptyState from '../components/ui/EmptyState.svelte';
 import Fab from '../components/ui/Fab.svelte';
 import Icon from '../components/ui/Icon.svelte';

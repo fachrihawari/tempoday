@@ -1,13 +1,13 @@
 <script lang="ts">
 import { formatDateKey } from '../../lib/date';
-import type { TaskPriority } from '../../lib/priority';
+import { type TaskPriority, selectPriorityConfig } from '../../lib/priority';
 import { appState } from '../../stores/app.svelte';
 import { reactiveTasks } from '../../stores/tasks.svelte';
 import { toastStore } from '../../stores/toast.svelte';
 import BottomSheet from '../ui/BottomSheet.svelte';
 import Button from '../ui/Button.svelte';
 import Input from '../ui/Input.svelte';
-import PrioritySelector from './PrioritySelector.svelte';
+import Select from '../ui/Select.svelte';
 
 type Props = {
   open: boolean;
@@ -79,37 +79,17 @@ async function handleCreateTask() {
 
     <div class="grid grid-cols-2 gap-4">
       <div>
-        <label
-          for="start-time"
-          class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-          >Start Time</label
-        >
-        <input
-          id="start-time"
-          type="time"
-          bind:value={startTime}
-          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-        />
+        <Input bind:value={startTime} type="time" label="Start Time" />
       </div>
 
       <div>
-        <label
-          for="end-time"
-          class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-          >End Time</label
-        >
-        <input
-          id="end-time"
-          type="time"
-          bind:value={endTime}
-          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-        />
+        <Input bind:value={endTime} type="time" label="End Time" />
       </div>
     </div>
 
-    <PrioritySelector
-      value={priority}
-      onSelect={(priority) => (priority = priority)}
+    <Select
+      options={selectPriorityConfig}
+      bind:value={priority}
       label="Task Priority"
     />
 
