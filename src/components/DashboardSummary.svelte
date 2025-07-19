@@ -3,7 +3,6 @@ import { onMount } from 'svelte';
 import { formatCurrency } from '../lib/currency';
 import { formatDateKey } from '../lib/date';
 import { getPriorityConfig } from '../lib/priority';
-import { reactiveNotes } from '../stores/notes.svelte';
 import { reactiveRouter } from '../stores/router.svelte';
 import { settingsStore } from '../stores/settings.svelte';
 import { reactiveTasks } from '../stores/tasks.svelte';
@@ -18,21 +17,11 @@ let {
   tasks,
   isLoading: tasksLoading,
   completedCount,
-  totalCount,
 } = $derived(reactiveTasks);
 let {
-  note,
-  isLoading: noteLoading,
-  hasNote,
-  content,
-} = $derived(reactiveNotes);
-let {
-  transactions,
   isLoading: transactionsLoading,
   totalIncome,
   totalExpenses,
-  netBalance,
-  totalCount: transactionCount,
   expenseTransactions,
 } = $derived(reactiveTransactions);
 let { settings } = $derived(settingsStore);
@@ -43,7 +32,6 @@ const router = $derived(reactiveRouter);
 onMount(() => {
   const dateKey = formatDateKey(new Date());
   reactiveTasks.loadTasks(dateKey);
-  reactiveNotes.loadNote(dateKey);
   reactiveTransactions.loadTransactions(dateKey);
   settingsStore.loadSettings();
 });

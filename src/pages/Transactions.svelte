@@ -139,35 +139,31 @@ function formatAmount(amount: number): string {
                 : 'bg-red-500 dark:bg-red-400'}"
             ></div>
 
-            <div class="flex-1 min-w-0">
-              <div class="flex items-center gap-2 mb-1">
-                <p class="text-sm text-gray-900 dark:text-gray-100 truncate">
-                  {transaction.description}
-                </p>
-              </div>
-              <div class="flex items-center gap-2">
-                <CategorySelector
-                  compact
-                  class="!w-3/4"
-                  value={transaction.category}
-                  transactionType={transaction.type}
-                  onSelect={async (newCategory) => {
-                    try {
-                      await reactiveTransactions.updateTransaction(
-                        transaction.id,
-                        {
-                          category: newCategory,
-                        },
-                      );
-                      toastStore.success("Category updated");
-                    } catch (err) {
-                      // Error is already handled by the store
-                      console.error("Failed to update category:", err);
-                    }
-                  }}
-                  disabled={isUpdating[transaction.id]}
-                />
-              </div>
+            <div class="flex flex-col flex-1 gap-2 min-w-0">
+              <p class="text-sm text-gray-900 dark:text-gray-100 truncate">
+                {transaction.description}
+              </p>
+              <CategorySelector
+                compact
+                class="!w-3/4"
+                value={transaction.category}
+                transactionType={transaction.type}
+                onSelect={async (newCategory) => {
+                  try {
+                    await reactiveTransactions.updateTransaction(
+                      transaction.id,
+                      {
+                        category: newCategory,
+                      },
+                    );
+                    toastStore.success("Category updated");
+                  } catch (err) {
+                    // Error is already handled by the store
+                    console.error("Failed to update category:", err);
+                  }
+                }}
+                disabled={isUpdating[transaction.id]}
+              />
             </div>
 
             <div class="text-right">
