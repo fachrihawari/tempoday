@@ -257,43 +257,40 @@ export class ReactiveTasks {
   }
 
   /**
-   * Get completed tasks count (reactive derived value)
+   * Get total tasks count
    */
-  get completedCount(): number {
-    return this.filteredTasks.filter((task) => task.completed === 1).length;
-  }
+  totalCount = $derived(this.filteredTasks.length);
 
   /**
-   * Get total tasks count (reactive derived value)
+   * Get incomplete tasks
    */
-  get totalCount(): number {
-    return this.filteredTasks.length;
-  }
+  incompleteTasks = $derived(
+    this.filteredTasks.filter((task) => task.completed === 0),
+  );
 
   /**
-   * Get pending tasks count (reactive derived value)
+   * Get pending tasks count
    */
-  get pendingCount(): number {
-    return this.filteredTasks.filter((task) => task.completed === 0).length;
-  }
+  pendingCount = $derived(this.incompleteTasks.length);
 
   /**
-   * Get urgent tasks count (reactive derived value)
+   * Get completed tasks count
    */
-  get urgentCount(): number {
-    return this.filteredTasks.filter(
-      (task) => task.priority === 'urgent' && task.completed === 0,
-    ).length;
-  }
+  completedCount = $derived(this.totalCount - this.pendingCount);
 
   /**
-   * Get high priority tasks count (reactive derived value)
+   * Get urgent tasks count
    */
-  get highPriorityCount(): number {
-    return this.filteredTasks.filter(
-      (task) => task.priority === 'high' && task.completed === 0,
-    ).length;
-  }
+  urgentCount = $derived(
+    this.incompleteTasks.filter((t) => t.priority === 'urgent').length,
+  );
+
+  /**
+   * Get high priority tasks count
+   */
+  highPriorityCount = $derived(
+    this.incompleteTasks.filter((t) => t.priority === 'high').length,
+  );
 
   /**
    * Clear error state

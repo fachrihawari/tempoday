@@ -1,6 +1,6 @@
 <script lang="ts">
-import DashboardSummary from '../components/DashboardSummary.svelte';
 import Assistant from '../components/dashboard/Assistant.svelte';
+import Summary from '../components/dashboard/Summary.svelte';
 import PageHeader from '../components/ui/PageHeader.svelte';
 </script>
 
@@ -15,7 +15,8 @@ import PageHeader from '../components/ui/PageHeader.svelte';
   <div class="flex-1 overflow-y-auto">
     <!-- Assistant Section -->
     <Assistant />
-    <!-- Today's Summary Section -->
-    <DashboardSummary />
+    
+    <!-- Summary Section -->
+    <Summary />
   </div>
 </div>
