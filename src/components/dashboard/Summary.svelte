@@ -121,6 +121,13 @@ const shouldShowSummary = $derived.by(() => {
                 {/each}
 
                 <div class="flex gap-x-2">
+                  {#if pendingCount > 3}
+                    <div class="text-center py-2">
+                      <p class="text-sm text-blue-600 dark:text-blue-400">
+                        +{pendingCount - 3} more pending tasks
+                      </p>
+                    </div>
+                  {/if}
                   {#if completedCount > 0}
                     <div
                       class="text-center py-2 border-gray-200 dark:border-gray-700"
@@ -129,13 +136,6 @@ const shouldShowSummary = $derived.by(() => {
                         class="text-sm text-green-600 dark:text-green-400 font-medium"
                       >
                         ✓ {completedCount} completed today
-                      </p>
-                    </div>
-                  {/if}
-                  {#if pendingCount > 3}
-                    <div class="text-center py-2">
-                      <p class="text-sm text-blue-600 dark:text-blue-400">
-                        +{pendingCount - 3} more pending tasks
                       </p>
                     </div>
                   {/if}
