@@ -50,7 +50,7 @@ async function handleDelete() {
 }
 </script>
 
-<div class="flex items-start gap-3 {compact ? 'p-2' : 'p-3'} bg-white dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 transition-colors">
+<div class="flex items-start {compact ? 'p-2 gap-2' : 'p-3 gap-3'} bg-white dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 transition-colors">
   <!-- Checkbox -->
   <button
     onclick={toggleTask}

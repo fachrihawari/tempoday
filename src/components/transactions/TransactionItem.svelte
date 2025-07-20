@@ -1,39 +1,39 @@
 <script lang="ts">
-  import type { Transaction } from "../../dexie/models";
-  import { getCategoryConfig } from "../../lib/categories";
-  import { formatCurrency } from "../../lib/currency";
-  import { settingsStore } from "../../stores/settings.svelte";
-  import { toastStore } from "../../stores/toast.svelte";
-  import { reactiveTransactions } from "../../stores/transactions.svelte";
-  import Button from "../ui/Button.svelte";
-  import Icon from "../ui/Icon.svelte";
-  import CategorySelector from "./CategorySelector.svelte";
+import type { Transaction } from '../../dexie/models';
+import { getCategoryConfig } from '../../lib/categories';
+import { formatCurrency } from '../../lib/currency';
+import { settingsStore } from '../../stores/settings.svelte';
+import { toastStore } from '../../stores/toast.svelte';
+import { reactiveTransactions } from '../../stores/transactions.svelte';
+import Button from '../ui/Button.svelte';
+import Icon from '../ui/Icon.svelte';
+import CategorySelector from './CategorySelector.svelte';
 
-  interface Props {
-    transaction: Transaction;
-    compact?: boolean;
-    showDate?: boolean;
-  }
+interface Props {
+  transaction: Transaction;
+  compact?: boolean;
+  showDate?: boolean;
+}
 
-  let { transaction, compact = false, showDate = false }: Props = $props();
+let { transaction, compact = false, showDate = false }: Props = $props();
 
-  const { settings } = $derived(settingsStore);
-  const { isDeleting, isUpdating } = $derived(reactiveTransactions);
-  const categoryConfig = $derived(getCategoryConfig(transaction.category));
-  const isIncome = $derived(transaction.type === "income");
+const { settings } = $derived(settingsStore);
+const { isDeleting, isUpdating } = $derived(reactiveTransactions);
+const categoryConfig = $derived(getCategoryConfig(transaction.category));
+const isIncome = $derived(transaction.type === 'income');
 
-  // Helper function to format currency with current settings
-  function formatAmount(amount: number): string {
-    const currency = settings?.currency || "USD";
-    const locale = settings?.locale || "en-US";
-    return formatCurrency(amount, currency, locale);
-  }
+// Helper function to format currency with current settings
+function formatAmount(amount: number): string {
+  const currency = settings?.currency || 'USD';
+  const locale = settings?.locale || 'en-US';
+  return formatCurrency(amount, currency, locale);
+}
 </script>
 
 <div
-  class="flex items-center gap-3 {compact
-    ? 'p-2'
-    : 'p-3'} rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 group relative border border-gray-100 dark:border-gray-700"
+  class="flex items-center {compact
+    ? 'p-2 gap-2'
+    : 'p-3 gap-3'} rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 group relative border border-gray-100 dark:border-gray-700"
 >
   {#if compact}
     
