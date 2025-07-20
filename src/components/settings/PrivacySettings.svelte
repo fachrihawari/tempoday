@@ -1,5 +1,5 @@
 <script lang="ts">
-import Icon from './ui/Icon.svelte';
+import Icon from '../ui/Icon.svelte';
 </script>
 
 <div class="bg-gradient-to-br from-green-50 via-emerald-50 to-green-100 dark:from-green-900/30 dark:via-emerald-900/25 dark:to-green-800/20 rounded-lg p-4 border border-green-200 dark:border-green-700/50">

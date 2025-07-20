@@ -1,8 +1,7 @@
 <script lang="ts">
-import AIAssistant from '../components/AIAssistant.svelte';
-import DashboardSummary from '../components/DashboardSummary.svelte';
+import Assistant from '../components/dashboard/Assistant.svelte';
+import Summary from '../components/dashboard/Summary.svelte';
 import PageHeader from '../components/ui/PageHeader.svelte';
-import { formatDate } from '../lib/date';
 </script>
 
 <div class="h-full flex flex-col">
@@ -14,9 +13,10 @@ import { formatDate } from '../lib/date';
 
   <!-- Dashboard Content -->
   <div class="flex-1 overflow-y-auto">
-    <!-- AI Assistant Section -->
-    <AIAssistant />
-    <!-- Today's Summary Section -->
-    <DashboardSummary />
+    <!-- Assistant Section -->
+    <Assistant />
+    
+    <!-- Summary Section -->
+    <Summary />
   </div>
 </div>

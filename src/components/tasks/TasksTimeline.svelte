@@ -1,8 +1,8 @@
 <script lang="ts">
-import type { Task } from '../dexie/models';
-import { formatDateKey } from '../lib/date';
-import { reactiveTasks } from '../stores/tasks.svelte';
-import Icon from './ui/Icon.svelte';
+import type { Task } from '../../dexie/models';
+import { formatDateKey } from '../../lib/date';
+import { reactiveTasks } from '../../stores/tasks.svelte';
+import Icon from '../ui/Icon.svelte';
 
 interface Props {
   selectedDate: Date;

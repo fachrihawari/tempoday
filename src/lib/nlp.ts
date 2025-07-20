@@ -1135,34 +1135,42 @@ function cleanContentFromTokens(
 }
 
 // Example commands for testing (updated with priority examples)
-export const EXAMPLE_COMMANDS = [
+export const EXAMPLE_COMMANDS = {
   // Tasks with priorities
-  'Call dentist ASAP to schedule appointment',
-  'Buy groceries for dinner',
-  'Finish project report by Friday - urgent',
-  'Pick up dry cleaning later',
-  'Email client about meeting - important',
-  'Schedule team meeting for next week',
+  tasks: [
+    'Call dentist ASAP to schedule appointment',
+    'Buy groceries for dinner',
+    'Finish project report by Friday - urgent',
+    'Pick up dry cleaning later',
+    'Email client about meeting - important',
+    'Schedule team meeting for next week',
+  ],
 
   // Notes
-  'Had a great meeting with the team today',
-  'Feeling grateful for family time',
-  'Learned about new productivity techniques',
-  'Today was challenging but rewarding',
-  "Quote: 'Success is not final, failure is not fatal'",
-  "Reflecting on this week's accomplishments",
+  notes: [
+    'Had a great meeting with the team today',
+    'Feeling grateful for family time',
+    'Learned about new productivity techniques',
+    'Today was challenging but rewarding',
+    "Quote: 'Success is not final, failure is not fatal'",
+    "Reflecting on this week's accomplishments",
+  ],
 
   // Transactions
-  'Spent $45 on groceries',
-  'Bought coffee for $4.50',
-  'Paid $120 for electricity bill',
-  'Earned $500 from freelance project',
-  'Received $25 cashback',
-  '$1200 salary payment received',
-  'Purchased lunch $12',
-  'Spend $30 on gas',
-  'Bought apple TV $300000',
-  'Bought iPhone $1200',
-  'Bought Apple TV 1000000000000',
-  'Bought TV 40000000000000000',
-];
+  transactions: [
+    'Spent $45 on groceries',
+    'Bought coffee for $4.50',
+    'Paid $120 for electricity bill',
+    'Earned $500 from freelance project',
+    'Received $25 cashback',
+    '$1200 salary payment received',
+    'Purchased lunch $12',
+    'Spend $30 on gas',
+    'Bought apple TV $300000',
+    'Bought iPhone $1200',
+    'Bought Apple TV 1000000000000',
+    'Bought TV 40000000000000000',
+  ],
+};
+
+//BUG: parsing "Bought coffee for $4.50" still not working correctly

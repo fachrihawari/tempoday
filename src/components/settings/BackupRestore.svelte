@@ -1,15 +1,15 @@
 <script lang="ts">
-import { backupManager } from '../lib/backup';
-import { formatDateKey } from '../lib/date';
-import { appState } from '../stores/app.svelte';
-import { reactiveNotes } from '../stores/notes.svelte';
-import { settingsStore } from '../stores/settings.svelte';
-import { reactiveTasks } from '../stores/tasks.svelte';
-import { reactiveTransactions } from '../stores/transactions.svelte';
-import BottomSheet from './ui/BottomSheet.svelte';
-import Button from './ui/Button.svelte';
-import Icon from './ui/Icon.svelte';
-import Loading from './ui/Loading.svelte';
+import { backupManager } from '../../lib/backup';
+import { formatDateKey } from '../../lib/date';
+import { appState } from '../../stores/app.svelte';
+import { reactiveNotes } from '../../stores/notes.svelte';
+import { settingsStore } from '../../stores/settings.svelte';
+import { reactiveTasks } from '../../stores/tasks.svelte';
+import { reactiveTransactions } from '../../stores/transactions.svelte';
+import BottomSheet from '../ui/BottomSheet.svelte';
+import Button from '../ui/Button.svelte';
+import Icon from '../ui/Icon.svelte';
+import Loading from '../ui/Loading.svelte';
 
 let showBackupModal = $state(false);
 let showRestoreModal = $state(false);

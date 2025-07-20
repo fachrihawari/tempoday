@@ -1,8 +1,8 @@
 <script lang="ts">
 import DatePicker from '../components/DatePicker.svelte';
-import TasksList from '../components/TasksList.svelte';
-import TasksTimeline from '../components/TasksTimeline.svelte';
 import TaskFormModal from '../components/tasks/TaskFormModal.svelte';
+import TasksList from '../components/tasks/TasksList.svelte';
+import TasksTimeline from '../components/tasks/TasksTimeline.svelte';
 import Button from '../components/ui/Button.svelte';
 import Fab from '../components/ui/Fab.svelte';
 import Icon from '../components/ui/Icon.svelte';
@@ -51,7 +51,7 @@ const router = $derived(reactiveRouter);
 <DatePicker />
 
 <!-- Day Content -->
-<div class="flex-1 overflow-y-auto">
+<div class="flex-1">
   {#if viewMode === "timeline"}
     <!-- Timeline View -->
     <div class="relative">

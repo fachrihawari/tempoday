@@ -1,7 +1,7 @@
 <script lang="ts">
-import { toastStore } from '../stores/toast.svelte';
-import Button from './ui/Button.svelte';
-import Icon from './ui/Icon.svelte';
+import { toastStore } from '../../stores/toast.svelte';
+import Button from '../ui/Button.svelte';
+import Icon from '../ui/Icon.svelte';
 
 // Svelte 5 approach: Use callback props
 interface Props {

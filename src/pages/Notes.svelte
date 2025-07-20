@@ -1,26 +1,41 @@
 <script lang="ts">
+import { onMount } from 'svelte';
 import DatePicker from '../components/DatePicker.svelte';
-import BottomSheet from '../components/ui/BottomSheet.svelte';
 import Button from '../components/ui/Button.svelte';
 import Card from '../components/ui/Card.svelte';
-import EmptyState from '../components/ui/EmptyState.svelte';
-import Fab from '../components/ui/Fab.svelte';
 import Icon from '../components/ui/Icon.svelte';
-import Loading from '../components/ui/Loading.svelte';
 import PageHeader from '../components/ui/PageHeader.svelte';
-import Textarea from '../components/ui/Textarea.svelte';
-import { formatDate, formatDateKey } from '../lib/date';
+import { formatDateKey } from '../lib/date';
 import { appState } from '../stores/app.svelte';
 import { reactiveNotes } from '../stores/notes.svelte';
 import { reactiveRouter } from '../stores/router.svelte';
 import { toastStore } from '../stores/toast.svelte';
+import '@milkdown/crepe/theme/common/style.css';
+import '@milkdown/crepe/theme/frame.css';
+import { Crepe } from '@milkdown/crepe';
 
 // Reactive values from the store
-let { isLoading, isSaving, error, content, hasNote } = $derived(reactiveNotes);
+let { error, content } = $derived(reactiveNotes);
 let router = $derived(reactiveRouter);
 
-let isEditing = $state(false);
-let editingText = $state('');
+// Debounce timeout for auto-save
+let saveTimeout: ReturnType<typeof setTimeout> | null = null;
+
+// Debounced save function
+function debouncedSave(markdown: string) {
+  // Clear existing timeout
+  if (saveTimeout) {
+    clearTimeout(saveTimeout);
+  }
+
+  // Set new timeout for auto-save (1000ms delay)
+  saveTimeout = setTimeout(async () => {
+    reactiveNotes.saveNote({
+      date: formatDateKey(appState.selectedDate),
+      content: markdown,
+    });
+  }, 500);
+}
 
 // Watch for date changes and load note
 $effect(() => {
@@ -36,41 +51,29 @@ $effect(() => {
   }
 });
 
-function startEditing() {
-  editingText = content;
-  isEditing = true;
-}
+onMount(() => {
+  // Initialize the editor
+  const editor = new Crepe({
+    root: '#editor',
+    defaultValue: content || '', // FIXME: Ensure the content is loaded before initializing
+  }).on((api) => {
+    // Update reactiveNotes when content changes with debounce
+    api.markdownUpdated((_ctx, markdown) => {
+      debouncedSave(markdown);
+    });
+  });
 
-async function saveNote(event?: Event) {
-  if (event) {
-    event.preventDefault();
-  }
+  editor.create();
 
-  const dateKey = formatDateKey(appState.selectedDate);
-  try {
-    await reactiveNotes.saveNote({ content: editingText, date: dateKey });
-    toastStore.success('Note saved successfully');
-    cancelEditing();
-  } catch (err) {
-    console.error('Failed to save note:', err);
-    // Error is already handled by reactive store
-  }
-}
-
-function cancelEditing() {
-  editingText = '';
-  isEditing = false;
-}
-
-function handleKeydown(event: KeyboardEvent) {
-  if (event.key === 'Escape') {
-    cancelEditing();
-  }
-  // Allow Ctrl+Enter or Cmd+Enter to save
-  if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
-    saveNote();
-  }
-}
+  // Cleanup on unmount
+  return () => {
+    // Clear any pending save timeout
+    if (saveTimeout) {
+      clearTimeout(saveTimeout);
+    }
+    editor.destroy();
+  };
+});
 </script>
 
 <!-- Header Component -->
@@ -89,77 +92,5 @@ function handleKeydown(event: KeyboardEvent) {
 <DatePicker />
 
 <Card>
-  {#snippet children()}
-    <!-- Note Edit Form -->
-    <BottomSheet
-      bind:open={isEditing}
-      title={formatDate(appState.selectedDate)}
-    >
-      {#snippet children()}
-        <form onsubmit={saveNote} class="space-y-6">
-          <Textarea
-            bind:value={editingText}
-            onkeydown={handleKeydown}
-            placeholder="Write your thoughts, reflections, or anything you want to remember about this day..."
-            label="Daily Note"
-            theme="notes"
-            rows={8}
-            autoResize={true}
-            required
-          />
-          <div class="flex gap-3 pt-2">
-            <Button
-              type="button"
-              variant="ghost"
-              onclick={cancelEditing}
-              class="flex-none w-1/4"
-            >
-              {#snippet children()}
-                Cancel
-              {/snippet}
-            </Button>
-            <Button
-              type="submit"
-              variant="notes"
-              class="flex-1"
-              disabled={isSaving}
-            >
-              {#snippet children()}
-                {#if isSaving}
-                  <Icon name="loader" size="sm" class="mr-2 animate-spin" />
-                  Saving...
-                {:else}
-                  <Icon name="save" size="sm" class="mr-2" />
-                  Save Note
-                {/if}
-              {/snippet}
-            </Button>
-          </div>
-        </form>
-      {/snippet}
-    </BottomSheet>
-
-    <!-- Note Content - Always visible -->
-    <div class={hasNote ? "mb-4" : ""}>
-      {#if isLoading}
-        <Loading size="xl" message="Loading note..." />
-      {:else if hasNote}
-        <button onclick={startEditing} class="cursor-text w-full text-left">
-          <div
-            class="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 min-h-[80px] whitespace-pre-wrap text-sm text-gray-900 dark:text-gray-100 leading-relaxed border border-gray-200 dark:border-gray-700"
-          >
-            {content}
-          </div>
-        </button>
-      {:else}
-        <EmptyState
-          icon="edit"
-          title="No note for this day"
-          subtitle="Write your first note to get started!"
-        />
-      {/if}
-    </div>
-
-    <Fab icon="edit" onclick={() => (isEditing = true)} />
-  {/snippet}
+  <div id="editor"></div>
 </Card>

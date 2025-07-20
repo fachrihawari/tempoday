@@ -250,7 +250,7 @@ function handleScroll() {
 
 <!-- Header and Date Picker -->
 <div
-  class="sticky top-0 py-2 bg-white dark:bg-gray-900 z-10 border-b border-gray-200 dark:border-gray-800"
+  class="sticky top-0 py-2 bg-white dark:bg-gray-900 z-[1] border-b border-gray-200 dark:border-gray-800"
 >
   <!-- Current Date Display -->
   <div class="px-4 flex justify-between flex-row-reverse items-center">

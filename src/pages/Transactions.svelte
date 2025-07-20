@@ -3,9 +3,9 @@
 import { onMount } from 'svelte';
 import DatePicker from '../components/DatePicker.svelte';
 import TransactionFormModal from '../components/transactions/TransactionFormModal.svelte';
+import TransactionItem from '../components/transactions/TransactionItem.svelte';
 import Button from '../components/ui/Button.svelte';
 import Card from '../components/ui/Card.svelte';
-import CategorySelector from '../components/ui/CategorySelector.svelte';
 import EmptyState from '../components/ui/EmptyState.svelte';
 import Fab from '../components/ui/Fab.svelte';
 import Icon from '../components/ui/Icon.svelte';
@@ -24,8 +24,6 @@ const router = $derived(reactiveRouter);
 let {
   transactions,
   isLoading,
-  isDeleting,
-  isUpdating,
   error,
   totalIncome,
   totalExpenses,
@@ -129,87 +127,7 @@ function formatAmount(amount: number): string {
         <Loading size="xl" message="Loading transactions..." />
       {:else}
         {#each transactions as transaction (transaction.id)}
-          <div
-            class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 group relative border border-gray-100 dark:border-gray-700"
-          >
-            <div
-              class="flex-shrink-0 w-3 h-3 rounded-full {transaction.type ===
-              'income'
-                ? 'bg-green-500 dark:bg-green-400'
-                : 'bg-red-500 dark:bg-red-400'}"
-            ></div>
-
-            <div class="flex-1 min-w-0">
-              <div class="flex items-center gap-2 mb-1">
-                <p class="text-sm text-gray-900 dark:text-gray-100 truncate">
-                  {transaction.description}
-                </p>
-              </div>
-              <div class="flex items-center gap-2">
-                <CategorySelector
-                  value={transaction.category}
-                  transactionType={transaction.type}
-                  onSelect={async (newCategory) => {
-                    try {
-                      await reactiveTransactions.updateTransaction(
-                        transaction.id,
-                        {
-                          category: newCategory,
-                        },
-                      );
-                      toastStore.success("Category updated");
-                    } catch (err) {
-                      // Error is already handled by the store
-                      console.error("Failed to update category:", err);
-                    }
-                  }}
-                  disabled={isUpdating[transaction.id]}
-                  size="sm"
-                  dropdownWidth="wide"
-                  class="text-xs"
-                />
-                <p class="text-xs text-gray-500 dark:text-gray-400 capitalize">
-                  {transaction.type}
-                </p>
-              </div>
-            </div>
-
-            <div class="text-right">
-              <p
-                class="text-sm font-medium {transaction.type === 'income'
-                  ? 'text-green-600 dark:text-green-400'
-                  : 'text-red-600 dark:text-red-400'}"
-              >
-                {transaction.type === "income" ? "+" : "-"}{formatAmount(
-                  transaction.amount,
-                )}
-              </p>
-            </div>
-
-            <Button
-              variant="ghost"
-              size="sm"
-              onclick={() => {
-                reactiveTransactions.deleteTransaction(transaction.id);
-              }}
-              disabled={isDeleting[transaction.id]}
-              class={`!p-1 text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 !w-6 !h-6
-                ${
-                  isDeleting[transaction.id]
-                    ? "opacity-50 cursor-not-allowed"
-                    : ""
-                }
-              `}
-            >
-              {#snippet children()}
-                {#if isDeleting[transaction.id]}
-                  <Icon name="loader" size="sm" class="animate-spin" />
-                {:else}
-                  <Icon name="trash" size="sm" />
-                {/if}
-              {/snippet}
-            </Button>
-          </div>
+          <TransactionItem {transaction} />
         {/each}
 
         {#if transactions.length === 0}

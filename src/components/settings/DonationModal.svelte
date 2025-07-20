@@ -3,10 +3,10 @@ import {
   DONATION_TIERS,
   type DonationTier,
   revenueCatService,
-} from '../lib/revenuecat';
-import BottomSheet from './ui/BottomSheet.svelte';
-import Button from './ui/Button.svelte';
-import Icon from './ui/Icon.svelte';
+} from '../../lib/revenuecat';
+import BottomSheet from '../ui/BottomSheet.svelte';
+import Button from '../ui/Button.svelte';
+import Icon from '../ui/Icon.svelte';
 
 interface Props {
   open: boolean;

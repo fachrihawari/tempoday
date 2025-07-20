@@ -8,9 +8,9 @@ import { toastStore } from '../../stores/toast.svelte';
 import { reactiveTransactions } from '../../stores/transactions.svelte';
 import BottomSheet from '../ui/BottomSheet.svelte';
 import Button from '../ui/Button.svelte';
-import CategorySelector from '../ui/CategorySelector.svelte';
 import Icon from '../ui/Icon.svelte';
 import Input from '../ui/Input.svelte';
+import CategorySelector from './CategorySelector.svelte';
 
 type Props = {
   open: boolean;
@@ -119,9 +119,6 @@ function resetForm() {
           transactionType={type}
           onSelect={(selectedCategory: TransactionCategory) =>
             (category = selectedCategory)}
-          size="md"
-          dropdownWidth="full"
-          class="w-full"
         />
       </div>
 

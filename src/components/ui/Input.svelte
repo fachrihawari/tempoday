@@ -1,10 +1,11 @@
 <script lang="ts">
+import type { HTMLInputAttributes } from 'svelte/elements';
 import { type SectionTheme, sectionThemes } from '../../lib/theme';
 
 interface Props {
   value: string | number;
   placeholder?: string;
-  type?: 'text' | 'number' | 'email' | 'password';
+  type?: HTMLInputAttributes['type'];
   disabled?: boolean;
   required?: boolean;
   step?: string;
@@ -72,7 +73,10 @@ function handleBlur() {
 
 <div class="space-y-2">
   {#if label}
-    <label for="input-{label}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+    <label
+      for="input-{label}"
+      class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+    >
       {label}
 
       {#if required}
@@ -95,10 +99,10 @@ function handleBlur() {
     {oninput}
     onfocus={handleFocus}
     onblur={handleBlur}
-    class={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 text-sm transition-all duration-200
+    class={`w-full px-3 h-10 border rounded-lg focus:outline-none focus:ring-2 text-sm transition-all duration-200
     ${borderColor()}
     ${focusColor()}
-    ${disabled ? 'bg-gray-50 dark:bg-gray-700 cursor-not-allowed' : 'bg-white dark:bg-gray-800'}
+    ${disabled ? "bg-gray-50 dark:bg-gray-700 cursor-not-allowed" : "bg-white dark:bg-gray-800"}
     text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400
     ${className}`}
   />

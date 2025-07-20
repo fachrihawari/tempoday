@@ -30,6 +30,29 @@ export class ReactiveTransactions {
   // Current date being displayed
   currentDate = $state<string>('');
 
+  // Derived reactive values
+  incomeTransactions = $derived(
+    this.transactions.filter((t) => t.type === 'income'),
+  );
+
+  expenseTransactions = $derived(
+    this.transactions.filter((t) => t.type === 'expense'),
+  );
+
+  totalIncome = $derived(
+    this.incomeTransactions.reduce((sum, t) => sum + t.amount, 0),
+  );
+
+  totalExpenses = $derived(
+    this.expenseTransactions.reduce((sum, t) => sum + t.amount, 0),
+  );
+
+  netBalance = $derived(this.totalIncome - this.totalExpenses);
+
+  totalCount = $derived(this.transactions.length);
+
+  expenseCount = $derived(this.expenseTransactions.length);
+
   /**
    * Get a single transaction by ID
    */
@@ -171,72 +194,6 @@ export class ReactiveTransactions {
     } finally {
       this.isUpdating[transactionId] = false;
     }
-  }
-
-  /**
-   * Get income transactions (reactive derived value)
-   */
-  get incomeTransactions(): Transaction[] {
-    return this.transactions.filter((t) => t.type === 'income');
-  }
-
-  /**
-   * Get expense transactions (reactive derived value)
-   */
-  get expenseTransactions(): Transaction[] {
-    return this.transactions.filter((t) => t.type === 'expense');
-  }
-
-  /**
-   * Get total income for current date (reactive derived value)
-   */
-  get totalIncome(): number {
-    return this.incomeTransactions.reduce((sum, t) => sum + t.amount, 0);
-  }
-
-  /**
-   * Get total expenses for current date (reactive derived value)
-   */
-  get totalExpenses(): number {
-    return this.expenseTransactions.reduce((sum, t) => sum + t.amount, 0);
-  }
-
-  /**
-   * Get net balance for current date (reactive derived value)
-   */
-  get netBalance(): number {
-    return this.totalIncome - this.totalExpenses;
-  }
-
-  /**
-   * Get total transaction count (reactive derived value)
-   */
-  get totalCount(): number {
-    return this.transactions.length;
-  }
-
-  /**
-   * Check if there are any transactions for current date
-   */
-  get hasTransactions(): boolean {
-    return this.transactions.length > 0;
-  }
-
-  /**
-   * Get transactions grouped by category
-   */
-  get transactionsByCategory(): Record<TransactionCategory, Transaction[]> {
-    const grouped: Record<string, Transaction[]> = {};
-
-    this.transactions.forEach((transaction) => {
-      const category = transaction.category || 'other';
-      if (!grouped[category]) {
-        grouped[category] = [];
-      }
-      grouped[category].push(transaction);
-    });
-
-    return grouped as Record<TransactionCategory, Transaction[]>;
   }
 
   /**

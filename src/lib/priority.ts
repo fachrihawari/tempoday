@@ -62,23 +62,6 @@ export function getPriorityConfig(priority: TaskPriority): PriorityConfig {
 }
 
 /**
- * Sort tasks by priority (urgent first, then high, medium, low)
- */
-export function sortTasksByPriority<T extends { priority: TaskPriority }>(
-  tasks: T[],
-): T[] {
-  return [...tasks].sort((a, b) => {
-    const aPriority =
-      PRIORITY_CONFIG[a.priority]?.sortOrder ??
-      PRIORITY_CONFIG.medium.sortOrder;
-    const bPriority =
-      PRIORITY_CONFIG[b.priority]?.sortOrder ??
-      PRIORITY_CONFIG.medium.sortOrder;
-    return aPriority - bPriority;
-  });
-}
-
-/**
  * Sort tasks by priority, then by completion status, then by creation date
  */
 export function sortTasksComprehensive<
@@ -110,75 +93,11 @@ export function sortTasksComprehensive<
   });
 }
 
-/**
- * Filter tasks by priority
- */
-export function filterTasksByPriority<T extends { priority: TaskPriority }>(
-  tasks: T[],
-  priorities: TaskPriority[],
-): T[] {
-  if (priorities.length === 0) return tasks;
-  return tasks.filter((task) => priorities.includes(task.priority));
-}
-
-/**
- * Get priority statistics for a list of tasks
- */
-export function getPriorityStats<
-  T extends { priority: TaskPriority; completed: 0 | 1 },
->(
-  tasks: T[],
-): Record<TaskPriority, { total: number; completed: number; pending: number }> {
-  const stats: Record<
-    TaskPriority,
-    { total: number; completed: number; pending: number }
-  > = {
-    urgent: { total: 0, completed: 0, pending: 0 },
-    high: { total: 0, completed: 0, pending: 0 },
-    medium: { total: 0, completed: 0, pending: 0 },
-    low: { total: 0, completed: 0, pending: 0 },
-  };
-
-  tasks.forEach((task) => {
-    // Handle undefined or invalid priorities gracefully
-    const priority = PRIORITY_CONFIG[task.priority] ? task.priority : 'medium';
-    stats[priority].total++;
-    if (task.completed === 1) {
-      stats[priority].completed++;
-    } else {
-      stats[priority].pending++;
-    }
-  });
-
-  return stats;
-}
-
-/**
- * Get the next higher priority level
- */
-export function getNextHigherPriority(
-  priority: TaskPriority,
-): TaskPriority | null {
-  const currentOrder = PRIORITY_CONFIG[priority]?.sortOrder;
-  if (currentOrder === undefined) return null;
-
-  const higherPriority = PRIORITY_OPTIONS.find(
-    (p) => PRIORITY_CONFIG[p].sortOrder === currentOrder - 1,
-  );
-  return higherPriority || null;
-}
-
-/**
- * Get the next lower priority level
- */
-export function getNextLowerPriority(
-  priority: TaskPriority,
-): TaskPriority | null {
-  const currentOrder = PRIORITY_CONFIG[priority]?.sortOrder;
-  if (currentOrder === undefined) return null;
-
-  const lowerPriority = PRIORITY_OPTIONS.find(
-    (p) => PRIORITY_CONFIG[p].sortOrder === currentOrder + 1,
-  );
-  return lowerPriority || null;
-}
+export const selectPriorityConfig = PRIORITY_OPTIONS.map((priority) => ({
+  value: priority,
+  label: PRIORITY_CONFIG[priority].label,
+  icon: PRIORITY_CONFIG[priority].icon,
+  color: PRIORITY_CONFIG[priority].color,
+  bgColor: PRIORITY_CONFIG[priority].bgColor,
+  borderColor: PRIORITY_CONFIG[priority].borderColor,
+}));
