@@ -51,7 +51,7 @@ const router = $derived(reactiveRouter);
 <DatePicker />
 
 <!-- Day Content -->
-<div class="flex-1 overflow-y-auto">
+<div class="flex-1">
   {#if viewMode === "timeline"}
     <!-- Timeline View -->
     <div class="relative">
