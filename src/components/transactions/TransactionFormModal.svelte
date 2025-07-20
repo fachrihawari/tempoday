@@ -119,7 +119,6 @@ function resetForm() {
           transactionType={type}
           onSelect={(selectedCategory: TransactionCategory) =>
             (category = selectedCategory)}
-          class="w-full"
         />
       </div>
 

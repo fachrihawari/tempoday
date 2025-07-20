@@ -193,25 +193,27 @@ const shouldShowSummary = $derived.by(() => {
                   <TransactionItem transaction={expense} compact />
                 {/each}
 
-                {#if expenseCount > 3}
-                  <div class="text-center py-2">
-                    <p class="text-sm text-gray-600 dark:text-gray-400">
-                      +{expenseCount - 3} more expenses
-                    </p>
-                  </div>
-                {/if}
+                <div class="flex gap-x-2">
+                  {#if expenseCount > 3}
+                    <div class="text-center py-2">
+                      <p class="text-sm text-red-600 dark:text-red-400">
+                        +{expenseCount - 3} more expenses
+                      </p>
+                    </div>
+                  {/if}
 
-                {#if totalIncome > 0}
-                  <div
-                    class="text-center py-2 border-t border-gray-200 dark:border-gray-700"
-                  >
-                    <p
-                      class="text-sm text-green-600 dark:text-green-400 font-medium"
+                  {#if totalIncome > 0}
+                    <div
+                      class="text-center py-2 border-gray-200 dark:border-gray-700"
                     >
-                      ✓ {formatAmount(totalIncome)} income today
-                    </p>
-                  </div>
-                {/if}
+                      <p
+                        class="text-sm text-green-600 dark:text-green-400 font-medium"
+                      >
+                        ✓ {formatAmount(totalIncome)} income today
+                      </p>
+                    </div>
+                  {/if}
+                </div>
               </div>
             {/if}
           </div>

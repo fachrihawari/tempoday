@@ -3,6 +3,11 @@ import type { Transaction } from '../../dexie/models';
 import { getCategoryConfig } from '../../lib/categories';
 import { formatCurrency } from '../../lib/currency';
 import { settingsStore } from '../../stores/settings.svelte';
+import { toastStore } from '../../stores/toast.svelte';
+import { reactiveTransactions } from '../../stores/transactions.svelte';
+import Button from '../ui/Button.svelte';
+import Icon from '../ui/Icon.svelte';
+import CategorySelector from './CategorySelector.svelte';
 
 interface Props {
   transaction: Transaction;
@@ -13,6 +18,7 @@ interface Props {
 let { transaction, compact = false, showDate = false }: Props = $props();
 
 const { settings } = $derived(settingsStore);
+const { isDeleting, isUpdating } = $derived(reactiveTransactions);
 const categoryConfig = $derived(getCategoryConfig(transaction.category));
 const isIncome = $derived(transaction.type === 'income');
 
@@ -27,44 +33,54 @@ function formatAmount(amount: number): string {
 <div
   class="flex items-center gap-3 {compact
     ? 'p-2'
-    : 'p-3'} bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 transition-colors"
+    : 'p-3'} rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 group relative border border-gray-100 dark:border-gray-700"
 >
-  <!-- Category Icon -->
+  <!-- Type Indicator -->
   <div
-    class="flex items-center justify-center {compact
-      ? 'w-8 h-8'
-      : 'w-10 h-10'} rounded-full
-    {isIncome
-      ? 'bg-green-100 dark:bg-green-900/30'
-      : 'bg-red-100 dark:bg-red-900/30'}"
-  >
-    <span class={compact ? "text-base" : "text-lg"}>{categoryConfig.icon}</span>
-  </div>
+    class="flex-shrink-0 w-3 h-3 rounded-full {isIncome
+      ? 'bg-green-500 dark:bg-green-400'
+      : 'bg-red-500 dark:bg-red-400'}"
+  ></div>
 
   <!-- Transaction Content -->
-  <div class="flex-1 min-w-0">
-    <div class="flex items-center gap-2 flex-wrap">
-      <p
-        class="{compact
-          ? 'text-sm'
-          : 'text-base'} text-gray-900 dark:text-gray-100 font-medium"
-      >
-        {transaction.description}
-      </p>
-
-      {#if showDate && transaction.date}
-        <span
-          class="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded"
-        >
-          {new Date(transaction.date).toLocaleDateString()}
-        </span>
-      {/if}
-    </div>
-
+  <div class="flex flex-col flex-1 gap-2 min-w-0">
+    <p class="text-sm text-gray-900 dark:text-gray-100 truncate">
+      {transaction.description}
+    </p>
+    
     {#if !compact}
+      <CategorySelector
+        compact
+        value={transaction.category}
+        transactionType={transaction.type}
+        onSelect={async (newCategory) => {
+          try {
+            await reactiveTransactions.updateTransaction(
+              transaction.id,
+              {
+                category: newCategory,
+              },
+            );
+            toastStore.success("Category updated");
+          } catch (err) {
+            // Error is already handled by the store
+            console.error("Failed to update category:", err);
+          }
+        }}
+        disabled={isUpdating[transaction.id]}
+      />
+    {:else}
       <p class="text-sm text-gray-600 dark:text-gray-400">
         {categoryConfig.label}
       </p>
+    {/if}
+
+    {#if showDate && transaction.date}
+      <span
+        class="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded w-fit"
+      >
+        {new Date(transaction.date).toLocaleDateString()}
+      </span>
     {/if}
   </div>
 
@@ -79,4 +95,31 @@ function formatAmount(amount: number): string {
       {isIncome ? "+" : "-"}{formatAmount(transaction.amount)}
     </p>
   </div>
+
+  <!-- Delete Button -->
+  {#if !compact}
+    <Button
+      variant="ghost"
+      size="sm"
+      onclick={() => {
+        reactiveTransactions.deleteTransaction(transaction.id);
+      }}
+      disabled={isDeleting[transaction.id]}
+      class={`!p-1 text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 !w-6 !h-6
+        ${
+          isDeleting[transaction.id]
+            ? "opacity-50 cursor-not-allowed"
+            : ""
+        }
+      `}
+    >
+      {#snippet children()}
+        {#if isDeleting[transaction.id]}
+          <Icon name="loader" size="sm" class="animate-spin" />
+        {:else}
+          <Icon name="trash" size="sm" />
+        {/if}
+      {/snippet}
+    </Button>
+  {/if}
 </div>
