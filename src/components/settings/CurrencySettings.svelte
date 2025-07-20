@@ -1,8 +1,8 @@
 <script lang="ts">
-import { settingsStore } from '../stores/settings.svelte';
-import { toastStore } from '../stores/toast.svelte';
-import Icon from './ui/Icon.svelte';
-import Loading from './ui/Loading.svelte';
+import { settingsStore } from '../../stores/settings.svelte';
+import { toastStore } from '../../stores/toast.svelte';
+import Icon from '../ui/Icon.svelte';
+import Loading from '../ui/Loading.svelte';
 
 // Reactive values from the settings store
 let { settings, isLoading, isSaving, error } = $derived(settingsStore);

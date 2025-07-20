@@ -1,10 +1,10 @@
 <script lang="ts">
-import AppearanceSettings from '../components/AppearanceSettings.svelte';
-import BackupRestore from '../components/BackupRestore.svelte';
-import CurrencySettings from '../components/CurrencySettings.svelte';
-import DonationModal from '../components/DonationModal.svelte';
-import PrivacySettings from '../components/PrivacySettings.svelte';
-import SupportSettings from '../components/SupportSettings.svelte';
+import AppearanceSettings from '../components/settings/AppearanceSettings.svelte';
+import BackupRestore from '../components/settings/BackupRestore.svelte';
+import CurrencySettings from '../components/settings/CurrencySettings.svelte';
+import DonationModal from '../components/settings/DonationModal.svelte';
+import PrivacySettings from '../components/settings/PrivacySettings.svelte';
+import SupportSettings from '../components/settings/SupportSettings.svelte';
 import Button from '../components/ui/Button.svelte';
 import Card from '../components/ui/Card.svelte';
 import Icon from '../components/ui/Icon.svelte';
