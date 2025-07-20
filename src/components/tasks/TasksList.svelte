@@ -1,11 +1,11 @@
 <script lang="ts">
-import { formatDateKey } from '../lib/date';
-import { appState } from '../stores/app.svelte';
-import { reactiveTasks } from '../stores/tasks.svelte';
-import TaskItem from './tasks/TaskItem.svelte';
-import Card from './ui/Card.svelte';
-import EmptyState from './ui/EmptyState.svelte';
-import Loading from './ui/Loading.svelte';
+import { formatDateKey } from '../../lib/date';
+import { appState } from '../../stores/app.svelte';
+import { reactiveTasks } from '../../stores/tasks.svelte';
+import Card from '../ui/Card.svelte';
+import EmptyState from '../ui/EmptyState.svelte';
+import Loading from '../ui/Loading.svelte';
+import TaskItem from './TaskItem.svelte';
 
 // Reactive values from the store
 let { tasks, isLoading, urgentCount, highPriorityCount } =
