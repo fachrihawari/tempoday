@@ -56,7 +56,7 @@ const currentConfig = $derived(
 const buttonClasses = $derived.by(() => {
   const hasValue = value && value !== '';
   return `
-    w-full inline-flex items-center justify-between gap-2 rounded-lg border transition-colors
+    inline-flex items-center justify-between gap-2 rounded-lg border transition-colors
     focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400
     ${hasValue ? `${currentConfig.borderColor} ${currentConfig.bgColor} ${currentConfig.color}` : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400'}
     ${disabled ? 'opacity-50 cursor-not-allowed bg-gray-50 dark:bg-gray-700' : 'hover:border-gray-400 dark:hover:border-gray-500 cursor-pointer'}
@@ -169,7 +169,7 @@ $effect(() => {
     {#if isOpen && !disabled}
       <div 
         bind:this={dropdownElement}
-        class="absolute bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg dark:shadow-gray-900/20 z-[200] transition-all duration-200 min-w-32 w-full {shouldFlipUp ? 'bottom-full mb-1' : 'top-full mt-1'}"
+        class="absolute bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg dark:shadow-gray-900/20 z-[200] transition-all duration-200 {shouldFlipUp ? 'bottom-full mb-1' : 'top-full mt-1'}"
       >
         <div class="py-1 max-h-64 overflow-y-auto">
           {#each options as option (option.value)}

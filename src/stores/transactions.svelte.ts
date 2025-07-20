@@ -32,32 +32,26 @@ export class ReactiveTransactions {
 
   // Derived reactive values
   incomeTransactions = $derived(
-    this.transactions.filter((t) => t.type === 'income')
+    this.transactions.filter((t) => t.type === 'income'),
   );
 
   expenseTransactions = $derived(
-    this.transactions.filter((t) => t.type === 'expense')
+    this.transactions.filter((t) => t.type === 'expense'),
   );
 
   totalIncome = $derived(
-    this.incomeTransactions.reduce((sum, t) => sum + t.amount, 0)
+    this.incomeTransactions.reduce((sum, t) => sum + t.amount, 0),
   );
 
   totalExpenses = $derived(
-    this.expenseTransactions.reduce((sum, t) => sum + t.amount, 0)
+    this.expenseTransactions.reduce((sum, t) => sum + t.amount, 0),
   );
 
-  netBalance = $derived(
-    this.totalIncome - this.totalExpenses
-  );
+  netBalance = $derived(this.totalIncome - this.totalExpenses);
 
-  totalCount = $derived(
-    this.transactions.length
-  );
+  totalCount = $derived(this.transactions.length);
 
-  expenseCount = $derived(
-    this.expenseTransactions.length
-  );
+  expenseCount = $derived(this.expenseTransactions.length);
 
   /**
    * Get a single transaction by ID

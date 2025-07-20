@@ -80,7 +80,7 @@ function handlePriorityChange(taskId: string, priority: TaskPriority) {
     {/if}
 
     <!-- Task List -->
-    <div class="space-y-2" class:mb-4={tasks.length > 0}>
+    <div class="space-y-2">
       {#if isLoading}
         <Loading size="xl" message="Loading tasks..." />
       {:else}
