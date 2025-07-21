@@ -18,6 +18,8 @@ import { Crepe } from '@milkdown/crepe';
 let { error, content } = $derived(reactiveNotes);
 let router = $derived(reactiveRouter);
 
+
+let editor: Crepe | null = null;
 // Debounce timeout for auto-save
 let saveTimeout: ReturnType<typeof setTimeout> | null = null;
 
@@ -51,11 +53,23 @@ $effect(() => {
   }
 });
 
-onMount(() => {
-  // Initialize the editor
-  const editor = new Crepe({
+$effect(() => {
+  // Only (re)initialize the editor when content changes
+  if (!content) return;
+
+  console.log('Initializing editor with content:', content);
+
+  // Destroy previous editor instance if exists
+  editor?.destroy?.();
+
+  editor = new Crepe({
     root: '#editor',
-    defaultValue: content || '', // FIXME: Ensure the content is loaded before initializing
+    defaultValue: content,
+    featureConfigs: {
+      [Crepe.Feature.Placeholder]: {
+        text: 'Start writing your note...',
+      },
+    },
   }).on((api) => {
     // Update reactiveNotes when content changes with debounce
     api.markdownUpdated((_ctx, markdown) => {
@@ -63,15 +77,16 @@ onMount(() => {
     });
   });
 
-  editor.create();
+  editor.create().then(() => {
+    console.log('Editor initialized successfully');
+  });
 
   // Cleanup on unmount
   return () => {
-    // Clear any pending save timeout
     if (saveTimeout) {
       clearTimeout(saveTimeout);
     }
-    editor.destroy();
+    editor?.destroy?.();
   };
 });
 </script>
