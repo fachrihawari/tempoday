@@ -79,7 +79,7 @@ export class BackupManager {
     try {
       const backupData = await this.exportAllData();
       const backupText = JSON.stringify(backupData, null, 2);
-      const fileName = `tempoday-backup-${new Date().toISOString().split('T')[0]}.json`;
+      const fileName = `tempoday-backup-${new Date().toISOString()}.json`;
 
       if (!navigator.share) {
         throw new Error('Web Share API not supported on this device');
@@ -159,7 +159,7 @@ export class BackupManager {
     try {
       const backupData = await this.exportAllData();
       const backupText = JSON.stringify(backupData, null, 2);
-      const fileName = `tempoday-backup-${new Date().toISOString().split('T')[0]}.json`;
+      const fileName = `tempoday-backup-${new Date().toISOString()}.json`;
 
       this.downloadFile(backupText, fileName);
 

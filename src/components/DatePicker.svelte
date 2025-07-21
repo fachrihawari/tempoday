@@ -2,6 +2,7 @@
 import { onMount } from 'svelte';
 import {
   formatDate,
+  formatDateKey,
   formatDayOfWeek,
   getDateRange,
   isSameDate,
@@ -284,7 +285,7 @@ function handleScroll() {
              overscroll-behavior-x-contain"
       style="scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scroll-behavior: smooth;"
     >
-      {#each dateRange as date (date.toISOString())}
+      {#each dateRange as date (formatDateKey(date))}
         <Button
           variant="ghost"
           onclick={() => selectDate(date)}

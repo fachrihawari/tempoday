@@ -1,5 +1,6 @@
 import { db } from '../dexie/db';
 import type { Task } from '../dexie/models';
+import { formatDateKey } from '../lib/date';
 import { NotFoundError } from '../lib/error';
 import { type TaskPriority, sortTasksComprehensive } from '../lib/priority';
 // Reactive Dexie-based tasks store using Svelte 5 runes
@@ -343,7 +344,7 @@ export class ReactiveTasks {
     const taskDate = new Date(timeToUse);
 
     // Ensure we're looking at the correct date
-    const taskDateStr = taskDate.toISOString().split('T')[0];
+    const taskDateStr = formatDateKey(taskDate);
     if (taskDateStr !== date) return -1; // Task not on this date
 
     return taskDate.getHours();

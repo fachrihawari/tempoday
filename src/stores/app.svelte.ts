@@ -1,3 +1,5 @@
+import { formatDateKey } from "../lib/date";
+
 export interface AppState {
   selectedDate: Date;
 }
@@ -6,6 +8,11 @@ export interface AppState {
 export const appState = $state<AppState>({
   selectedDate: new Date(),
 });
+
+// Get the selected date key in the format YYYY-MM-DD
+export function getSelectedDateKey() {
+  return formatDateKey(appState.selectedDate);
+}
 
 // Helper functions to update app state
 export function setSelectedDate(date: Date) {
