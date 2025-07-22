@@ -1,6 +1,6 @@
 <script lang="ts">
 import { onMount } from 'svelte';
-import DatePicker from '../components/DatePicker.svelte';
+import DatePicker from '../components/shared/DatePicker.svelte';
 import Button from '../components/ui/Button.svelte';
 import Card from '../components/ui/Card.svelte';
 import Icon from '../components/ui/Icon.svelte';

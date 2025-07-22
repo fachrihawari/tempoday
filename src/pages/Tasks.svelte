@@ -1,5 +1,5 @@
 <script lang="ts">
-import DatePicker from '../components/DatePicker.svelte';
+import DatePicker from '../components/shared/DatePicker.svelte';
 import TaskFormModal from '../components/tasks/TaskFormModal.svelte';
 import TasksList from '../components/tasks/TasksList.svelte';
 import TasksTimeline from '../components/tasks/TasksTimeline.svelte';

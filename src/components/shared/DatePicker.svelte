@@ -7,10 +7,10 @@ import {
   getDateRange,
   isSameDate,
   isToday,
-} from '../lib/date';
-import { appState, setSelectedDate } from '../stores/app.svelte';
-import Button from './ui/Button.svelte';
-import Icon from './ui/Icon.svelte';
+} from '../../lib/date';
+import { appState, setSelectedDate } from '../../stores/app.svelte';
+import Button from '../ui/Button.svelte';
+import Icon from '../ui/Icon.svelte';
 
 let scrollContainer = $state<HTMLElement>();
 let dateRange = $state<Date[]>([]);

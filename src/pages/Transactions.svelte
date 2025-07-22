@@ -1,7 +1,6 @@
-<!-- Enhanced FinanceSection using reusable UI components -->
 <script lang="ts">
 import { onMount } from 'svelte';
-import DatePicker from '../components/DatePicker.svelte';
+import DatePicker from '../components/shared/DatePicker.svelte';
 import TransactionFormModal from '../components/transactions/TransactionFormModal.svelte';
 import TransactionItem from '../components/transactions/TransactionItem.svelte';
 import Button from '../components/ui/Button.svelte';
