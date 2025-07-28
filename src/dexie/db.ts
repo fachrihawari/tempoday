@@ -1,6 +1,6 @@
 import Dexie from 'dexie';
-import type { Note, Settings, Task, Transaction } from './models';
 import { formatDateKey } from '../lib/date';
+import type { Note, Settings, Task, Transaction } from './models';
 
 export class TempoDayDexie extends Dexie {
   tasks!: Dexie.Table<Task, string>;

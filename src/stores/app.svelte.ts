@@ -1,4 +1,4 @@
-import { formatDateKey } from "../lib/date";
+import { formatDateKey } from '../lib/date';
 
 export interface AppState {
   selectedDate: Date;

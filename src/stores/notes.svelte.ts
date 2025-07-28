@@ -27,32 +27,9 @@ export class ReactiveNotes {
   /**
    * Get a note by date
    */
-  private async getNoteByDate(date: string): Promise<Note | null> {
+  async getNoteByDate(date: string): Promise<Note | null> {
     const note = await db.notes.where('date').equals(date).first();
     return note || null;
-  }
-
-  /**
-   * Load note for a specific date and update reactive state
-   */
-  async loadNote(date: string): Promise<void> {
-    if (this.currentDate === date) {
-      return; // Already loaded for this date
-    }
-
-    this.isLoading = true;
-    this.error = null;
-
-    try {
-      const note = await this.getNoteByDate(date);
-      this.note = note;
-      this.currentDate = date;
-    } catch (err) {
-      this.error = err instanceof Error ? err.message : 'Failed to load note';
-      console.error('Error loading note:', err);
-    } finally {
-      this.isLoading = false;
-    }
   }
 
   /**

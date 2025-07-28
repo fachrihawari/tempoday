@@ -67,7 +67,6 @@ async function forceRefetchCurrentData() {
     // Force reload all data for the current selected date
     await Promise.all([
       reactiveTasks.loadTasks(currentDateKey),
-      reactiveNotes.loadNote(currentDateKey),
       reactiveTransactions.loadTransactions(currentDateKey),
       settingsStore.loadSettings(),
     ]);
