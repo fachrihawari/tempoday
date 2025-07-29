@@ -1,15 +1,16 @@
 <script lang="ts">
+  import { Editor, defaultValueCtx, rootCtx } from "@milkdown/kit/core";
+  import { listener, listenerCtx } from "@milkdown/kit/plugin/listener";
+  import { commonmark } from "@milkdown/kit/preset/commonmark";
   import DatePicker from "../components/shared/DatePicker.svelte";
   import Button from "../components/ui/Button.svelte";
   import Card from "../components/ui/Card.svelte";
   import Icon from "../components/ui/Icon.svelte";
   import PageHeader from "../components/ui/PageHeader.svelte";
+  import { placeholder, placeholderCtx } from "../lib/milkdown_placeholder";
   import { getSelectedDateKey } from "../stores/app.svelte";
   import { reactiveNotes } from "../stores/notes.svelte";
   import { reactiveRouter } from "../stores/router.svelte";
-  import { defaultValueCtx, Editor, rootCtx } from "@milkdown/kit/core";
-  import { commonmark } from "@milkdown/kit/preset/commonmark";
-  import { listener, listenerCtx } from "@milkdown/kit/plugin/listener";
 
   // Reactive values from the store
   let router = $derived(reactiveRouter);
@@ -67,6 +68,7 @@
       .config((ctx) => {
         ctx.set(rootCtx, document.querySelector("#editor"));
         ctx.set(defaultValueCtx, content);
+        ctx.set(placeholderCtx, "Start writing your notes here...");
 
         // Set up the listener to handle markdown updates
         const listener = ctx.get(listenerCtx);
@@ -76,6 +78,7 @@
           }
         });
       })
+      .use(placeholder)
       .use(listener)
       .use(commonmark);
     editor.create();
@@ -102,14 +105,10 @@
 </Card>
 
 <style>
-  :global(.ProseMirror > *) {
+  :global(.ProseMirror > *, .ProseMirror p, .ProseMirror li) {
     padding: 0 !important;
     margin: 0 !important;
-  }
-
-  :global(.ProseMirror p, .ProseMirror li) {
-    padding: 0 !important;
-    margin: 0 !important;
+    margin-bottom: .25em !important;
   }
 
   :global(.ProseMirror ul, .ProseMirror ol) {
@@ -118,5 +117,15 @@
 
   :global(.ProseMirror-focused) {
     outline: none;
+  }
+
+  :global(.ProseMirror[data-placeholder]::before) {
+    color: #a9a9a9;
+    position: absolute;
+    font-style: italic;
+    content: attr(data-placeholder);
+    pointer-events: none;
+    font-size: 16px;
+    line-height: 28px;
   }
 </style>
