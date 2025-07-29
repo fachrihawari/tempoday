@@ -1,4 +1,5 @@
 import Dexie from 'dexie';
+import { formatDateKey } from '../lib/date';
 import type { Note, Settings, Task, Transaction } from './models';
 
 export class TempoDayDexie extends Dexie {
@@ -78,8 +79,8 @@ export function getDefaultDateRange() {
   const start = new Date();
   start.setDate(end.getDate() - 29); // Last 30 days including today
   return {
-    start: start.toISOString().slice(0, 10), // 'YYYY-MM-DD'
-    end: end.toISOString().slice(0, 10),
+    start: formatDateKey(start), // 'YYYY-MM-DD'
+    end: formatDateKey(end),
   };
 }
 

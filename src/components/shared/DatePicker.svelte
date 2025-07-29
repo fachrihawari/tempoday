@@ -2,18 +2,19 @@
 import { onMount } from 'svelte';
 import {
   formatDate,
+  formatDateKey,
   formatDayOfWeek,
   getDateRange,
   isSameDate,
   isToday,
-} from '../lib/date';
-import { appState, setSelectedDate } from '../stores/app.svelte';
-import Button from './ui/Button.svelte';
-import Icon from './ui/Icon.svelte';
+} from '../../lib/date';
+import { appState, setSelectedDate } from '../../stores/app.svelte';
+import Button from '../ui/Button.svelte';
+import Icon from '../ui/Icon.svelte';
 
 let scrollContainer = $state<HTMLElement>();
 let dateRange = $state<Date[]>([]);
-let isExpanded = $state(true); // State to control date picker visibility
+let isExpanded = $state(false); // State to control date picker visibility
 let isUserScrolling = $state(false); // Flag to prevent auto-scroll during user interaction
 let scrollTimeout: ReturnType<typeof setTimeout>;
 let isLoadingDates = $state(false); // Flag to prevent multiple simultaneous loads
@@ -269,7 +270,12 @@ function handleScroll() {
     <h2 class="text-base font-semibold text-gray-800 dark:text-gray-100">
       {formatDate(appState.selectedDate)}
     </h2>
-    <Button variant="outline" onclick={goToToday} class="px-2 py-1 text-xs">
+    <Button
+      variant='outline'
+      onclick={goToToday}
+      class="px-2 py-1 text-xs transition-colors"
+      aria-disabled={isToday(appState.selectedDate)}
+    >
       {#snippet children()}Today{/snippet}
     </Button>
   </div>
@@ -284,7 +290,7 @@ function handleScroll() {
              overscroll-behavior-x-contain"
       style="scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scroll-behavior: smooth;"
     >
-      {#each dateRange as date (date.toISOString())}
+      {#each dateRange as date (formatDateKey(date))}
         <Button
           variant="ghost"
           onclick={() => selectDate(date)}

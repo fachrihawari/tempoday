@@ -40,13 +40,13 @@ function getHourData(hour: number) {
   const tasksStartingInHour = allTasks.filter((task) => {
     if (task.startedAt) {
       const taskDate = new Date(task.startedAt);
-      const taskDateStr = taskDate.toISOString().split('T')[0];
+      const taskDateStr = formatDateKey(taskDate);
       return taskDateStr === dateKey && taskDate.getHours() === hour;
     }
 
     // Fallback to createdAt
     const taskDate = new Date(task.createdAt);
-    const taskDateStr = taskDate.toISOString().split('T')[0];
+    const taskDateStr = formatDateKey(taskDate);
     return taskDateStr === dateKey && taskDate.getHours() === hour;
   });
 
@@ -62,12 +62,12 @@ function getHourData(hour: number) {
 
     if (task.startedAt) {
       const taskDate = new Date(task.startedAt);
-      const taskDateStr = taskDate.toISOString().split('T')[0];
+      const taskDateStr = formatDateKey(taskDate);
       return taskDateStr === dateKey && taskDate.getHours() === hour;
     }
 
     const taskDate = new Date(task.createdAt);
-    const taskDateStr = taskDate.toISOString().split('T')[0];
+    const taskDateStr = formatDateKey(taskDate);
     return taskDateStr === dateKey && taskDate.getHours() === hour;
   });
 
