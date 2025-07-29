@@ -1,9 +1,4 @@
 <script lang="ts">
-import {
-  DONATION_TIERS,
-  type DonationTier,
-  revenueCatService,
-} from '../../lib/revenuecat';
 import BottomSheet from '../ui/BottomSheet.svelte';
 import Button from '../ui/Button.svelte';
 import Icon from '../ui/Icon.svelte';
@@ -12,39 +7,57 @@ interface Props {
   open: boolean;
 }
 
-let { open = $bindable() }: Props = $props();
+export interface DonationTier {
+  identifier: string;
+  title: string;
+  description: string;
+  price: string;
+  link: string;
+}
 
-let isProcessing = $state(false);
-let selectedTier: DonationTier | null = $state(null);
+// Donation tiers - these represent different donation amounts
+export const DONATION_TIERS: DonationTier[] = [
+  {
+    identifier: 'small_coffee',
+    title: 'Small Coffee',
+    description: 'Buy us a small coffee',
+    price: 'Rp. 15.000',
+    link: 'https://app.midtrans.com/payment-links/hawari-dev-small-coffee'
+  },
+  {
+    identifier: 'large_coffee',
+    title: 'Large Coffee',
+    description: 'Buy us a large coffee',
+    price: 'Rp. 25.000',
+    link: 'https://app.midtrans.com/payment-links/hawari-dev-large-coffee'
+  },
+  {
+    identifier: 'lunch',
+    title: 'Lunch',
+    description: 'Buy us lunch',
+    price: 'Rp. 50.000',
+    link: 'https://app.midtrans.com/payment-links/hawari-dev-lunch'
+  },
+  {
+    identifier: 'generous_support',
+    title: 'Generous Support',
+    description: 'Super generous support',
+    price: 'Rp. 100.000',
+    link: 'https://app.midtrans.com/payment-links/hawari-dev-generous-support'
+  },
+];
+
+let { open = $bindable() }: Props = $props();
 
 // Handle donation
 async function handleDonation(tier: DonationTier) {
-  try {
-    isProcessing = true;
-    selectedTier = tier;
-
-    const success = await revenueCatService.makeDonation(tier);
-
-    if (success) {
-      // Close modal after successful donation
-      setTimeout(() => {
-        open = false;
-        selectedTier = null;
-      }, 2000);
-    }
-  } catch (error) {
-    console.error('Donation error:', error);
-  } finally {
-    isProcessing = false;
-    selectedTier = null;
-  }
+  // Open the donation link in a new tab
+  window.open(tier.link, '_blank', 'noopener,noreferrer');
 }
 
 // Close modal
 function closeModal() {
-  if (!isProcessing) {
-    open = false;
-  }
+  open = false;
 }
 
 // Handle GitHub star
@@ -61,7 +74,7 @@ async function handleShare() {
   const shareContent = {
     title: 'TempoDay - Calendar-Centric Personal Management',
     text: 'Check out TempoDay, a privacy-focused personal management app!',
-    url: 'https://tempoday.site',
+    url: 'https://tempoday.com',
   };
 
   try {
@@ -96,18 +109,6 @@ async function handleShare() {
       </p>
     </div>
 
-    <!-- Demo Mode Notice -->
-    {#if revenueCatService.isDemoMode()}
-      <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3 mb-6">
-        <div class="flex items-start gap-2">
-          <Icon name="info-circle" class="text-amber-600 dark:text-amber-400 mt-0.5" size="sm" />
-          <div class="text-sm">
-            <div class="font-medium text-amber-900 dark:text-amber-100">Demo Mode</div>
-            <div class="text-amber-700 dark:text-amber-300">This is a demo. No actual payments will be processed.</div>
-          </div>
-        </div>
-      </div>
-    {/if}
 
     <!-- Donation Tiers -->
     <div class="space-y-3 mb-6">
@@ -115,7 +116,6 @@ async function handleShare() {
         <Button
           variant="outline"
           fullWidth
-          disabled={isProcessing}
           onclick={() => handleDonation(tier)}
           class="!p-4 !text-left !justify-start !relative !h-auto"
         >
@@ -137,12 +137,7 @@ async function handleShare() {
               
               <div class="flex items-center gap-3">
                 <div class="text-lg font-semibold text-gray-900 dark:text-gray-100">{tier.price}</div>
-                
-                {#if isProcessing && selectedTier?.identifier === tier.identifier}
-                  <div class="w-5 h-5 border-2 border-red-500 dark:border-red-400 border-t-transparent rounded-full animate-spin"></div>
-                {:else}
-                  <Icon name="chevron-right" class="text-gray-400 dark:text-gray-500" />
-                {/if}
+                <Icon name="chevron-right" class="text-gray-400 dark:text-gray-500" />
               </div>
             </div>
           {/snippet}

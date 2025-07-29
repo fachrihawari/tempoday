@@ -30,7 +30,7 @@ TempoDay is a privacy-focused, calendar-centric personal management app designed
 - [x] **Advanced Features**:
   - [x] Natural language input for tasks, notes, and transactions (e.g., "Buy groceries tomorrow" or "Spent $50 on lunch").
   - [x] Powerful search to find any task, note, or transaction instantly.
-  - [x] Seamless donation integration via RevenueCat to support development.
+  - [x] Seamless donation integration via Midtrans to support development.
 
 For more details, check out the [About TempoDay](about.md) file.
 

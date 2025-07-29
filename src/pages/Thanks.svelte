@@ -178,7 +178,7 @@ function goToDashboard() {
               const shareContent = {
                 title: 'TempoDay - Calendar-Centric Personal Management',
                 text: 'Check out TempoDay, a privacy-focused personal management app!',
-                url: 'https://tempoday.site'
+                url: 'https://tempoday.com'
               };
               
               if (navigator.share && navigator.canShare && navigator.canShare(shareContent)) {

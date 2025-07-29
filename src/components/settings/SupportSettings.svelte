@@ -17,7 +17,7 @@ const GITHUB_REPO_URL = 'https://github.com/fachrihawari/tempoday';
 const SHARE_CONTENT = {
   title: 'TempoDay - Calendar-Centric Personal Management',
   text: 'Check out TempoDay, a privacy-focused personal management app that helps you organize tasks, notes, and finances by date!',
-  url: 'https://tempoday.site',
+  url: 'https://tempoday.com',
 };
 
 async function handleRateUs() {

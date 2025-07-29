@@ -28,7 +28,6 @@
   "dependencies": {
     "@milkdown/kit": "^7.15.2",
     "@milkdown/plugin-listener": "^7.15.2",
-    "@revenuecat/purchases-js": "^1.7.0",
     "@tailwindcss/vite": "^4.1.11",
     "dexie": "^4.0.11",
     "tailwindcss": "^4.1.11"
