@@ -14,7 +14,7 @@ import Icon from '../ui/Icon.svelte';
 
 let scrollContainer = $state<HTMLElement>();
 let dateRange = $state<Date[]>([]);
-let isExpanded = $state(true); // State to control date picker visibility
+let isExpanded = $state(false); // State to control date picker visibility
 let isUserScrolling = $state(false); // Flag to prevent auto-scroll during user interaction
 let scrollTimeout: ReturnType<typeof setTimeout>;
 let isLoadingDates = $state(false); // Flag to prevent multiple simultaneous loads
@@ -270,7 +270,12 @@ function handleScroll() {
     <h2 class="text-base font-semibold text-gray-800 dark:text-gray-100">
       {formatDate(appState.selectedDate)}
     </h2>
-    <Button variant="outline" onclick={goToToday} class="px-2 py-1 text-xs">
+    <Button
+      variant='outline'
+      onclick={goToToday}
+      class="px-2 py-1 text-xs transition-colors"
+      aria-disabled={isToday(appState.selectedDate)}
+    >
       {#snippet children()}Today{/snippet}
     </Button>
   </div>
