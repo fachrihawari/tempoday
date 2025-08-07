@@ -78,25 +78,28 @@ function getHourData(hour: number) {
   };
 }
 
-function getTaskGridRow(task: Task): { start: number; span: number } {
-  let startHour: number;
-  if (task.startedAt) {
-    const taskDate = new Date(task.startedAt);
-    startHour = taskDate.getHours();
-  } else {
-    const taskDate = new Date(task.createdAt);
-    startHour = taskDate.getHours();
-  }
 
-  let span = 1;
-  if (task.startedAt && task.endedAt) {
-    span = Math.max(
-      1,
-      Math.ceil((task.endedAt - task.startedAt) / (60 * 60 * 1000)),
-    );
-  }
+// Calculate absolute position (top, height) in percent for a task based on minutes
+function getTaskPositionByMinutes(task: Task) {
+  // Timeline covers 24 hours = 1440 minutes
+  const dayStart = new Date(selectedDate);
+  dayStart.setHours(0, 0, 0, 0);
+  const dayStartMs = dayStart.getTime();
 
-  return { start: startHour + 1, span }; // +1 because CSS grid is 1-indexed
+  const startMs = task.startedAt ?? task.createdAt;
+  const endMs = task.endedAt ?? (startMs + 60 * 60 * 1000);
+
+  const startMinutes = Math.max(0, Math.floor((startMs - dayStartMs) / 60000));
+  const endMinutes = Math.min(1440, Math.ceil((endMs - dayStartMs) / 60000));
+  const duration = Math.max(1, endMinutes - startMinutes);
+
+  const topPercent = (startMinutes / 1440) * 100;
+  const heightPercent = (duration / 1440) * 100;
+
+  return {
+    top: `${topPercent}%`,
+    height: `${heightPercent}%`,
+  };
 }
 
 function getTaskPosition(task: Task): { left: string; width: string } {
@@ -189,93 +192,104 @@ async function handleCompleteTask(task: Task) {
     </div>
   {/each}
 
-  <!-- Tasks (Overlaying the grid) -->
-  {#each tasks as task}
-    {@const gridPosition = getTaskGridRow(task)}
-    {@const taskPosition = getTaskPosition(task)}
-    <div
-      class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 text-gray-800 dark:text-gray-200 border border-blue-200 dark:border-blue-800 rounded-lg p-2 my-0.5 shadow-sm hover:shadow-md hover:from-blue-100 hover:to-indigo-100 dark:hover:from-blue-900/50 dark:hover:to-indigo-900/50 transition-all cursor-pointer relative"
-      style="grid-column: 2; grid-row: {gridPosition.start} / span {gridPosition.span}; margin-left: {taskPosition.left}; width: {taskPosition.width};"
-      role="button"
-      tabindex="0"
-      aria-label="Task: {task.description}"
-      onclick={(e) => handleTaskClick(task, e)}
-      onkeydown={(e) => e.key === "Enter" && handleTaskClick(task, e)}
-    >
-      <div class="flex items-start justify-between h-full">
-        <div class="flex-1 min-w-0">
-          <div class="flex items-center gap-1 mb-1">
-            <div
-              class="w-2 h-2 bg-indigo-500 dark:bg-indigo-400 rounded-full"
-            ></div>
-            {#if task.startedAt && task.endedAt}
-              <span class="text-xs text-gray-600 dark:text-gray-400">
-                {new Date(task.startedAt).toLocaleTimeString("en-US", {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  hour12: false,
-                })}
-                {#if gridPosition.span > 1}
-                  - {new Date(task.endedAt).toLocaleTimeString("en-US", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    hour12: false,
-                  })}
-                {/if}
-              </span>
-            {/if}
-          </div>
-
-          <p
-            class="text-sm font-medium leading-tight {task.completed
-              ? 'line-through opacity-70'
-              : ''} truncate"
-          >
-            {task.description}
-          </p>
-
-          {#if gridPosition.span > 1}
-            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              {gridPosition.span} hour{gridPosition.span > 1 ? "s" : ""}
-            </div>
-          {/if}
-
-          {#if task.completed && task.completedAt}
-            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              ✓ {new Date(task.completedAt).toLocaleTimeString("en-US", {
-                hour: "2-digit",
-                minute: "2-digit",
-              })}
-            </div>
-          {/if}
-        </div>
-
-        <button
-          class="ml-2 p-1.5 bg-white/80 dark:bg-gray-800/80 hover:bg-green-100 dark:hover:bg-green-900/30 border border-gray-300 dark:border-gray-600 hover:border-green-400 dark:hover:border-green-600 rounded-md transition-all shadow-sm hover:shadow-md"
-          onclick={() => handleCompleteTask(task)}
-          disabled={reactiveTasks.isToggling[task.id]}
-        >
-          <Icon
-            name={task.completed ? "check-circle" : "check"}
-            size="sm"
-            class="text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400"
-          />
-        </button>
-      </div>
-
-      <!-- Priority indicator -->
+  <!-- Tasks (Overlaying the grid, absolute positioning for minute precision) -->
+  <div class="col-start-2 row-start-1 row-end-[25] relative h-[1440px]">
+    {#each tasks as task}
+      {@const taskPosition = getTaskPositionByMinutes(task)}
+      {@const overlap = getTaskPosition(task)} <!-- for left/width only -->
       <div
-        class="absolute left-0 top-0 bottom-0 w-1 rounded-l-md {task.priority ===
-        'urgent'
-          ? 'bg-red-500'
-          : task.priority === 'high'
-            ? 'bg-orange-500'
-            : task.priority === 'medium'
-              ? 'bg-yellow-500'
-              : 'bg-green-500'}"
-      ></div>
-    </div>
-  {/each}
+        class="absolute bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 text-gray-800 dark:text-gray-200 border border-blue-200 dark:border-blue-800 rounded-lg p-2 shadow-sm hover:shadow-md hover:from-blue-100 hover:to-indigo-100 dark:hover:from-blue-900/50 dark:hover:to-indigo-900/50 transition-all cursor-pointer"
+        style="top: {taskPosition.top}; height: {taskPosition.height}; left: {overlap.left}; width: {overlap.width};"
+        role="button"
+        tabindex="0"
+        aria-label="Task: {task.description}"
+        onclick={(e) => handleTaskClick(task, e)}
+        onkeydown={(e) => e.key === 'Enter' && handleTaskClick(task, e)}
+      >
+        {#if task.startedAt && task.endedAt && (task.endedAt - task.startedAt) <= 30 * 60 * 1000}
+          <!-- Compact card for <30 min: show time & title beside -->
+          <div class="flex items-center gap-2 h-full">
+            <span class="text-xs text-gray-600 dark:text-gray-400 whitespace-nowrap">
+              {new Date(task.startedAt).toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false,
+              })}
+              - {new Date(task.endedAt).toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false,
+              })}
+            </span>
+            <span class="text-sm font-medium leading-tight truncate">
+              {task.description}
+            </span>
+          </div>
+        {:else}
+          <!-- Normal card for >=30 min -->
+          <div class="flex items-start justify-between h-full">
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-1 mb-1">
+                <div class="w-2 h-2 bg-indigo-500 dark:bg-indigo-400 rounded-full"></div>
+                {#if task.startedAt && task.endedAt}
+                  <span class="text-xs text-gray-600 dark:text-gray-400">
+                    {new Date(task.startedAt).toLocaleTimeString('en-US', {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      hour12: false,
+                    })}
+                    - {new Date(task.endedAt).toLocaleTimeString('en-US', {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      hour12: false,
+                    })}
+                  </span>
+                {/if}
+              </div>
+              <p class="text-sm font-medium leading-tight {task.completed ? 'line-through opacity-70' : ''} truncate">
+                {task.description}
+              </p>
+              {#if task.startedAt && task.endedAt}
+                <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  {Math.round((task.endedAt - task.startedAt) / 60000)} min
+                </div>
+              {/if}
+              {#if task.completed && task.completedAt}
+                <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  ✓ {new Date(task.completedAt).toLocaleTimeString('en-US', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })}
+                </div>
+              {/if}
+            </div>
+            <button
+              class="ml-2 p-1.5 bg-white/80 dark:bg-gray-800/80 hover:bg-green-100 dark:hover:bg-green-900/30 border border-gray-300 dark:border-gray-600 hover:border-green-400 dark:hover:border-green-600 rounded-md transition-all shadow-sm hover:shadow-md"
+              onclick={() => handleCompleteTask(task)}
+              disabled={reactiveTasks.isToggling[task.id]}
+            >
+              <Icon
+                name={task.completed ? 'check-circle' : 'check'}
+                size="sm"
+                class="text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400"
+              />
+            </button>
+          </div>
+        {/if}
+        <!-- Priority indicator -->
+        <div
+          class="absolute left-0 top-0 bottom-0 w-1 rounded-l-md {task.priority ===
+          'urgent'
+            ? 'bg-red-500'
+            : task.priority === 'high'
+              ? 'bg-orange-500'
+              : task.priority === 'medium'
+                ? 'bg-yellow-500'
+                : 'bg-green-500'}"
+        ></div>
+      </div>
+    {/each}
+  </div>
 </div>
 
 {#if isLoading}
