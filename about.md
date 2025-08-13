@@ -70,22 +70,6 @@ We actually built something pretty awesome! 🎉
 
 **IndexedDB is powerful** - Browser storage has come a long way. You can build real applications entirely client-side now!
 
-## What's next for TempoDay
-
-We're just getting started! 🚀
-
-**Coming soon:**
-- **Recurring tasks** - Set it and forget it
-
-**The bigger picture:**
-- **Optional cloud sync** - For those who want it (still encrypted, still private)
-- **Smart insights** - Your data can tell you interesting things about yourself
-- **Integrations** - Connect with your calendar, bank, whatever (only if you want to)
-- **Collaboration** - Share specific days with family/team members
-- **AI magic** - Smart text processing that understands natural language, plus helpful suggestions based on your patterns (while staying local)
-
-The goal? Make TempoDay the last productivity app you'll ever need to download. We're building the future of personal management, one day at a time.
-
 ## Open Source & Support
 
 **Open source and always free** - TempoDay will always be completely free to use. The code is open source because we believe productivity tools should be transparent and community-driven. If you love what we're building and want to support the project, we've set up optional donations through Midtrans - think of it as buying us coffee while we code the next features! ☕
