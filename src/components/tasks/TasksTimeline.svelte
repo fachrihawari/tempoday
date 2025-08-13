@@ -78,7 +78,6 @@ function getHourData(hour: number) {
   };
 }
 
-
 // Calculate absolute position (top, height) in percent for a task based on minutes
 function getTaskPositionByMinutes(task: Task) {
   // Timeline covers 24 hours = 1440 minutes
@@ -87,7 +86,7 @@ function getTaskPositionByMinutes(task: Task) {
   const dayStartMs = dayStart.getTime();
 
   const startMs = task.startedAt ?? task.createdAt;
-  const endMs = task.endedAt ?? (startMs + 60 * 60 * 1000);
+  const endMs = task.endedAt ?? startMs + 60 * 60 * 1000;
 
   const startMinutes = Math.max(0, Math.floor((startMs - dayStartMs) / 60000));
   const endMinutes = Math.min(1440, Math.ceil((endMs - dayStartMs) / 60000));

@@ -22,28 +22,28 @@ export const DONATION_TIERS: DonationTier[] = [
     title: 'Small Coffee',
     description: 'Buy us a small coffee',
     price: 'Rp. 15.000',
-    link: 'https://app.midtrans.com/payment-links/hawari-dev-small-coffee'
+    link: 'https://app.midtrans.com/payment-links/hawari-dev-small-coffee',
   },
   {
     identifier: 'large_coffee',
     title: 'Large Coffee',
     description: 'Buy us a large coffee',
     price: 'Rp. 25.000',
-    link: 'https://app.midtrans.com/payment-links/hawari-dev-large-coffee'
+    link: 'https://app.midtrans.com/payment-links/hawari-dev-large-coffee',
   },
   {
     identifier: 'lunch',
     title: 'Lunch',
     description: 'Buy us lunch',
     price: 'Rp. 50.000',
-    link: 'https://app.midtrans.com/payment-links/hawari-dev-lunch'
+    link: 'https://app.midtrans.com/payment-links/hawari-dev-lunch',
   },
   {
     identifier: 'generous_support',
     title: 'Generous Support',
     description: 'Super generous support',
     price: 'Rp. 100.000',
-    link: 'https://app.midtrans.com/payment-links/hawari-dev-generous-support'
+    link: 'https://app.midtrans.com/payment-links/hawari-dev-generous-support',
   },
 ];
 

@@ -1,6 +1,6 @@
 // Priority system utilities for TempoDay
 
-import type { Task } from "../dexie/models";
+import type { Task } from '../dexie/models';
 
 export type TaskPriority = 'low' | 'medium' | 'high' | 'urgent';
 
@@ -66,9 +66,7 @@ export function getPriorityConfig(priority: TaskPriority): PriorityConfig {
 /**
  * Sort tasks
  */
-export function sortTasksComprehensive<
-  T extends Task,
->(tasks: T[]): T[] {
+export function sortTasksComprehensive<T extends Task>(tasks: T[]): T[] {
   return [...tasks].sort((a, b) => {
     // 1. Incomplete tasks first
     if (a.completed !== b.completed) {
@@ -87,8 +85,12 @@ export function sortTasksComprehensive<
 
     // 3. If startedAt is the same or undefined, sort by priority (urgent first)
     if (a.completed === 0 && b.completed === 0) {
-      const aPriority = PRIORITY_CONFIG[a.priority]?.sortOrder ?? PRIORITY_CONFIG.medium.sortOrder;
-      const bPriority = PRIORITY_CONFIG[b.priority]?.sortOrder ?? PRIORITY_CONFIG.medium.sortOrder;
+      const aPriority =
+        PRIORITY_CONFIG[a.priority]?.sortOrder ??
+        PRIORITY_CONFIG.medium.sortOrder;
+      const bPriority =
+        PRIORITY_CONFIG[b.priority]?.sortOrder ??
+        PRIORITY_CONFIG.medium.sortOrder;
       if (aPriority !== bPriority) {
         return aPriority - bPriority;
       }

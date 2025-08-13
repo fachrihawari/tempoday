@@ -10,6 +10,7 @@ import { toastStore } from '../../stores/toast.svelte';
 import Button from '../ui/Button.svelte';
 import Icon from '../ui/Icon.svelte';
 import Select from '../ui/Select.svelte';
+import TaskPriorityBadge from './TaskPriorityBadge.svelte';
 
 interface Props {
   task: Task;
@@ -19,8 +20,6 @@ interface Props {
 
 let { task, compact = false, showDate = false }: Props = $props();
 const { error } = $derived(reactiveTasks);
-
-const priorityConfig = $derived(getPriorityConfig(task.priority));
 
 // Watch for errors and show toast
 $effect(() => {
@@ -50,37 +49,57 @@ async function handleDelete() {
 }
 </script>
 
-<div class="flex items-start {compact ? 'p-2 gap-2' : 'p-3 gap-3'} bg-white dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 transition-colors">
+<div
+  class="flex items-start {compact
+    ? 'p-2 gap-2'
+    : 'p-3 gap-3'} bg-white dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 transition-colors"
+>
   <!-- Checkbox -->
   <button
     onclick={toggleTask}
     disabled={reactiveTasks.isToggling[task.id]}
-    class="flex items-center justify-center {compact ? 'w-4 h-4' : 'w-5 h-5'} rounded border-2 transition-colors cursor-pointer mt-0.5
+    class="flex items-center justify-center {compact
+      ? 'w-4 h-4'
+      : 'w-5 h-5'} rounded border-2 transition-colors cursor-pointer mt-0.5
       {task.completed
-        ? 'bg-green-500 border-green-500 dark:bg-green-600 dark:border-green-600'
-        : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'}
+      ? 'bg-green-500 border-green-500 dark:bg-green-600 dark:border-green-600'
+      : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'}
       {reactiveTasks.isToggling[task.id]
-        ? 'opacity-50 cursor-not-allowed bg-white dark:bg-gray-800 border-white dark:border-gray-600 hover:border-white dark:hover:border-gray-600 hover:bg-white dark:hover:bg-gray-800'
-        : ''}"
-    aria-label={task.completed ? 'Mark as incomplete' : 'Mark as complete'}
+      ? 'opacity-50 cursor-not-allowed bg-white dark:bg-gray-800 border-white dark:border-gray-600 hover:border-white dark:hover:border-gray-600 hover:bg-white dark:hover:bg-gray-800'
+      : ''}"
+    aria-label={task.completed ? "Mark as incomplete" : "Mark as complete"}
   >
     {#if reactiveTasks.isToggling[task.id]}
-      <Icon name="loader" size="sm" class="{compact ? 'w-3 h-3' : 'w-3 h-3'} animate-spin" />
+      <Icon
+        name="loader"
+        size="sm"
+        class="{compact ? 'w-3 h-3' : 'w-3 h-3'} animate-spin"
+      />
     {:else if task.completed}
-      <Icon name="check" size="sm" class="text-white {compact ? 'w-3 h-3' : 'w-3 h-3'}" />
+      <Icon
+        name="check"
+        size="sm"
+        class="text-white {compact ? 'w-3 h-3' : 'w-3 h-3'}"
+      />
     {/if}
   </button>
 
   <!-- Task Content -->
   <div class="flex-1 min-w-0">
     <div class="flex items-center gap-2 flex-wrap">
-      <p class="{compact ? 'text-sm' : 'text-sm'} text-gray-900 dark:text-gray-100 
-        {task.completed ? 'line-through text-gray-500 dark:text-gray-400' : ''}">
+      <p
+        class="{compact
+          ? 'text-sm'
+          : 'text-sm'} text-gray-900 dark:text-gray-100
+        {task.completed ? 'line-through text-gray-500 dark:text-gray-400' : ''}"
+      >
         {task.description}
       </p>
-      
+
       {#if showDate && task.date}
-        <span class="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
+        <span
+          class="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded"
+        >
           {new Date(task.date).toLocaleDateString()}
         </span>
       {/if}
@@ -90,33 +109,37 @@ async function handleDelete() {
     {#if !compact}
       <div class="flex items-center gap-2 mt-1">
         {#if task.startedAt}
-          <div class="flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400">
+          <div
+            class="flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400"
+          >
             <Icon name="clock" size="sm" class="w-3 h-3" />
             <span>
-              {new Date(task.startedAt).toLocaleTimeString('en-US', { 
-                hour: '2-digit', 
-                minute: '2-digit', 
-                hour12: false 
+              {new Date(task.startedAt).toLocaleTimeString("en-US", {
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: false,
               })}
               {#if task.endedAt}
-                - {new Date(task.endedAt).toLocaleTimeString('en-US', { 
-                  hour: '2-digit', 
-                  minute: '2-digit', 
-                  hour12: false 
+                - {new Date(task.endedAt).toLocaleTimeString("en-US", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  hour12: false,
                 })}
               {/if}
             </span>
           </div>
         {/if}
-        
+
         {#if task.completed && task.completedAt}
-          <div class="flex items-center gap-1 text-xs text-green-600 dark:text-green-400">
+          <div
+            class="flex items-center gap-1 text-xs text-green-600 dark:text-green-400"
+          >
             <Icon name="check-circle" size="sm" class="w-3 h-3" />
             <span>
-              {new Date(task.completedAt).toLocaleTimeString('en-US', { 
-                hour: '2-digit', 
-                minute: '2-digit', 
-                hour12: false 
+              {new Date(task.completedAt).toLocaleTimeString("en-US", {
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: false,
               })}
             </span>
           </div>
@@ -127,16 +150,7 @@ async function handleDelete() {
 
   <!-- Priority Badge (always show, but different sizes) -->
   {#if compact}
-    <span class="text-xs px-1.5 py-0.5 rounded-full border flex items-center gap-1 font-medium shrink-0 mt-0.5
-      {task.priority === 'urgent'
-        ? 'text-red-700 dark:text-red-300 bg-red-100 dark:bg-red-900 border-red-300 dark:border-red-700'
-        : task.priority === 'high'
-          ? 'text-orange-700 dark:text-orange-300 bg-orange-100 dark:bg-orange-900 border-orange-300 dark:border-orange-700'
-          : task.priority === 'medium'
-            ? 'text-blue-700 dark:text-blue-300 bg-blue-100 dark:bg-blue-900 border-blue-300 dark:border-blue-700'
-            : 'text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600'}">
-      <span>{priorityConfig.icon}</span>
-    </span>
+    <TaskPriorityBadge priority={task.priority} size="compact" />
   {:else}
     <!-- Priority Selector (for incomplete tasks in full mode) -->
     {#if !task.completed}
@@ -151,17 +165,7 @@ async function handleDelete() {
       </div>
     {:else}
       <!-- Priority Badge for completed tasks -->
-      <span class="text-xs px-2 py-1 rounded-full border flex items-center gap-1 font-medium shrink-0 mt-0.5
-        {task.priority === 'urgent'
-          ? 'text-red-700 dark:text-red-300 bg-red-100 dark:bg-red-900 border-red-300 dark:border-red-700'
-          : task.priority === 'high'
-            ? 'text-orange-700 dark:text-orange-300 bg-orange-100 dark:bg-orange-900 border-orange-300 dark:border-orange-700'
-            : task.priority === 'medium'
-              ? 'text-blue-700 dark:text-blue-300 bg-blue-100 dark:bg-blue-900 border-blue-300 dark:border-blue-700'
-              : 'text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600'}">
-        <span>{priorityConfig.icon}</span>
-        <span>{priorityConfig.label}</span>
-      </span>
+      <TaskPriorityBadge priority={task.priority} />
     {/if}
 
     <!-- Delete Button (only in full mode) -->
