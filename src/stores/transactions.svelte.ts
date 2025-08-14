@@ -65,10 +65,6 @@ export class ReactiveTransactions {
    * Load transactions for a specific date and update reactive state
    */
   async loadTransactions(date: string): Promise<void> {
-    if (this.currentDate === date) {
-      return; // Already loaded for this date
-    }
-
     this.isLoading = true;
     this.error = null;
 

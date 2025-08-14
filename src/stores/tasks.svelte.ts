@@ -45,10 +45,6 @@ export class ReactiveTasks {
    * Load tasks for a specific date and update reactive state
    */
   async loadTasks(date: string): Promise<void> {
-    if (this.currentDate === date) {
-      return; // Already loaded for this date
-    }
-
     this.isLoading = true;
     this.error = null;
 

@@ -15,9 +15,16 @@ export interface BackupData {
   };
 }
 
+export interface BackupStats {
+  tasks: number;
+  notes: number;
+  transactions: number;
+  settings: number;
+  totalSize: string;
+}
+
 export interface BackupResult {
   success: boolean;
-  method: 'share' | 'clipboard' | 'download' | 'cancelled';
   message: string;
 }
 
@@ -53,130 +60,20 @@ export class BackupManager {
   }
 
   /**
-   * Check if file sharing is supported
-   */
-  isFileShareSupported(): boolean {
-    if (!navigator.share) {
-      return false;
-    }
-
-    // Create a test file to check if file sharing is supported
-    try {
-      const testBlob = new Blob(['test'], { type: 'text/plain' });
-      const testFile = new File([testBlob], 'test.txt', { type: 'text/plain' });
-      const testData = { files: [testFile] };
-
-      return navigator.canShare ? navigator.canShare(testData) : true;
-    } catch (error) {
-      return false;
-    }
-  }
-
-  /**
-   * Share backup file using Web Share API - NO FALLBACK
-   */
-  async shareBackupFile(): Promise<BackupResult> {
-    try {
-      const backupData = await this.exportAllData();
-      const backupText = JSON.stringify(backupData, null, 2);
-      const fileName = `tempoday-backup-${new Date().toISOString()}.json`;
-
-      if (!navigator.share) {
-        throw new Error('Web Share API not supported on this device');
-      }
-
-      const blob = new Blob([backupText], { type: 'application/json' });
-      const file = new File([blob], fileName, {
-        type: 'application/json',
-      });
-
-      const shareData = {
-        title: 'TempoDay Backup',
-        text: 'My personal data backup from TempoDay',
-        files: [file],
-      };
-
-      // Check if file sharing is supported
-      if (navigator.canShare && !navigator.canShare(shareData)) {
-        throw new Error('File sharing not supported on this device');
-      }
-
-      await navigator.share(shareData);
-
-      return {
-        success: true,
-        method: 'share',
-        message:
-          'Backup file shared successfully! Choose your preferred app to save it.',
-      };
-    } catch (error) {
-      console.error('File share failed:', error);
-
-      // Check if user cancelled the share
-      if (error instanceof Error && error.name === 'AbortError') {
-        return {
-          success: false,
-          method: 'cancelled',
-          message: 'Share cancelled by user',
-        };
-      }
-
-      // For any other error, just throw it - no fallback
-      throw error;
-    }
-  }
-
-  /**
-   * Copy backup text to clipboard
-   */
-  async copyBackupText(): Promise<BackupResult> {
-    try {
-      const backupData = await this.exportAllData();
-      const backupText = JSON.stringify(backupData, null, 2);
-
-      if (!navigator.clipboard || !navigator.clipboard.writeText) {
-        throw new Error('Clipboard API not supported on this device');
-      }
-
-      await navigator.clipboard.writeText(backupText);
-
-      return {
-        success: true,
-        method: 'clipboard',
-        message:
-          'Backup copied to clipboard! Paste it in your notes app or email to save.',
-      };
-    } catch (error) {
-      console.error('Clipboard copy failed:', error);
-      throw error;
-    }
-  }
-
-  /**
    * Create backup and download as file directly
    */
-  async createDownloadBackup(): Promise<BackupResult> {
+  async createDownloadBackup() {
     try {
       const backupData = await this.exportAllData();
       const backupText = JSON.stringify(backupData, null, 2);
       const fileName = `tempoday-backup-${new Date().toISOString()}.json`;
 
       this.downloadFile(backupText, fileName);
-
-      return {
-        success: true,
-        method: 'download',
-        message:
-          'Backup file downloaded successfully! Check your Downloads folder.',
-      };
     } catch (error) {
       console.error('Download backup failed:', error);
-      return {
-        success: false,
-        method: 'download',
-        message:
-          error instanceof Error ? error.message : 'Download backup failed',
-      };
+      throw new Error(
+        error instanceof Error ? error.message : 'Download backup failed',
+      );
     }
   }
 
@@ -346,26 +243,6 @@ export class BackupManager {
   }
 
   /**
-   * Restore from clipboard
-   */
-  async restoreFromClipboard(): Promise<void> {
-    if (!navigator.clipboard || !navigator.clipboard.readText) {
-      throw new Error('Clipboard access not supported');
-    }
-
-    try {
-      const clipboardText = await navigator.clipboard.readText();
-      const backupData = JSON.parse(clipboardText);
-      await this.restoreFromBackup(backupData);
-    } catch (error) {
-      if (error instanceof SyntaxError) {
-        throw new Error('Invalid JSON data in clipboard');
-      }
-      throw error;
-    }
-  }
-
-  /**
    * Restore from file
    */
   async restoreFromFile(file: File): Promise<void> {
@@ -384,13 +261,7 @@ export class BackupManager {
   /**
    * Get backup statistics
    */
-  async getBackupStats(): Promise<{
-    tasks: number;
-    notes: number;
-    transactions: number;
-    settings: number;
-    totalSize: string;
-  }> {
+  async getBackupStats(): Promise<BackupStats> {
     try {
       const backupData = await this.exportAllData();
       const backupText = JSON.stringify(backupData);
