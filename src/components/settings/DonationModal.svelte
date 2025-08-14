@@ -111,7 +111,7 @@ async function handleShare() {
 
 
     <!-- Donation Tiers -->
-    <div class="space-y-3 mb-6">
+    <div class="space-y-3">
       {#each DONATION_TIERS as tier}
         <Button
           variant="outline"
@@ -145,54 +145,5 @@ async function handleShare() {
       {/each}
     </div>
 
-    <!-- Features Reminder -->
-    <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 mb-6">
-      <h4 class="font-medium text-gray-900 dark:text-gray-100 mb-3 text-sm">What your support helps us build:</h4>
-      <div class="grid grid-cols-2 gap-2 text-xs">
-        <div class="flex items-center gap-2">
-          <Icon name="check-circle" class="text-green-500 dark:text-green-400" size="sm" />
-          <span class="text-gray-700 dark:text-gray-300">New features</span>
-        </div>
-        <div class="flex items-center gap-2">
-          <Icon name="check-circle" class="text-green-500 dark:text-green-400" size="sm" />
-          <span class="text-gray-700 dark:text-gray-300">Bug fixes</span>
-        </div>
-        <div class="flex items-center gap-2">
-          <Icon name="check-circle" class="text-green-500 dark:text-green-400" size="sm" />
-          <span class="text-gray-700 dark:text-gray-300">Better performance</span>
-        </div>
-        <div class="flex items-center gap-2">
-          <Icon name="check-circle" class="text-green-500 dark:text-green-400" size="sm" />
-          <span class="text-gray-700 dark:text-gray-300">Always free</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Alternative Support -->
-    <div class="text-center text-sm text-gray-600 dark:text-gray-300">
-      <p class="mb-3">Can't donate right now? No problem!</p>
-      <div class="flex justify-center gap-3">
-        <Button
-          variant="ghost"
-          size="sm"
-          onclick={handleGitHubStar}
-          class="!text-red-500 hover:!text-red-600 dark:!text-red-400 dark:hover:!text-red-300"
-        >
-          {#snippet children()}
-            ⭐ Star on GitHub
-          {/snippet}
-        </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          onclick={handleShare}
-          class="!text-red-500 hover:!text-red-600 dark:!text-red-400 dark:hover:!text-red-300"
-        >
-          {#snippet children()}
-            📢 Share with friends
-          {/snippet}
-        </Button>
-      </div>
-    </div>
   {/snippet}
 </BottomSheet>
