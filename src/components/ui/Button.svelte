@@ -87,12 +87,12 @@ const sizes = {
   {onclick}
   {disabled}
   class={[
-    "flex justify-center items-center font-medium rounded-lg transition-colors cursor-pointer",
+    "flex justify-center items-center font-medium rounded-lg transition-colors disabled:cursor-not-allowed cursor-pointer",
     variantClass,
     sizes[size],
     className,
     dashed ? "border-2 border-dashed bg-transparent" : "",
-    disabled ? "opacity-50 cursor-not-allowed" : "",
+    disabled ? "opacity-40" : "",
     fullWidth ? "w-full" : "",
   ]}
   {...restProps}

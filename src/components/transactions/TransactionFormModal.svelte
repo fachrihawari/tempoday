@@ -146,7 +146,7 @@ function resetForm() {
       <div class="flex gap-3 pt-2">
         <Button
           type="button"
-          variant="ghost"
+          variant="outline"
           onclick={resetForm}
           class="flex-none w-1/4"
         >

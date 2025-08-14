@@ -93,14 +93,14 @@ async function handleCreateTask() {
       label="Task Priority"
     />
 
-    <div class="flex gap-3">
-      <Button variant="outline" onclick={() => (open = false)} class="flex-1">
+    <div class="flex gap-3 pt-2">
+      <Button variant="outline" onclick={() => (open = false)} class="flex-none w-1/4">
         Cancel
       </Button>
       <Button
         onclick={handleCreateTask}
         class="flex-1"
-        disabled={tasksStore.isCreating}
+        disabled={!description || tasksStore.isCreating}
       >
         {tasksStore.isCreating ? "Creating..." : "Add Task"}
       </Button>
