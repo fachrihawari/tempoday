@@ -2,6 +2,7 @@
 import { reactiveRouter } from '../../stores/router.svelte';
 import Button from '../ui/Button.svelte';
 import Icon from '../ui/Icon.svelte';
+import { version } from '../../../package.json' with { type: 'json' };
 
 function navigateToTerms() {
   reactiveRouter.navigate('/terms');
@@ -29,7 +30,7 @@ function navigateToTerms() {
       TempoDay
     </h3>
     <p class="text-sm text-gray-600 dark:text-gray-300 mb-8 font-medium">
-      Version 0.0.1 • Privacy First
+      Version {version} • Privacy First
     </p>
 
     <!-- Enhanced Key Features - Beautiful 2x2 Grid -->
