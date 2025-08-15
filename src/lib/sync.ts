@@ -4,10 +4,8 @@ import { generatePeerId } from './unique';
 class Sync {
   #peer: Peer | null = null;
 
-  async initialize() {
-    console.log('Create new peer connection');
+  initialize() {
     this.#peer = new Peer(generatePeerId());
-    console.log('Peer connection', this.#peer);
   }
 
   get peer() {
@@ -19,6 +17,7 @@ class Sync {
 
   close() {
     console.log('Closing peer connection', this.peer);
+    this.peer.removeAllListeners();
     this.peer.destroy();
     this.#peer = null;
   }
