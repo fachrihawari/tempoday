@@ -9,3 +9,8 @@ export function uuid(): string {
     return v.toString(16);
   });
 }
+
+export function generatePeerId() {
+  const id = (Math.random().toString(36).substring(2, 6) + Date.now().toString(36).slice(-2)).toUpperCase().slice(0, 6);
+  return `TD-${id}`
+}
