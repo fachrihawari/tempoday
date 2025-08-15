@@ -136,7 +136,6 @@ function connectToPeer() {
         case 'sync_response':
           // Handle sync response
           const backupData = response.data;
-          console.log('[Client] Received sync response:', backupData);
           await backupManager.restoreFromBackup(backupData);
           toastStore.success('Sync successful');
           break;
