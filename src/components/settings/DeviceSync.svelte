@@ -1,12 +1,12 @@
 <script lang="ts">
 import type { DataConnection } from 'peerjs';
 import { onDestroy } from 'svelte';
+import { backupManager } from '../../lib/backup';
 import { sync } from '../../lib/sync';
 import { toastStore } from '../../stores/toast.svelte';
 import Button from '../ui/Button.svelte';
 import Icon from '../ui/Icon.svelte';
 import Input from '../ui/Input.svelte';
-    import { backupManager } from '../../lib/backup';
 
 let peerId = $state('');
 let connectedDevice = $state('');
@@ -61,7 +61,7 @@ function disconnect() {
 async function shareDevice() {
   connectionStep = 'start-sharing';
 
-  sync.initialize()
+  sync.initialize();
 
   sync.peer.on('open', (id) => {
     console.log('[Host] Peer connection opened with ID:', id);
@@ -84,7 +84,7 @@ async function shareDevice() {
       const request = JSON.parse(data as string);
       switch (request.type) {
         case 'sync_request':
-          const backupData = await backupManager.exportAllData()
+          const backupData = await backupManager.exportAllData();
           newConn.send(buildMessage('sync_response', backupData));
           break;
         default:
@@ -125,7 +125,9 @@ function connectToPeer() {
     clientConn.on('open', () => {
       console.log('[Client] Connected to host:', connectToPeerInput);
       connectionStep = 'connected';
-      clientConn?.send?.(buildMessage('message', { message: 'Hello from client!' }));
+      clientConn?.send?.(
+        buildMessage('message', { message: 'Hello from client!' }),
+      );
     });
 
     // Listen for data from the connected peer

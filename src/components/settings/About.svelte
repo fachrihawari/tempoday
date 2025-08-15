@@ -1,8 +1,8 @@
 <script lang="ts">
+import { version } from '../../../package.json' with { type: 'json' };
 import { reactiveRouter } from '../../stores/router.svelte';
 import Button from '../ui/Button.svelte';
 import Icon from '../ui/Icon.svelte';
-import { version } from '../../../package.json' with { type: 'json' };
 
 function navigateToTerms() {
   reactiveRouter.navigate('/terms');
