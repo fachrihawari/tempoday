@@ -5,6 +5,7 @@ class Sync {
   #peer: Peer | null = null;
 
   initialize() {
+    console.info('Initializing peer connection');
     this.#peer = new Peer(generatePeerId());
   }
 
@@ -16,6 +17,10 @@ class Sync {
   }
 
   close() {
+    if (!this.#peer) {
+      console.info('No peer connection to close');
+      return;
+    }
     console.log('Closing peer connection', this.peer);
     this.peer.removeAllListeners();
     this.peer.destroy();
