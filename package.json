@@ -16,6 +16,7 @@
     "@biomejs/biome": "1.9.4",
     "@sveltejs/vite-plugin-svelte": "^5.0.3",
     "@tailwindcss/typography": "^0.5.16",
+    "@tauri-apps/cli": "^2.8.1",
     "@tsconfig/svelte": "^5.0.4",
     "@vite-pwa/assets-generator": "^1.0.0",
     "svelte": "^5.28.1",
