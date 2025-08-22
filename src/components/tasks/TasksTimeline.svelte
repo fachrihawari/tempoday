@@ -205,7 +205,7 @@ async function handleCompleteTask(task: Task) {
         onclick={(e) => handleTaskClick(task, e)}
         onkeydown={(e) => e.key === 'Enter' && handleTaskClick(task, e)}
       >
-        {#if task.startedAt && task.endedAt && (task.endedAt - task.startedAt) <= 30 * 60 * 1000}
+        {#if task.startedAt && task.endedAt && (task.endedAt - task.startedAt) <= 45 * 60 * 1000}
           <!-- Compact card for <30 min: show time & title beside -->
           <div class="flex items-center gap-2 h-full">
             <span class="text-xs text-gray-600 dark:text-gray-400 whitespace-nowrap">
@@ -225,7 +225,7 @@ async function handleCompleteTask(task: Task) {
             </span>
           </div>
         {:else}
-          <!-- Normal card for >=30 min -->
+          <!-- Normal card for >=45 min -->
           <div class="flex items-start justify-between h-full">
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-1 mb-1">
