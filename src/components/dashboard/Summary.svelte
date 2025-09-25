@@ -116,18 +116,11 @@ const shouldShowSummary = $derived.by(() => {
               <Loading size="md" message="Loading tasks..." />
             {:else}
               <div class="space-y-2">
-                {#each incompleteTasks.slice(0, 3) as task (task.id)}
+                {#each incompleteTasks as task (task.id)}
                   <TaskItem {task} compact />
                 {/each}
 
                 <div class="flex gap-x-2">
-                  {#if pendingCount > 3}
-                    <div class="text-center py-2">
-                      <p class="text-sm text-blue-600 dark:text-blue-400">
-                        +{pendingCount - 3} more pending tasks
-                      </p>
-                    </div>
-                  {/if}
                   {#if completedCount > 0}
                     <div
                       class="text-center py-2 border-gray-200 dark:border-gray-700"
